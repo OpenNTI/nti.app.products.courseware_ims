@@ -13,7 +13,7 @@ from zope.event import notify
 
 from zope import lifecycleevent
 
-from nti.app.assessment.interfaces import IUsersCourseAssignmentHistory
+from nti.app.assessment.common import has_assigments_submitted
 
 from nti.app.products.courseware.utils import drop_any_other_enrollments
 from nti.app.products.courseware.utils import is_there_an_open_enrollment
@@ -93,11 +93,6 @@ def find_ims_courses():
 	catalog = component.queryUtility(IIMSCourseCatalog)
 	result  = catalog.courses() if catalog is not None else {}
 	return result
-
-def has_assigments_submitted(course, user):
-	histories = component.queryMultiAdapter((course, user),
-											IUsersCourseAssignmentHistory )
-	return histories and len(histories) > 0
 
 def _drop_enrollments(context, user):
 	result = []
