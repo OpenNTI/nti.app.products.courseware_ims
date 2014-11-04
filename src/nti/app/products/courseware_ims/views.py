@@ -11,6 +11,7 @@ logger = __import__('logging').getLogger(__name__)
 import os
 import six
 
+from zope import component
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
@@ -22,6 +23,11 @@ from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtils
 
 from nti.app.products.ims.views import IMSPathAdapter
 
+from nti.contenttypes.courses.interfaces import ICourseCatalog
+from nti.contenttypes.courses.interfaces import ICourseInstance
+from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
+from nti.contenttypes.courses.interfaces import ICourseInstanceVendorInfo
+
 from nti.dataserver import authorization as nauth
 
 from nti.externalization.interfaces import LocatedExternalDict
@@ -30,6 +36,7 @@ from nti.utils.maps import CaseInsensitiveDict
 
 from .workflow import process
 from .workflow import create_users
+from .workflow import find_ims_courses
 
 def is_true(t):
 	result = bool(t and str(t).lower() in ('1', 'y', 'yes', 't', 'true'))
@@ -105,3 +112,40 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 		finally:
 			restoreInteraction()		
 		return LocatedExternalDict(Created=result)
+
+@view_config(route_name='objects.generic.traversal',
+			 renderer='rest',
+			 name='courses',
+			 permission=nauth.ACT_MODERATE,
+			 context=IMSPathAdapter)
+class IMSCoursesView(AbstractAuthenticatedView):
+
+	def _get_entries(self, courses=()):
+		entries = {}
+		for context in courses or ():
+			course_instance = ICourseInstance(context)
+			course_entry = ICourseCatalogEntry(context)
+			vendor_info = ICourseInstanceVendorInfo(course_instance, {})
+			entry = entries[course_entry.ProviderUniqueID] = {'VendorInfo': vendor_info}
+			bundle = getattr(course_instance, 'ContentPackageBundle', None)
+			entry['ContentPackageBundle'] = getattr(bundle, 'ntiid', None)
+			entry['CatalogEntryNTIID'] = getattr(course_entry, 'ntiid', None)
+		return entries
+	
+	def __call__(self):
+		request = self.request
+		params = CaseInsensitiveDict(request.params)
+		all_courses= params.get('all') or params.get('allCourses') or params.get('all_courses')
+		all_courses = is_true(all_courses)
+	
+		result = LocatedExternalDict()
+		if not all_courses:
+			course_map = find_ims_courses()
+			entries = self._get_entries(course_map.values())
+		else:
+			catalog = component.getUtility(ICourseCatalog)
+			entries = self._get_entries(catalog.iterCatalogEntries())
+		
+		result['Items'] = entries
+		result['Total'] = len(entries)
+		return result
