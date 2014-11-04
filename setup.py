@@ -5,6 +5,7 @@ VERSION = '0.0.0'
 
 entry_points = {
 	'console_scripts': [
+		"nti_ims_enrollment = nti.app.products.courseware_ims.enroll:main",
 	],
 	"z3c.autoinclude.plugin": [
 		'target = nti.app.products',
