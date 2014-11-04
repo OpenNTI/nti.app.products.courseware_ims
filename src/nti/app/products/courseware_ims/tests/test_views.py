@@ -52,3 +52,16 @@ class TestWorkflow(ApplicationLayerTest):
 						  		status=200)
 		
 		assert_that(res.json_body, has_entry('Created', has_length(2)))
+		
+	@WithSharedApplicationMockDS(testapp=True,users=True)
+	def test_workflow_process_invalid_file(self):
+		ims_xml = os.path.join(os.path.dirname(__file__), 'foo.xml')
+		
+		environ = self._make_extra_environ()
+		environ[b'HTTP_ORIGIN'] = b'http://platform.ou.edu'
+
+		data = {'ims_file':ims_xml}
+		testapp = TestApp(self.app)
+		testapp.post_json('/dataserver2/IMS/@@enrollment', data,
+				  		  extra_environ=environ,
+						  status=422)
