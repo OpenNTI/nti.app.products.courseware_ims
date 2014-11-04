@@ -20,7 +20,7 @@ setup(
 	description = "Course-IMS Integration",
 	long_description = codecs.open('README.rst', encoding='utf-8').read(),
 	license = 'Proprietary',
-	keywords = 'Course Store',
+	keywords = 'Course IMS',
 	classifiers = [
 		'Intended Audience :: Developers',
 		'Natural Language :: English',
