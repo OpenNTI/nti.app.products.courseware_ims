@@ -18,6 +18,14 @@ from nti.schema.field import Object
 
 from nti.utils.property import alias
 
+class IIMSCourseCatalog(interface.Interface):
+	
+	def courses():
+		"""
+		return a map of IMS course id vs :class:`nti.contenttypes.courses.interfaces.ICourseInstance`
+		objects
+		"""
+
 class IIMSUserCreatedEvent(IObjectCreatedEvent):
 	user = Object(IUser, title="user created")
 	person = Object(IPerson, title="IMS person", required=False)
@@ -36,12 +44,4 @@ class IIMSUserFinder(interface.Interface):
 	def find(person):
 		"""
 		return the :class:`IUser` associated with the person
-		"""
-		
-class IIMSCourseCatalog(interface.Interface):
-	
-	def courses():
-		"""
-		return a map of IMS course id vs :class:`nti.contenttypes.courses.interfaces.ICourseInstance`
-		objects
 		"""

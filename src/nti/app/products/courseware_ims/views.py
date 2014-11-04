@@ -11,10 +11,6 @@ logger = __import__('logging').getLogger(__name__)
 import os
 import six
 
-from zope import interface
-from zope.container.contained import Contained
-from zope.traversing.interfaces import IPathAdapter
-
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
@@ -24,13 +20,16 @@ from pyramid import httpexceptions as hexc
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
+from nti.app.products.ims.views import IMSPathAdapter
+
 from nti.dataserver import authorization as nauth
 
 from nti.externalization.interfaces import LocatedExternalDict
 
 from nti.utils.maps import CaseInsensitiveDict
 
-from . import workflow
+from .workflow import process
+from .workflow import create_users
 
 def is_true(t):
 	result = bool(t and str(t).lower() in ('1', 'y', 'yes', 't', 'true'))
@@ -55,21 +54,11 @@ def get_source(values, keys, name):
 		raise hexc.HTTPUnprocessableEntity(detail='No %s source provided' % name)
 	return source
 
-@interface.implementer(IPathAdapter)
-class CoursesPathAdapter(Contained):
-
-	__name__ = 'Courses'
-
-	def __init__(self, context, request):
-		self.context = context
-		self.request = request
-		self.__parent__ = context
-
 @view_config(route_name='objects.generic.traversal',
 			 renderer='rest',
 			 name='enrollment',
 			 permission=nauth.ACT_MODERATE,
-			 context=CoursesPathAdapter)
+			 context=IMSPathAdapter)
 class IMSEnrollmentView(AbstractAuthenticatedView, 
 						ModeledContentUploadRequestUtilsMixin):
 	
@@ -89,7 +78,7 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
 		# This is somewhat difficult to test the side-effects of, sadly.
 		endInteraction()
 		try:
-			result = workflow.process(ims_file, create_persons)
+			result = process(ims_file, create_persons)
 		finally:
 			restoreInteraction()
 		return result
@@ -98,7 +87,7 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
 			 renderer='rest',
 			 name='create_users',
 			 permission=nauth.ACT_MODERATE,
-			 context=CoursesPathAdapter)
+			 context=IMSPathAdapter)
 class IMSCreateUsersView(AbstractAuthenticatedView,
 						 ModeledContentUploadRequestUtilsMixin):
 
@@ -110,5 +99,9 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 			values = self.readInput()
 			values = CaseInsensitiveDict(values)
 		ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
-		result = workflow.create_users(ims_file)
+		endInteraction()
+		try:
+			result = create_users(ims_file)
+		finally:
+			restoreInteraction()		
 		return LocatedExternalDict(Created=result)

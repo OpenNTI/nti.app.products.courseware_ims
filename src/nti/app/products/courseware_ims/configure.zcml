@@ -2,17 +2,11 @@
 <configure	xmlns="http://namespaces.zope.org/zope"
 			xmlns:i18n="http://namespaces.zope.org/i18n"
 			xmlns:zcml="http://namespaces.zope.org/zcml"
-			xmlns:ext="http://nextthought.com/ntp/ext"
-			xmlns:stripe="http://nextthought.com/ntp/stripe">
+			xmlns:ext="http://nextthought.com/ntp/ext">
 
 	<include package="zope.component" file="meta.zcml" />
 	<include package="zope.security" file="meta.zcml" />
 	<include package="zope.component" />
 	<include package="zope.security" />
-	
-	<adapter name="Courses"
-		 for="nti.app.products.ims.interfaces.IIMSPathAdapter pyramid.interfaces.IRequest"
-		 factory=".views.CoursePathAdapter"
-		 provides="zope.traversing.interfaces.IPathAdapter" />
-	
+
 </configure>
