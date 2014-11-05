@@ -7,6 +7,7 @@ __docformat__ = "restructuredtext en"
 # disable: accessing protected members, too many methods
 # pylint: disable=W0212,R0904,E1121
 
+from hamcrest import is_
 from hamcrest import has_entry
 from hamcrest import has_length
 from hamcrest import assert_that
@@ -54,7 +55,8 @@ class TestWorkflow(ApplicationLayerTest):
 				  				extra_environ=environ,
 						  		status=200)
 		
-		assert_that(res.json_body, has_entry('Created', has_length(2)))
+		assert_that(res.json_body, has_entry('Items', has_length(2)))
+		assert_that(res.json_body, has_entry('Total', is_(2)))
 		
 	@WithSharedApplicationMockDS(testapp=True,users=True)
 	def test_workflow_process_invalid_file(self):

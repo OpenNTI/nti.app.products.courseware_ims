@@ -108,10 +108,14 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 		ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
 		endInteraction()
 		try:
-			result = create_users(ims_file)
+			created = create_users(ims_file)
 		finally:
-			restoreInteraction()		
-		return LocatedExternalDict(Created=result)
+			restoreInteraction()
+		
+		result = LocatedExternalDict()
+		result['Items'] = created
+		result['Total'] = len(created)
+		return result
 
 @view_config(route_name='objects.generic.traversal',
 			 renderer='rest',
