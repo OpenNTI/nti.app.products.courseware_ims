@@ -21,6 +21,7 @@ from nti.app.products.courseware.utils import is_there_an_open_enrollment
 from nti.contenttypes.courses.interfaces import ES_PUBLIC
 from nti.contenttypes.courses.interfaces import ES_CREDIT_DEGREE
 
+from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseSubInstance
 from nti.contenttypes.courses.interfaces import ICourseEnrollments
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
@@ -239,7 +240,8 @@ def process(ims_file, create_persons=False):
 			continue
 
 		course_id = member.course_id.id
-		course_instance = ims_courses.get(member.course_id.id)
+		context = ims_courses.get(member.course_id.id)
+		course_instance = ICourseInstance(context, None) 
 		if course_instance is None:
 			if course_id not in warns:
 				warns.add(course_id)
