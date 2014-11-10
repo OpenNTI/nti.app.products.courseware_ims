@@ -63,7 +63,7 @@ def get_source(values, keys, name):
 
 @view_config(route_name='objects.generic.traversal',
 			 renderer='rest',
-			 name='enrollment',
+			 name='nti_enrollment',
 			 permission=nauth.ACT_MODERATE,
 			 context=IMSPathAdapter)
 class IMSEnrollmentView(AbstractAuthenticatedView, 
@@ -92,7 +92,7 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
 
 @view_config(route_name='objects.generic.traversal',
 			 renderer='rest',
-			 name='create_users',
+			 name='nti_create_users',
 			 permission=nauth.ACT_MODERATE,
 			 context=IMSPathAdapter)
 class IMSCreateUsersView(AbstractAuthenticatedView,
@@ -119,7 +119,7 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 
 @view_config(route_name='objects.generic.traversal',
 			 renderer='rest',
-			 name='courses',
+			 name='nti_courses',
 			 permission=nauth.ACT_MODERATE,
 			 context=IMSPathAdapter)
 class IMSCoursesView(AbstractAuthenticatedView):

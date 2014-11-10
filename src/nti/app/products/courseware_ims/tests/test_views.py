@@ -51,7 +51,7 @@ class TestWorkflow(ApplicationLayerTest):
 
 		data = {'ims_file':ims_xml}
 		testapp = TestApp(self.app)
-		res = testapp.post_json('/dataserver2/IMS/@@create_users', data,
+		res = testapp.post_json('/dataserver2/IMS/@@nti_create_users', data,
 				  				extra_environ=environ,
 						  		status=200)
 		
@@ -67,7 +67,7 @@ class TestWorkflow(ApplicationLayerTest):
 
 		data = {'ims_file':ims_xml}
 		testapp = TestApp(self.app)
-		testapp.post_json('/dataserver2/IMS/@@enrollment', data,
+		testapp.post_json('/dataserver2/IMS/@@nti_enrollment', data,
 				  		  extra_environ=environ,
 						  status=422)
 
@@ -84,7 +84,7 @@ class TestWorkflow(ApplicationLayerTest):
 			mock_fic.is_callable().with_args().returns(courses)
 			
 		testapp = TestApp(self.app)
-		res = testapp.get('/dataserver2/IMS/@@courses', 
+		res = testapp.get('/dataserver2/IMS/@@nti_courses', 
 				 		  extra_environ=environ,
 						  status=200)
 		assert_that(res.json_body, has_entry('Total', 1))
