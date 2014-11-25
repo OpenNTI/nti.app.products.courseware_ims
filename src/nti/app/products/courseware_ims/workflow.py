@@ -25,6 +25,7 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseSubInstance
 from nti.contenttypes.courses.interfaces import ICourseEnrollments
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
+from nti.contenttypes.courses.interfaces import IDenyOpenEnrollment
 from nti.contenttypes.courses.interfaces import ICourseEnrollmentManager
 from nti.contenttypes.courses.interfaces import INonPublicCourseInstance
 
@@ -188,7 +189,8 @@ def update_member_enrollment_status(course_instance, person, role,
 				open_course = course_instance.__parent__.__parent__
 				
 			# do open enrollment
-			if not INonPublicCourseInstance.providedBy(open_course):
+			if	not INonPublicCourseInstance.providedBy(open_course) and \
+				not IDenyOpenEnrollment.providedBy(open_course):
 				enrollments = ICourseEnrollments(open_course)
 				enrollment = enrollments.get_enrollment_for_principal(user)
 				if enrollment is None:

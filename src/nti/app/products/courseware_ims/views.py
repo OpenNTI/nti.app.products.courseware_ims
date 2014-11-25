@@ -69,13 +69,17 @@ def get_source(values, keys, name):
 class IMSEnrollmentView(AbstractAuthenticatedView, 
 						ModeledContentUploadRequestUtilsMixin):
 	
-	def __call__(self):
+	def readInput(self, value=None):
 		request = self.request
 		if request.POST:
 			values = CaseInsensitiveDict(request.POST)
 		else:
-			values = self.readInput()
+			values = super(IMSEnrollmentView, self).readInput(value=value)
 			values = CaseInsensitiveDict(values)
+		return values
+	
+	def __call__(self):
+		values = self.readInput()
 		ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
 		create_persons = values.get('create_users') or values.get('create_persons')
 		create_persons = is_true(create_persons)
