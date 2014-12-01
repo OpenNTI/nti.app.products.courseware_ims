@@ -41,6 +41,7 @@ from nti.ims.feed.interfaces import INACTIVE_STATUS
 from .interfaces import IIMSUserFinder
 from .interfaces import IIMSCourseCatalog
 from .interfaces import IMSUserCreatedEvent
+from .interfaces import IIMSUserCreationExternaValues
 
 def get_person_email(person):
 	username = person.userid
@@ -86,6 +87,12 @@ def create_users(source):
 			if person.name:
 				ext_value['realname'] = person.name
 			args['external_value'] = ext_value
+			
+			external = component.getUtility(IIMSUserCreationExternaValues)
+			if external is not None:
+				values = external.values(person)
+				ext_value.update(values or {})
+				
 			user = users.User.create_user(**args)
 			notify(IMSUserCreatedEvent(user, person))
 			result[userid] = sourcedid
