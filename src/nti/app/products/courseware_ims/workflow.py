@@ -88,7 +88,7 @@ def create_users(source):
 				ext_value['realname'] = person.name
 			args['external_value'] = ext_value
 			
-			external = component.getUtility(IIMSUserCreationExternaValues)
+			external = component.queryUtility(IIMSUserCreationExternaValues)
 			if external is not None:
 				values = external.values(person)
 				ext_value.update(values or {})
