@@ -46,13 +46,13 @@ class IIMSUserFinder(interface.Interface):
 		return the :class:`IUser` associated with the person
 		"""
 
-class IIMSUserCreationExternaValues(interface.Interface):
+class IIMSUserCreationMetadata(interface.Interface):
 	"""
-	Utility to add external fields when a user is being created
+	Utility to set metadata during user creation
 	"""
 	
-	def values(person):
+	def data(person):
 		"""
-		return a map with user key,value pairs to initialize a user
+		return a map with metadata
 		"""
 		
