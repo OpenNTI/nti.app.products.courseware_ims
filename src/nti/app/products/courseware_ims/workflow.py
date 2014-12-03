@@ -65,19 +65,31 @@ def find_user(person):
 		result = users.User.get_user(username)
 	return result
 
+def get_username(person):
+	finder = component.queryUtility(IIMSUserFinder)
+	if finder is not None:
+		result = finder.username(person)
+	else:
+		if person.sourcedid and person.sourcedid.id:
+			result = person.sourcedid.id.lower()
+		else:
+			result = person.userid.lower()
+		if result.endswith('@nextthought.com'):
+			result = result[:-16]
+	return result
+
 def create_users(source):
 	result = {}
 	ims = source if IEnterprise.providedBy(source) \
 		  else Enterprise.parseFile(source)
 
 	for person in ims.get_persons():
+		userid = get_username(person)
 		if person.sourcedid and person.sourcedid.id:
-			sourcedid = userid = person.sourcedid.id.lower()
+			sourcedid = person.sourcedid.id.lower()
 		else:
-			sourcedid = userid = person.userid.lower()
-		if userid.endswith('@nextthought.com'):
-			userid = userid[:-16]
-
+			sourcedid = person.userid.lower()
+	
 		user = find_user(person)
 		email = get_person_email(person)
 		user = users.User.get_user(userid) if user is None else user

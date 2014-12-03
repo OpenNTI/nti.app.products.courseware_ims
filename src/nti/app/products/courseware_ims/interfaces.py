@@ -41,6 +41,11 @@ class IMSUserCreatedEvent(ObjectCreatedEvent):
 
 class IIMSUserFinder(interface.Interface):
 	
+	def username(person):
+		"""
+		return the username for this person
+		"""
+
 	def find(person):
 		"""
 		return the :class:`IUser` associated with the person
