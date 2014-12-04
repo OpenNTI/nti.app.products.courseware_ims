@@ -86,10 +86,7 @@ def create_users(source):
 
 	for person in ims.get_persons():
 		userid = get_username(person)
-		if person.sourcedid and person.sourcedid.id:
-			sourcedid = person.sourcedid.id.lower()
-		else:
-			sourcedid = person.userid.lower()
+		person_userid = person.userid.lower()
 	
 		user = find_user(person)
 		email = get_person_email(person)
@@ -108,7 +105,7 @@ def create_users(source):
 				
 			user = users.User.create_user(**args)
 			notify(IMSUserCreatedEvent(user, person))
-			result[userid] = sourcedid
+			result[userid] = person_userid
 	return result
 
 def find_ims_courses():
