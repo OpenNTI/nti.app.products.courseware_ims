@@ -3,6 +3,7 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -129,13 +130,15 @@ def _drop_enrollments(context, user):
 def update_member_enrollment_status(course_instance, person, role,
 									enrrollment_info=None, move_info=None, 
 									drop_info=None):
-	userid = person.userid
-	soonerID = person.sourcedid.id
-	user = users.User.get_user(soonerID) or users.User.get_user(userid)
+	
+	user = find_user(person)
 	if user is None:
-		logger.warn("User (%s,%s) was not found", userid, soonerID)
+		logger.warn("User %s was not found", person)
 		return
 
+	username  = user.username
+	person_userid = person.userid.lower()
+			
 	move_info = {} if move_info is None else move_info
 	drop_info = {} if drop_info is None else drop_info
 	enrrollment_info = {} if enrrollment_info is None else enrrollment_info
@@ -151,7 +154,7 @@ def update_member_enrollment_status(course_instance, person, role,
 		# check any other enrollment
 		for entry in _drop_enrollments(course_instance, user):
 			drop_info.setdefault(entry.ProviderUniqueID, {})
-			drop_info[entry.ProviderUniqueID][userid] = soonerID
+			drop_info[entry.ProviderUniqueID][username] = person_userid
 		
 		add_mod = True
 		# The user should be enrolled for degree-seeking credit.
@@ -170,7 +173,7 @@ def update_member_enrollment_status(course_instance, person, role,
 		# record enrollment
 		if add_mod:
 			enrrollment_info.setdefault(instance_entry.ProviderUniqueID, {})
-			enrrollment_info[instance_entry.ProviderUniqueID][userid] = soonerID
+			enrrollment_info[instance_entry.ProviderUniqueID][username] = person_userid
 	elif role.status == INACTIVE_STATUS:
 		# if enrolled but the course is not public then drop it
 		if enrollment is not None:
@@ -182,7 +185,7 @@ def update_member_enrollment_status(course_instance, person, role,
 				
 				# record drop
 				drop_info.setdefault(instance_entry.ProviderUniqueID, {})
-				drop_info[instance_entry.ProviderUniqueID][userid] = soonerID
+				drop_info[instance_entry.ProviderUniqueID][username] = person_userid
 				
 			elif enrollment.Scope != ES_PUBLIC:
 				logger.info('User %s moving to PUBLIC version of %s',
@@ -195,7 +198,7 @@ def update_member_enrollment_status(course_instance, person, role,
 				
 				# record move
 				move_info.setdefault(instance_entry.ProviderUniqueID, {})
-				move_info[instance_entry.ProviderUniqueID][userid] = soonerID
+				move_info[instance_entry.ProviderUniqueID][username] = person_userid
 
 		# set in an open enrollment
 		if 	enrollment is not None and enrollment.Scope != ES_PUBLIC and \
@@ -223,7 +226,7 @@ def update_member_enrollment_status(course_instance, person, role,
 					
 					# record
 					enrrollment_info.setdefault(entry.ProviderUniqueID, {})
-					enrrollment_info[entry.ProviderUniqueID][userid] = soonerID
+					enrrollment_info[entry.ProviderUniqueID][username] = person_userid
 	else:
 		raise NotImplementedError("Unknown status", role.status)
 
