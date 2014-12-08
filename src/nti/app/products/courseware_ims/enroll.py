@@ -98,7 +98,7 @@ def main():
 	
 	arg_parser.add_argument('-s', '--site', dest='site', help="Request site")
 	
-	arg_parser.add_argument('-o', '--output', dest='output', help="Output response file")
+	arg_parser.add_argument('-o', '--output', dest='output', help="Output response path")
 
 	args = arg_parser.parse_args()
 
