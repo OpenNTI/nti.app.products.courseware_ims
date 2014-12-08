@@ -3,6 +3,7 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -14,6 +15,7 @@ relstorage_patch_all_except_gevent_on_import.patch()
 import os
 import sys
 import argparse
+import simplejson as json
 
 import zope.browserpage
 
@@ -69,7 +71,7 @@ def _create_context(env_dir=None):
 	
 	return context
 
-def _process_args(ims_file, create_persons, is_ou=False, site=None):
+def _process_args(ims_file, create_persons, site=None, output=None, verbose=False):
 	if site:
 		cur_site = hooks.getSite()
 		new_site = get_site_for_site_names( (site,), site=cur_site )
@@ -77,7 +79,12 @@ def _process_args(ims_file, create_persons, is_ou=False, site=None):
 			raise ValueError("Unknown site name", site)
 		hooks.setSite(new_site)
 	
-	workflow.process(ims_file, create_persons, is_ou=is_ou)
+	response = workflow.process(ims_file, create_persons)
+	if output and response:
+		with open(output, "wb") as fp:
+			json.dump(response, fp, indent=4, encoding="utf-8")
+		if verbose:
+			print("Output response saved at", output)
 
 def main():
 	arg_parser = argparse.ArgumentParser(description="Course enrollment")
@@ -90,6 +97,8 @@ def main():
 	arg_parser.add_argument('-i', '--ims', help="IMS file location", dest='ims_file')
 	
 	arg_parser.add_argument('-s', '--site', dest='site', help="Request site")
+	
+	arg_parser.add_argument('-o', '--output', dest='output', help="Output response file")
 
 	args = arg_parser.parse_args()
 
@@ -99,12 +108,19 @@ def main():
 		print('IMS file cannot be found', ims_file, file=sys.stderr)
 		sys.exit(2)
 
-	if not args.site:
+	site = args.site
+	if not site:
 		print('WARN: NO site specified')
 		
 	create_persons = args.create_persons
-	if create_persons and not args.site:
+	if create_persons and not site:
 		print('WARN: Creating users with no site specified')
+		
+	output = args.output
+	if output:
+		output = os.path.expanduser(output)
+		if os.path.exists(output) and os.path.isdir(output):
+			output = os.path.join(output, 'response.json')
 		
 	env_dir = os.getenv('DATASERVER_DIR')
 	context = _create_context(env_dir)
@@ -114,7 +130,11 @@ def main():
 						verbose=args.verbose,
 						context=context,
 						minimal_ds=False,
-						function=lambda: _process_args(ims_file, create_persons, args.site))
+						function=lambda: _process_args(site=site,
+													   output=output,
+													   ims_file=ims_file,
+													   verbose=args.verbose,
+													   create_persons=create_persons))
 
 if __name__ == '__main__':
 	main()
