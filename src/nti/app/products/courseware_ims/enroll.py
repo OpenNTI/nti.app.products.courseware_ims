@@ -13,6 +13,7 @@ from nti.monkey import relstorage_patch_all_except_gevent_on_import
 relstorage_patch_all_except_gevent_on_import.patch()
 
 import os
+import csv
 import sys
 import argparse
 import simplejson as json
@@ -61,7 +62,7 @@ def _create_context(env_dir=None):
 	xmlconfig.include(context, file=library_zcml, package='nti.appserver')
 	
 	# Include zope.browserpage.meta.zcm for tales:expressiontype
-	# before including the products
+	# before including the products'
 	xmlconfig.include(context, file="meta.zcml", package=zope.browserpage)
 
 	# include plugins
@@ -71,7 +72,8 @@ def _create_context(env_dir=None):
 	
 	return context
 
-def _process_args(ims_file, create_persons, site=None, output=None, verbose=False):
+def _process_args(ims_file, create_persons, site=None, output=None,
+				  as_csv=False, verbose=False):
 	if site:
 		cur_site = hooks.getSite()
 		new_site = get_site_for_site_names( (site,), site=cur_site )
@@ -82,7 +84,19 @@ def _process_args(ims_file, create_persons, site=None, output=None, verbose=Fals
 	response = workflow.process(ims_file, create_persons)
 	if output and response:
 		with open(output, "wb") as fp:
-			json.dump(response, fp, indent=4, encoding="utf-8")
+			if not as_csv:
+				json.dump(response, fp, indent=4, encoding="utf-8")
+			else:
+				csv_writer = csv.writer(fp)
+				csv_writer.writerow(['Course', 'Operation', 'Username', 'PersonID'])
+				def _write_operation(m, operation):
+					for course in sorted(m.keys()):
+						users = m[course]
+						for username in sorted(users.keys()):
+							personid = users[username]
+							csv_writer.writerow([course, operation, username, personid])
+				_write_operation(response.get('Drops',{}), 'Drop')
+				_write_operation(response.get('Enrollment',{}), 'Enroll')
 		if verbose:
 			print("Output response saved at", output)
 
@@ -99,7 +113,8 @@ def main():
 	arg_parser.add_argument('-s', '--site', dest='site', help="Request site")
 	
 	arg_parser.add_argument('-o', '--output', dest='output', help="Output response path")
-
+	arg_parser.add_argument('--csv', dest='csv', help="CSV Resonse")
+	
 	args = arg_parser.parse_args()
 
 	verbose=args.verbose
@@ -117,12 +132,14 @@ def main():
 	create_persons = args.create_persons
 	if create_persons and not site and verbose:
 		print('WARN: Creating users with no site specified')
-		
+	
+	as_csv = args.csv
 	output = args.output
 	output = os.path.expanduser(output) if output else None
 	if output and os.path.exists(output) and os.path.isdir(output):
+		ext = 'json' if not as_csv else 'csv'
 		name = os.path.splitext(os.path.basename(ims_file))[0]
-		output = os.path.join(output, '%s.json' % name)
+		output = os.path.join(output, '%s.%' % (name, ext))
 		
 	env_dir = os.getenv('DATASERVER_DIR')
 	context = _create_context(env_dir)
@@ -133,6 +150,7 @@ def main():
 						minimal_ds=True,
 						xmlconfig_packages=conf_packages,
 						function=lambda: _process_args(site=site,
+													   as_csv=as_csv,
 													   output=output,
 													   verbose=verbose,
 													   ims_file=ims_file,
