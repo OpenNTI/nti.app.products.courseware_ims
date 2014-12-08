@@ -111,9 +111,11 @@ def main():
 	arg_parser.add_argument('-i', '--ims', help="IMS file location", dest='ims_file')
 	
 	arg_parser.add_argument('-s', '--site', dest='site', help="Request site")
+
+	arg_parser.add_argument('--csv', dest='csv', action='store_true', 
+							help="CSV output response")
 	
 	arg_parser.add_argument('-o', '--output', dest='output', help="Output response path")
-	arg_parser.add_argument('--csv', dest='csv', help="CSV Resonse")
 	
 	args = arg_parser.parse_args()
 
@@ -139,7 +141,7 @@ def main():
 	if output and os.path.exists(output) and os.path.isdir(output):
 		ext = 'json' if not as_csv else 'csv'
 		name = os.path.splitext(os.path.basename(ims_file))[0]
-		output = os.path.join(output, '%s.%' % (name, ext))
+		output = os.path.join(output, '%s.%s' % (name, ext))
 		
 	env_dir = os.getenv('DATASERVER_DIR')
 	context = _create_context(env_dir)
