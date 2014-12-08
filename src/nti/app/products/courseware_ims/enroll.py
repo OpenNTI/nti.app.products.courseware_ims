@@ -102,6 +102,8 @@ def main():
 
 	args = arg_parser.parse_args()
 
+	verbose=args.verbose
+	
 	ims_file = args.ims_file
 	ims_file = os.path.expanduser(ims_file) if ims_file else None
 	if not ims_file or not os.path.exists(ims_file):
@@ -109,31 +111,31 @@ def main():
 		sys.exit(2)
 
 	site = args.site
-	if not site:
+	if not site and verbose:
 		print('WARN: NO site specified')
 		
 	create_persons = args.create_persons
-	if create_persons and not site:
+	if create_persons and not site and verbose:
 		print('WARN: Creating users with no site specified')
 		
 	output = args.output
-	if output:
-		output = os.path.expanduser(output)
-		if os.path.exists(output) and os.path.isdir(output):
-			output = os.path.join(output, 'response.json')
+	output = os.path.expanduser(output) if output else None
+	if output and os.path.exists(output) and os.path.isdir(output):
+		name = os.path.splitext(os.path.basename(ims_file))[0]
+		output = os.path.join(output, '%s.json' % name)
 		
 	env_dir = os.getenv('DATASERVER_DIR')
 	context = _create_context(env_dir)
 	conf_packages = ('nti.appserver',)
 	run_with_dataserver(environment_dir=env_dir,
-						xmlconfig_packages=conf_packages,
-						verbose=args.verbose,
+						verbose=verbose,
 						context=context,
-						minimal_ds=False,
+						minimal_ds=True,
+						xmlconfig_packages=conf_packages,
 						function=lambda: _process_args(site=site,
 													   output=output,
+													   verbose=verbose,
 													   ims_file=ims_file,
-													   verbose=args.verbose,
 													   create_persons=create_persons))
 
 if __name__ == '__main__':
