@@ -3,6 +3,7 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -143,7 +144,9 @@ class IMSCoursesView(AbstractAuthenticatedView):
 	def __call__(self):
 		request = self.request
 		params = CaseInsensitiveDict(request.params)
-		all_courses= params.get('all') or params.get('allCourses') or params.get('all_courses')
+		all_courses= params.get('all') or \
+					 params.get('allCourses') or \
+					 params.get('all_courses')
 		all_courses = is_true(all_courses)
 	
 		result = LocatedExternalDict()
