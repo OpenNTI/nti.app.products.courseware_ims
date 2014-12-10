@@ -34,10 +34,10 @@ from nti.dataserver import users
 
 from nti.externalization.interfaces import LocatedExternalDict
 
-from nti.ims.feed.enterprise import Enterprise
-from nti.ims.feed.interfaces import IEnterprise
-from nti.ims.feed.interfaces import ACTIVE_STATUS
-from nti.ims.feed.interfaces import INACTIVE_STATUS
+from nti.ims.sis.enterprise import Enterprise
+from nti.ims.sis.interfaces import IEnterprise
+from nti.ims.sis.interfaces import ACTIVE_STATUS
+from nti.ims.sis.interfaces import INACTIVE_STATUS
 
 from .interfaces import IIMSUserFinder
 from .interfaces import IIMSCourseCatalog

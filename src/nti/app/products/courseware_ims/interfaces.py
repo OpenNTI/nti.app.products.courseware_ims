@@ -12,7 +12,7 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
 from nti.dataserver.interfaces import IUser
 
-from nti.ims.feed.interfaces import IPerson
+from nti.ims.sis.interfaces import IPerson
 
 from nti.schema.field import Object
 
