@@ -62,7 +62,10 @@ def find_user(person):
 	if finder is not None:
 		result = finder.find(person)
 	else:
-		username = person.userid.lower()
+		if person.sourcedid and person.sourcedid.id:
+			username = person.sourcedid.id.lower()
+		else:
+			username = person.userid.lower()
 		result = users.User.get_user(username)
 	return result
 
