@@ -44,8 +44,15 @@ from .interfaces import IIMSCourseCatalog
 from .interfaces import IMSUserCreatedEvent
 from .interfaces import IIMSUserCreationMetadata
 
+def get_person_userid(person):
+	if person.userid:
+		result = person.userid
+	else:
+		result = person.sourcedid.id
+	return result.lower() if result else None
+		
 def get_person_email(person):
-	username = person.userid
+	username = get_person_userid(person)
 	if person.email:
 		result = person.email
 	else:
@@ -62,10 +69,7 @@ def find_user(person):
 	if finder is not None:
 		result = finder.find(person)
 	else:
-		if person.sourcedid and person.sourcedid.id:
-			username = person.sourcedid.id.lower()
-		else:
-			username = person.userid.lower()
+		username = person.sourcedid.id.lower()
 		result = users.User.get_user(username)
 	return result
 
@@ -74,10 +78,7 @@ def get_username(person):
 	if finder is not None:
 		result = finder.username(person)
 	else:
-		if person.sourcedid and person.sourcedid.id:
-			result = person.sourcedid.id.lower()
-		else:
-			result = person.userid.lower()
+		result = person.sourcedid.id.lower()
 		if result.endswith('@nextthought.com'):
 			result = result[:-16]
 	return result
@@ -89,7 +90,7 @@ def create_users(source):
 
 	for person in ims.get_persons():
 		userid = get_username(person)
-		person_userid = person.userid.lower()
+		person_userid = get_person_userid(person)
 	
 		user = find_user(person)
 		email = get_person_email(person)
@@ -137,7 +138,7 @@ def update_member_enrollment_status(course_instance, person, role,
 		return
 
 	username  = user.username
-	person_userid = person.userid.lower()
+	person_userid = get_person_userid(person)
 			
 	move_info = {} if move_info is None else move_info
 	drop_info = {} if drop_info is None else drop_info
