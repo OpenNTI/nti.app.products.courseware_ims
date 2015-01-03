@@ -34,6 +34,7 @@ from nti.dataserver import users
 
 from nti.externalization.interfaces import LocatedExternalDict
 
+from nti.ims.sis.person import Person
 from nti.ims.sis.enterprise import Enterprise
 from nti.ims.sis.interfaces import IEnterprise
 from nti.ims.sis.interfaces import ACTIVE_STATUS
@@ -43,6 +44,14 @@ from .interfaces import IIMSUserFinder
 from .interfaces import IIMSCourseCatalog
 from .interfaces import IMSUserCreatedEvent
 from .interfaces import IIMSUserCreationMetadata
+
+def create_proxy_person(member):
+	result = Person(sourcedid=member.sourcedid, 
+					userid=member.userid,
+					name=None, 
+					email=None, 
+					userrole=member.roletype)
+	return result
 
 def get_person_userid(person):
 	if person.userid:
@@ -240,7 +249,6 @@ def cmp_proxy(x, y):
 	return result
 
 def process(ims_file, create_persons=False):
-
 	# check for the old calling convention
 	assert isinstance(create_persons, bool)
 	ims = Enterprise.parseFile(ims_file)
@@ -258,7 +266,7 @@ def process(ims_file, create_persons=False):
 		person = ims.get_person(member.id)
 		if person is None:
 			logger.warn("Person definition for %s was not found", member.id)
-			continue
+			person = create_proxy_person(member)
 
 		# Instructors should be auto-created.
 		if member.is_instructor:

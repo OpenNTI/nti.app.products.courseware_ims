@@ -96,6 +96,7 @@ def _process_args(ims_file, create_persons, site=None, output=None,
 							personid = users[username]
 							csv_writer.writerow([course, operation, username, personid])
 				_write_operation(response.get('Drops',{}), 'Drop')
+				_write_operation(response.get('Moves',{}), 'Moves')
 				_write_operation(response.get('Enrollment',{}), 'Enroll')
 		if verbose:
 			print("Output response saved at", output)
