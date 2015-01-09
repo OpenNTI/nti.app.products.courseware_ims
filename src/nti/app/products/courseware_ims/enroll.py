@@ -72,6 +72,11 @@ def _create_context(env_dir=None):
 	
 	return context
 
+def _tx_string(s):
+	if s and isinstance(s, unicode):
+		s = s.encode('utf-8')
+	return s
+
 def _process_args(ims_file, create_persons, site=None, output=None,
 				  as_csv=False, verbose=False):
 	if site:
@@ -94,7 +99,8 @@ def _process_args(ims_file, create_persons, site=None, output=None,
 						users = m[course]
 						for username in sorted(users.keys()):
 							personid = users[username]
-							csv_writer.writerow([course, operation, username, personid])
+							data = [course, operation, username, personid]
+							csv_writer.writerow( [_tx_string(x) for x in data])
 				_write_operation(response.get('Drops',{}), 'Drop')
 				_write_operation(response.get('Moves',{}), 'Moves')
 				_write_operation(response.get('Enrollment',{}), 'Enroll')
