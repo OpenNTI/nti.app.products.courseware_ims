@@ -138,7 +138,8 @@ def _drop_enrollments(context, user):
 	return result
 
 def update_member_enrollment_status(course_instance, person, role,
-									enrrollment_info=None, move_info=None, 
+									enrrollment_info=None,
+									move_info=None, 
 									drop_info=None):
 	
 	user = find_user(person)
@@ -239,6 +240,8 @@ def update_member_enrollment_status(course_instance, person, role,
 					# record
 					enrrollment_info.setdefault(entry.ProviderUniqueID, {})
 					enrrollment_info[entry.ProviderUniqueID][username] = person_userid
+			else:
+				logger.warn('User %s was not enolled to any PUBLIC version of course', user)
 	else:
 		raise NotImplementedError("Unknown status", role.status)
 
