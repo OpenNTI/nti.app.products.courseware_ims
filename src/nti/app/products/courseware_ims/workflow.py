@@ -111,11 +111,12 @@ def create_users(source):
 				ext_value['realname'] = person.name
 			args['external_value'] = ext_value
 			
+			meta_data = {'check_verify_email': False}
 			mutil = component.queryUtility(IIMSUserCreationMetadata)
 			if mutil is not None:
 				data = mutil.data(person)
-				data['check_verify_email'] = False
-				args['meta_data'] = data
+				meta_data.update(data)
+			args['meta_data'] = meta_data
 				
 			user = users.User.create_user(**args)
 			notify(IMSUserCreatedEvent(user, person))
