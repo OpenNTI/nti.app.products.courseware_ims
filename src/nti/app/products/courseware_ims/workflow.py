@@ -114,6 +114,7 @@ def create_users(source):
 			mutil = component.queryUtility(IIMSUserCreationMetadata)
 			if mutil is not None:
 				data = mutil.data(person)
+				data['check_verify_email'] = False
 				args['meta_data'] = data
 				
 			user = users.User.create_user(**args)
