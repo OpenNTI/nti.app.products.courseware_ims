@@ -11,10 +11,7 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope import component
 from zope.event import notify
-
 from zope import lifecycleevent
-
-from nti.app.assessment.common import has_assigments_submitted
 
 from nti.app.products.courseware.utils import drop_any_other_enrollments
 from nti.app.products.courseware.utils import is_there_an_open_enrollment
@@ -30,7 +27,7 @@ from nti.contenttypes.courses.interfaces import IDenyOpenEnrollment
 from nti.contenttypes.courses.interfaces import ICourseEnrollmentManager
 from nti.contenttypes.courses.interfaces import INonPublicCourseInstance
 
-from nti.dataserver import users
+from nti.dataserver.users import User
 
 from nti.externalization.interfaces import LocatedExternalDict
 
@@ -44,6 +41,9 @@ from .interfaces import IIMSUserFinder
 from .interfaces import IIMSCourseCatalog
 from .interfaces import IMSUserCreatedEvent
 from .interfaces import IIMSUserCreationMetadata
+
+from . import get_course_sourcedid
+from . import set_course_sourcedid
 
 def create_proxy_person(member):
 	result = Person(sourcedid=member.sourcedid, 
@@ -79,7 +79,7 @@ def find_user(person):
 		result = finder.find(person)
 	else:
 		username = person.sourcedid.id.lower()
-		result = users.User.get_user(username)
+		result = User.get_user(username)
 	return result
 
 def get_username(person):
@@ -103,7 +103,7 @@ def create_users(source):
 	
 		user = find_user(person)
 		email = get_person_email(person)
-		user = users.User.get_user(userid) if user is None else user
+		user = User.get_user(userid) if user is None else user
 		if user is None:
 			args = {'username': userid}
 			ext_value = {'email': email}
@@ -118,7 +118,7 @@ def create_users(source):
 				meta_data.update(data)
 			args['meta_data'] = meta_data
 				
-			user = users.User.create_user(**args)
+			user = User.create_user(**args)
 			notify(IMSUserCreatedEvent(user, person))
 			result[userid] = person_userid
 	return result
@@ -128,12 +128,17 @@ def find_ims_courses():
 	result  = catalog.courses() if catalog is not None else {}
 	return result
 
+def _has_assigments_submitted(course, user):
+	from nti.app.assessment.common import has_assigments_submitted
+	result = has_assigments_submitted(course, user)
+	return result
+
 def _drop_enrollments(context, user):
 	result = []
 	dropped_courses = drop_any_other_enrollments(context, user)
 	for course in dropped_courses:
 		entry = ICourseCatalogEntry(course)
-		if has_assigments_submitted(course, user):
+		if _has_assigments_submitted(course, user):
 			logger.warn("User %s has submitted to course '%s'", user, 
 						entry.ProviderUniqueID)
 		result.append(entry)
@@ -287,6 +292,10 @@ def process(ims_file, create_persons=False):
 				warns.add(course_id)
 				logger.warn("Course definition for %s was not found", course_id)
 			continue
+
+		sid = get_course_sourcedid(course_instance)
+		if sid != course_id:
+			set_course_sourcedid(course_instance, sid)
 
 		update_member_enrollment_status(course_instance, person, member.role,
 										errollment, moves, drops)
