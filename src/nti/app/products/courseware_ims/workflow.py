@@ -284,7 +284,8 @@ def process(ims_file, create_persons=False):
 		if member.is_instructor:
 			continue
 
-		course_id = member.course_id.id
+		sourcedid = member.course_id
+		course_id = sourcedid.id
 		context = ims_courses.get(member.course_id.id)
 		course_instance = ICourseInstance(context, None) 
 		if course_instance is None:
@@ -294,8 +295,8 @@ def process(ims_file, create_persons=False):
 			continue
 
 		sid = get_course_sourcedid(course_instance)
-		if sid != course_id:
-			set_course_sourcedid(course_instance, sid)
+		if sid != sourcedid:
+			set_course_sourcedid(course_instance, sourcedid)
 
 		update_member_enrollment_status(course_instance, person, member.role,
 										errollment, moves, drops)
