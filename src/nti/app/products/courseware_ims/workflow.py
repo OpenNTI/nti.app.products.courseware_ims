@@ -129,8 +129,11 @@ def find_ims_courses():
 	return result
 
 def _has_assigments_submitted(course, user):
-	from nti.app.assessment.common import has_assigments_submitted
-	result = has_assigments_submitted(course, user)
+	try:
+		from nti.app.assessment.common import has_assigments_submitted
+		result = has_assigments_submitted(course, user)
+	except ImportError:
+		result = False
 	return result
 
 def _drop_enrollments(context, user):
