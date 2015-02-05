@@ -3,6 +3,7 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -10,13 +11,13 @@ from zope import interface
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
+from nti.common.property import alias
+
 from nti.dataserver.interfaces import IUser
 
 from nti.ims.sis.interfaces import IPerson
 
 from nti.schema.field import Object
-
-from nti.utils.property import alias
 
 class IIMSCourseCatalog(interface.Interface):
 	
@@ -60,4 +61,3 @@ class IIMSUserCreationMetadata(interface.Interface):
 		"""
 		return a map with metadata
 		"""
-		

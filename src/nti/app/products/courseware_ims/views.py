@@ -24,6 +24,9 @@ from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtils
 
 from nti.app.products.ims.views import IMSPathAdapter
 
+from nti.common.string import TRUE_VALUES
+from nti.common.maps import CaseInsensitiveDict
+
 from nti.contenttypes.courses.interfaces import ICourseCatalog
 from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
@@ -33,14 +36,12 @@ from nti.dataserver import authorization as nauth
 
 from nti.externalization.interfaces import LocatedExternalDict
 
-from nti.utils.maps import CaseInsensitiveDict
-
 from .workflow import process
 from .workflow import create_users
 from .workflow import find_ims_courses
 
 def is_true(t):
-	result = bool(t and str(t).lower() in ('1', 'y', 'yes', 't', 'true'))
+	result = bool(t and str(t).lower() in TRUE_VALUES)
 	return result
 
 def get_source(values, keys, name):
