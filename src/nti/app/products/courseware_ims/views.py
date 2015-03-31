@@ -137,9 +137,14 @@ class IMSCoursesView(AbstractAuthenticatedView):
 			course_entry = ICourseCatalogEntry(context)
 			vendor_info = ICourseInstanceVendorInfo(course_instance, {})
 			entry = entries[course_entry.ProviderUniqueID] = {'VendorInfo': vendor_info}
+			entry['CatalogEntryNTIID'] = course_entry.ntiid
 			bundle = getattr(course_instance, 'ContentPackageBundle', None)
-			entry['ContentPackageBundle'] = getattr(bundle, 'ntiid', None)
-			entry['CatalogEntryNTIID'] = getattr(course_entry, 'ntiid', None)
+			if bundle is not None:
+				bundle_info = entry['ContentPackageBundle'] = {}
+				bundle_info['NTIID'] = bundle.ntiid
+				contentPackages = bundle.ContentPackages or ()
+				bundle_info['ContentPackages'] = [x.ntiid for x in contentPackages]
+			
 		return entries
 	
 	def __call__(self):
