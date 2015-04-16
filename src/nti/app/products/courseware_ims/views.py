@@ -141,9 +141,8 @@ class IMSCoursesView(AbstractAuthenticatedView):
 			bundle = getattr(course_instance, 'ContentPackageBundle', None)
 			if bundle is not None:
 				bundle_info = entry['ContentPackageBundle'] = {}
-				bundle_info['NTIID'] = bundle.ntiid
-				contentPackages = bundle.ContentPackages or ()
-				bundle_info['ContentPackages'] = [x.ntiid for x in contentPackages]
+				bundle_info['NTIID'] = getattr(bundle,'ntiid', None)
+				bundle_info['ContentPackages'] = [x.ntiid for x in bundle.ContentPackages or ()]
 			
 		return entries
 	
