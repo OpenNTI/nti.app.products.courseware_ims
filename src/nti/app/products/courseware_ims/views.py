@@ -130,20 +130,34 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 			 context=IMSPathAdapter)
 class IMSCoursesView(AbstractAuthenticatedView):
 
+	def _get_entry_key(self, entry):
+		parents = []
+		o = entry.__parent__
+		while o is not None and not ICourseCatalog.providedBy(o):
+			parents.append(o.__name__)
+			o = getattr(o, '__parent__', None)
+		parents.reverse()
+		if None in parents:
+			result = entry.ProviderUniqueID
+		else:
+			result = '/'.join(parents)
+			if not result:
+				result = entry.ProviderUniqueID
+		return result
+				
 	def _get_entries(self, courses=()):
 		entries = {}
 		for context in courses or ():
 			course_instance = ICourseInstance(context)
 			course_entry = ICourseCatalogEntry(context)
 			vendor_info = ICourseInstanceVendorInfo(course_instance, {})
-			entry = entries[course_entry.ProviderUniqueID] = {'VendorInfo': vendor_info}
+			entry = entries[self._get_entry_key(course_entry)] = {'VendorInfo': vendor_info}
 			entry['CatalogEntryNTIID'] = course_entry.ntiid
 			bundle = getattr(course_instance, 'ContentPackageBundle', None)
 			if bundle is not None:
 				bundle_info = entry['ContentPackageBundle'] = {}
 				bundle_info['NTIID'] = getattr(bundle,'ntiid', None)
 				bundle_info['ContentPackages'] = [x.ntiid for x in bundle.ContentPackages or ()]
-			
 		return entries
 	
 	def __call__(self):
