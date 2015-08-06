@@ -27,10 +27,10 @@ from nti.app.products.ims.views import IMSPathAdapter
 from nti.common.string import TRUE_VALUES
 from nti.common.maps import CaseInsensitiveDict
 
+from nti.contenttypes.courses import get_course_vendor_info
 from nti.contenttypes.courses.interfaces import ICourseCatalog
 from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
-from nti.contenttypes.courses.interfaces import ICourseInstanceVendorInfo
 
 from nti.dataserver import authorization as nauth
 
@@ -150,7 +150,7 @@ class IMSCoursesView(AbstractAuthenticatedView):
 		for context in courses or ():
 			course_instance = ICourseInstance(context)
 			course_entry = ICourseCatalogEntry(context)
-			vendor_info = ICourseInstanceVendorInfo(course_instance, {})
+			vendor_info = get_course_vendor_info(course_instance, False) or {}
 			entry = entries[self._get_entry_key(course_entry)] = {'VendorInfo': vendor_info}
 			entry['CatalogEntryNTIID'] = course_entry.ntiid
 			bundle = getattr(course_instance, 'ContentPackageBundle', None)
