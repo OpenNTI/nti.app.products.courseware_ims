@@ -256,11 +256,11 @@ def update_member_enrollment_status(course_instance, person, role,
 		raise NotImplementedError("Unknown status", role.status)
 
 def cmp_proxy(x, y):
-	result = cmp((x.course_id, x.sourcedid), (y.course_id, y.sourcedid))
+	x_sort_status = 1 if x.is_active else 0
+	y_sort_status = 1 if y.is_active else 0
+	result = cmp(x_sort_status, y_sort_status)
 	if result == 0:
-		x_sort_status = 0 if x.is_active else 1
-		y_sort_status = 0 if y.is_active else 1
-		result = cmp(x_sort_status, y_sort_status)
+		result = cmp((x.course_id, x.sourcedid), (y.course_id, y.sourcedid))
 	return result
 
 def process(ims_file, create_persons=False):
