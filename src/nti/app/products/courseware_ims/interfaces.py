@@ -8,6 +8,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 __docformat__ = "restructuredtext en"
 
 from zope import interface
+
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
@@ -20,7 +21,7 @@ from nti.ims.sis.interfaces import IPerson
 from nti.schema.field import Object
 
 class IIMSCourseCatalog(interface.Interface):
-	
+
 	def courses():
 		"""
 		return a map of IMS course id vs :class:`nti.contenttypes.courses.interfaces.ICourseInstance`
@@ -33,7 +34,7 @@ class IIMSUserCreatedEvent(IObjectCreatedEvent):
 
 @interface.implementer(IIMSUserCreatedEvent)
 class IMSUserCreatedEvent(ObjectCreatedEvent):
-	
+
 	user = alias("object")
 
 	def __init__(self, user, person=None):
@@ -41,7 +42,7 @@ class IMSUserCreatedEvent(ObjectCreatedEvent):
 		self.person = person
 
 class IIMSUserFinder(interface.Interface):
-	
+
 	def username(person):
 		"""
 		return the username for this person
@@ -56,7 +57,7 @@ class IIMSUserCreationMetadata(interface.Interface):
 	"""
 	Utility to set metadata during user creation
 	"""
-	
+
 	def data(person):
 		"""
 		return a map with metadata

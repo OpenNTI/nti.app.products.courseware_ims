@@ -13,6 +13,7 @@ import os
 import six
 
 from zope import component
+
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
@@ -68,9 +69,9 @@ def get_source(values, keys, name):
 			 name='nti_enrollment',
 			 permission=nauth.ACT_NTI_ADMIN,
 			 context=IMSPathAdapter)
-class IMSEnrollmentView(AbstractAuthenticatedView, 
+class IMSEnrollmentView(AbstractAuthenticatedView,
 						ModeledContentUploadRequestUtilsMixin):
-	
+
 	def readInput(self, value=None):
 		request = self.request
 		if request.POST:
@@ -79,13 +80,13 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
 			values = super(IMSEnrollmentView, self).readInput(value=value)
 			values = CaseInsensitiveDict(values)
 		return values
-	
+
 	def __call__(self):
 		values = self.readInput()
 		ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
 		create_persons = values.get('create_users') or values.get('create_persons')
 		create_persons = is_true(create_persons)
-	
+
 		# Make sure we don't send enrollment email, etc, during this process
 		# by not having any interaction.
 		# This is somewhat difficult to test the side-effects of, sadly.
@@ -117,7 +118,7 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 			created = create_users(ims_file)
 		finally:
 			restoreInteraction()
-		
+
 		result = LocatedExternalDict()
 		result['Items'] = created
 		result['Total'] = len(created)
@@ -144,30 +145,31 @@ class IMSCoursesView(AbstractAuthenticatedView):
 			if not result:
 				result = entry.ProviderUniqueID
 		return result
-				
+
 	def _get_entries(self, courses=()):
 		entries = {}
 		for context in courses or ():
 			course_instance = ICourseInstance(context)
 			course_entry = ICourseCatalogEntry(context)
-			vendor_info = get_course_vendor_info(course_instance, False) or {}
-			entry = entries[self._get_entry_key(course_entry)] = {'VendorInfo': vendor_info}
+			info = get_course_vendor_info(course_instance, False) or {}
+			entry = entries[self._get_entry_key(course_entry)] = {'VendorInfo': info}
 			entry['CatalogEntryNTIID'] = course_entry.ntiid
 			bundle = getattr(course_instance, 'ContentPackageBundle', None)
 			if bundle is not None:
 				bundle_info = entry['ContentPackageBundle'] = {}
-				bundle_info['NTIID'] = getattr(bundle,'ntiid', None)
-				bundle_info['ContentPackages'] = [x.ntiid for x in bundle.ContentPackages or ()]
+				bundle_info['NTIID'] = getattr(bundle, 'ntiid', None)
+				bundle_info['ContentPackages'] = \
+							[x.ntiid for x in bundle.ContentPackages or ()]
 		return entries
-	
+
 	def __call__(self):
 		request = self.request
 		params = CaseInsensitiveDict(request.params)
-		all_courses= params.get('all') or \
-					 params.get('allCourses') or \
-					 params.get('all_courses')
+		all_courses = params.get('all') or \
+					  params.get('allCourses') or \
+					  params.get('all_courses')
 		all_courses = is_true(all_courses)
-	
+
 		result = LocatedExternalDict()
 		if not all_courses:
 			course_map = find_ims_courses()
@@ -175,7 +177,7 @@ class IMSCoursesView(AbstractAuthenticatedView):
 		else:
 			catalog = component.getUtility(ICourseCatalog)
 			entries = self._get_entries(catalog.iterCatalogEntries())
-		
+
 		result['Items'] = entries
 		result['Total'] = len(entries)
 		return result

@@ -10,8 +10,9 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 from zope import component
-from zope.event import notify
 from zope import lifecycleevent
+
+from zope.event import notify
 
 from nti.app.products.courseware.utils import drop_any_other_enrollments
 from nti.app.products.courseware.utils import is_there_an_open_enrollment
@@ -46,10 +47,10 @@ from . import get_course_sourcedid
 from . import set_course_sourcedid
 
 def create_proxy_person(member):
-	result = Person(sourcedid=member.sourcedid, 
+	result = Person(sourcedid=member.sourcedid,
 					userid=member.userid,
-					name=None, 
-					email=None, 
+					name=None,
+					email=None,
 					userrole=member.roletype)
 	return result
 
@@ -59,7 +60,7 @@ def get_person_userid(person):
 	else:
 		result = person.sourcedid.id
 	return result.lower() if result else None
-		
+
 def get_person_email(person):
 	username = get_person_userid(person)
 	if person.email:
@@ -100,7 +101,7 @@ def create_users(source):
 	for person in ims.get_persons():
 		userid = get_username(person)
 		person_userid = get_person_userid(person)
-	
+
 		user = find_user(person)
 		email = get_person_email(person)
 		user = User.get_user(userid) if user is None else user
@@ -110,14 +111,14 @@ def create_users(source):
 			if person.name:
 				ext_value['realname'] = person.name
 			args['external_value'] = ext_value
-			
+
 			meta_data = {'check_verify_email': False}
 			mutil = component.queryUtility(IIMSUserCreationMetadata)
 			if mutil is not None:
 				data = mutil.data(person)
 				meta_data.update(data)
 			args['meta_data'] = meta_data
-				
+
 			user = User.create_user(**args)
 			notify(IMSUserCreatedEvent(user, person))
 			result[userid] = person_userid
@@ -125,7 +126,7 @@ def create_users(source):
 
 def find_ims_courses():
 	catalog = component.queryUtility(IIMSCourseCatalog)
-	result  = catalog.courses() if catalog is not None else {}
+	result = catalog.courses() if catalog is not None else {}
 	return result
 
 def _has_assigments_submitted(course, user):
@@ -142,41 +143,41 @@ def _drop_enrollments(context, user):
 	for course in dropped_courses:
 		entry = ICourseCatalogEntry(course)
 		if _has_assigments_submitted(course, user):
-			logger.warn("User %s has submitted to course '%s'", user, 
+			logger.warn("User %s has submitted to course '%s'", user,
 						entry.ProviderUniqueID)
 		result.append(entry)
 	return result
 
 def update_member_enrollment_status(course_instance, person, role,
 									enrrollment_info=None,
-									move_info=None, 
+									move_info=None,
 									drop_info=None):
-	
+
 	user = find_user(person)
 	if user is None:
 		logger.warn("User %s was not found", person)
 		return
 
-	username  = user.username
+	username = user.username
 	person_userid = get_person_userid(person)
-			
+
 	move_info = {} if move_info is None else move_info
 	drop_info = {} if drop_info is None else drop_info
 	enrrollment_info = {} if enrrollment_info is None else enrrollment_info
-	
+
 	enrollments = ICourseEnrollments(course_instance)
 	enrollment_manager = ICourseEnrollmentManager(course_instance)
 	enrollment = enrollments.get_enrollment_for_principal(user)
-	
+
 	instance_entry = ICourseCatalogEntry(course_instance)
 
 	if role.status == ACTIVE_STATUS:
-		
+
 		# check any other enrollment
 		for entry in _drop_enrollments(course_instance, user):
 			drop_info.setdefault(entry.ProviderUniqueID, {})
 			drop_info[entry.ProviderUniqueID][username] = person_userid
-		
+
 		add_mod = True
 		# The user should be enrolled for degree-seeking credit.
 		if enrollment is None:
@@ -190,7 +191,7 @@ def update_member_enrollment_status(course_instance, person, role,
 			lifecycleevent.modified(enrollment)
 		else:
 			add_mod = False
-			
+
 		# record enrollment
 		if add_mod:
 			enrrollment_info.setdefault(instance_entry.ProviderUniqueID, {})
@@ -205,11 +206,11 @@ def update_member_enrollment_status(course_instance, person, role,
 				logger.info('User %s dropping course %s',
 							user, instance_entry.ProviderUniqueID)
 				enrollment_manager.drop(user)
-				
+
 				# record drop
 				drop_info.setdefault(instance_entry.ProviderUniqueID, {})
 				drop_info[instance_entry.ProviderUniqueID][username] = person_userid
-				
+
 			elif enrollment.Scope != ES_PUBLIC:
 				logger.info('User %s moving to PUBLIC version of %s',
 							user, instance_entry.ProviderUniqueID)
@@ -218,7 +219,7 @@ def update_member_enrollment_status(course_instance, person, role,
 				# as publically enrolled
 				enrollment.Scope = ES_PUBLIC
 				lifecycleevent.modified(enrollment)
-				
+
 				# record move
 				move_info.setdefault(instance_entry.ProviderUniqueID, {})
 				move_info[instance_entry.ProviderUniqueID][username] = person_userid
@@ -227,12 +228,12 @@ def update_member_enrollment_status(course_instance, person, role,
 		if 	enrollment is not None and enrollment.Scope != ES_PUBLIC and \
 			not is_there_an_open_enrollment(course_instance, user):
 			open_course = course_instance
-			
+
 			# if section and non public get main course
 			if 	ICourseSubInstance.providedBy(course_instance) and \
 				INonPublicCourseInstance.providedBy(course_instance):
 				open_course = course_instance.__parent__.__parent__
-				
+
 			# do open enrollment
 			if	not INonPublicCourseInstance.providedBy(open_course) and \
 				not IDenyOpenEnrollment.providedBy(open_course):
@@ -241,12 +242,12 @@ def update_member_enrollment_status(course_instance, person, role,
 				if enrollment is None:
 					enrollment_manager = ICourseEnrollmentManager(open_course)
 					enrollment_manager.enroll(user, scope=ES_PUBLIC)
-					
+
 					# log public enrollment
 					entry = ICourseCatalogEntry(open_course)
 					logger.info('User %s enolled to PUBLIC version of %s',
 								user, entry.ProviderUniqueID)
-					
+
 					# record
 					enrrollment_info.setdefault(entry.ProviderUniqueID, {})
 					enrrollment_info[entry.ProviderUniqueID][username] = person_userid
@@ -290,7 +291,7 @@ def process(ims_file, create_persons=False):
 		sourcedid = member.course_id
 		course_id = sourcedid.id
 		context = ims_courses.get(member.course_id.id)
-		course_instance = ICourseInstance(context, None) 
+		course_instance = ICourseInstance(context, None)
 		if course_instance is None:
 			if course_id not in warns:
 				warns.add(course_id)

@@ -19,13 +19,13 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 COURSE_SOURCEDID_KEY = 'nti.app.products.courseware_ims.COURSE_SOURCEDID_KEY'
 
 def get_course_sourcedid(context):
-    course = ICourseInstance(context, None)
-    annotations = IAnnotations(course, {})
-    result = annotations.get(COURSE_SOURCEDID_KEY)
-    return result
+	course = ICourseInstance(context, None)
+	annotations = IAnnotations(course, {})
+	result = annotations.get(COURSE_SOURCEDID_KEY)
+	return result
 
 def set_course_sourcedid(context, sourceid=None):
-    course = ICourseInstance(context, None)
-    annotations = IAnnotations(course, {})
-    result = annotations[COURSE_SOURCEDID_KEY] = sourceid
-    return result
+	course = ICourseInstance(context, None)
+	annotations = IAnnotations(course, {})
+	result = annotations[COURSE_SOURCEDID_KEY] = sourceid
+	return result

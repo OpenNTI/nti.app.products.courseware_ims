@@ -30,7 +30,7 @@ def _process_args(ims_file, create_persons, site=None, output=None,
 				  as_csv=False, verbose=False):
 	if site:
 		set_site(site)
-	
+
 	response = workflow.process(ims_file, create_persons)
 	if output and response:
 		with open(output, "wb") as fp:
@@ -45,10 +45,10 @@ def _process_args(ims_file, create_persons, site=None, output=None,
 						for username in sorted(users.keys()):
 							personid = users[username]
 							data = [course, operation, username, personid]
-							csv_writer.writerow( [_tx_string(x) for x in data])
-				_write_operation(response.get('Drops',{}), 'Drop')
-				_write_operation(response.get('Moves',{}), 'Moves')
-				_write_operation(response.get('Enrollment',{}), 'Enroll')
+							csv_writer.writerow([_tx_string(x) for x in data])
+				_write_operation(response.get('Drops', {}), 'Drop')
+				_write_operation(response.get('Moves', {}), 'Moves')
+				_write_operation(response.get('Enrollment', {}), 'Enroll')
 		if verbose:
 			print("Output response saved at", output)
 
@@ -61,18 +61,18 @@ def main():
 							dest='create_persons', default=False)
 
 	arg_parser.add_argument('-i', '--ims', help="IMS file location", dest='ims_file')
-	
+
 	arg_parser.add_argument('-s', '--site', dest='site', help="Request site")
 
-	arg_parser.add_argument('--csv', dest='csv', action='store_true', 
+	arg_parser.add_argument('--csv', dest='csv', action='store_true',
 							help="CSV output response")
-	
+
 	arg_parser.add_argument('-o', '--output', dest='output', help="Output response path")
-	
+
 	args = arg_parser.parse_args()
 
-	verbose=args.verbose
-	
+	verbose = args.verbose
+
 	ims_file = args.ims_file
 	ims_file = os.path.expanduser(ims_file) if ims_file else None
 	if not ims_file or not os.path.exists(ims_file):
@@ -82,11 +82,11 @@ def main():
 	site = args.site
 	if not site and verbose:
 		print('WARN: NO site specified')
-		
+
 	create_persons = args.create_persons
 	if create_persons and not site and verbose:
 		print('WARN: Creating users with no site specified')
-	
+
 	as_csv = args.csv
 	output = args.output
 	output = os.path.expanduser(output) if output else None
@@ -94,11 +94,11 @@ def main():
 		ext = 'json' if not as_csv else 'csv'
 		name = os.path.splitext(os.path.basename(ims_file))[0]
 		output = os.path.join(output, '%s.%s' % (name, ext))
-		
+
 	env_dir = os.getenv('DATASERVER_DIR')
 	conf_packages = ('nti.appserver',)
 	context = create_context(env_dir, with_library=True)
-	
+
 	run_with_dataserver(environment_dir=env_dir,
 						verbose=verbose,
 						context=context,
