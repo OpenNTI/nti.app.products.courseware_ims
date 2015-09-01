@@ -44,10 +44,10 @@ from nti.app.testing.application_webtest import ApplicationLayerTest
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
 
 class TestWorkflow(ApplicationLayerTest):
-	
+
 	_PROTECTED_SCOPE = ES_CREDIT_DEGREE
 	_PROTECTED_SCOPE_NAME = _PROTECTED_SCOPE
-	
+
 	layer = InstructedCourseApplicationTestLayer
 
 	default_origin = str('http://janux.ou.edu')
@@ -64,24 +64,24 @@ class TestWorkflow(ApplicationLayerTest):
 		ds = mock_dataserver.current_mock_ds
 		usr = User.create_user(ds, username=username, password=password)
 		return usr
-	
+
 	def test_order(self):
 		ims_xml = os.path.join(os.path.dirname(__file__), 'ims_enroll_drop.xml')
 		ims = Enterprise.parseFile(ims_xml)
-		
+
 		members = list(ims.get_all_members())
 		assert_that(members, has_length(2))
 		assert_that(members[0], has_property('course_id', is_not(none())))
 		assert_that(members[0], has_property('is_active', is_(False)))
 		assert_that(members[1], has_property('course_id', is_not(none())))
 		assert_that(members[1], has_property('is_active', is_(True)))
-		
+
 		assert_that(members[0].course_id, is_((members[1].course_id)))
 		assert_that(members[0].sourcedid, is_(members[1].sourcedid))
-		
+
 		members = sorted(members, cmp=cmp_proxy)
-		assert_that(members[0], has_property('is_active', is_(True)))
-		assert_that(members[1], has_property('is_active', is_(False)))
+		assert_that(members[0], has_property('is_active', is_(False)))
+		assert_that(members[1], has_property('is_active', is_(True)))
 
 	@WithMockDSTrans
 	def test_create_users(self):
@@ -96,7 +96,7 @@ class TestWorkflow(ApplicationLayerTest):
 	@WithSharedApplicationMockDS
 	@fudge.patch('nti.app.products.courseware_ims.workflow.find_ims_courses')
 	def test_simple_workflow(self, mock_fic):
-			
+
 		ims_xml = os.path.join(os.path.dirname(__file__), 'ims_enroll.xml')
 		ims_un_xml = os.path.join(os.path.dirname(__file__), 'ims_unenroll.xml')
 
@@ -110,12 +110,12 @@ class TestWorkflow(ApplicationLayerTest):
 		with mock_dataserver.mock_db_trans(self.ds, site_name='platform.ou.edu'):
 			jobs2213 = User.get_user('jobs2213')
 			jobs2299 = User.get_user('jobs2299')
-			
+
 			entry = self.catalog_entry()
-			course = ICourseInstance(entry)		
+			course = ICourseInstance(entry)
 			courses = {'26235.20131': course}
 			mock_fic.is_callable().with_args().returns(courses)
-		
+
 			process(ims_xml)
 
 			protected = course.SharingScopes[self._PROTECTED_SCOPE]
@@ -128,10 +128,10 @@ class TestWorkflow(ApplicationLayerTest):
 			assert_that(jobs2299, is_not(is_in(protected)))
 			assert_that(jobs2299, is_not(is_in(public)))
 			instructor_enrollments = ICourseEnrollments(course).get_enrollment_for_principal(jobs2299)
-			assert_that( instructor_enrollments, none())
+			assert_that(instructor_enrollments, none())
 
-			assert_that( ICourseEnrollments(course).get_enrollment_for_principal(jobs2213),
-						 has_property('Scope', self._PROTECTED_SCOPE_NAME) )
+			assert_that(ICourseEnrollments(course).get_enrollment_for_principal(jobs2213),
+						 has_property('Scope', self._PROTECTED_SCOPE_NAME))
 
 			process(ims_un_xml)
 
@@ -139,5 +139,5 @@ class TestWorkflow(ApplicationLayerTest):
 
 			# But he's still 'open-enrolled'
 			assert_that(jobs2213, is_in(public))
-			assert_that( ICourseEnrollments(course).get_enrollment_for_principal(jobs2213),
-						 has_property('Scope', ES_PUBLIC) )
+			assert_that(ICourseEnrollments(course).get_enrollment_for_principal(jobs2213),
+						 has_property('Scope', ES_PUBLIC))
