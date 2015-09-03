@@ -14,9 +14,6 @@ from zope import lifecycleevent
 
 from zope.event import notify
 
-from nti.app.products.courseware.utils import drop_any_other_enrollments
-from nti.app.products.courseware.utils import is_there_an_open_enrollment
-
 from nti.contenttypes.courses.interfaces import ES_PUBLIC
 from nti.contenttypes.courses.interfaces import ES_CREDIT_DEGREE
 
@@ -27,6 +24,9 @@ from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 from nti.contenttypes.courses.interfaces import IDenyOpenEnrollment
 from nti.contenttypes.courses.interfaces import ICourseEnrollmentManager
 from nti.contenttypes.courses.interfaces import INonPublicCourseInstance
+
+from nti.contenttypes.courses.utils import drop_any_other_enrollments
+from nti.contenttypes.courses.utils import is_there_an_open_enrollment
 
 from nti.dataserver.users import User
 
