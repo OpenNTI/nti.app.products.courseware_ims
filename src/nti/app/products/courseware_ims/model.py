@@ -33,7 +33,7 @@ MIMETYPE = StandardExternalFields.MIMETYPE
 @NoPickle
 @EqHash('SourcedID',)
 @interface.implementer(IIMSEnrollmentOption, IInternalObjectExternalizer)
-class OzoneEnrollmentOption(EnrollmentOption):
+class IMSEnrollmentOption(EnrollmentOption):
 
 	__external_class_name__ = "IMSEnrollment"
 	mime_type = mimeType = 'application/vnd.nextthought.courseware.imsenrollmentoption'
@@ -46,4 +46,3 @@ class OzoneEnrollmentOption(EnrollmentOption):
 		result[CLASS] = self.__external_class_name__
 		result['SourcedID'] = result['sourcedid'] = self.SourcedID
 		return result
-
