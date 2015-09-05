@@ -12,6 +12,8 @@ from zope import interface
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
+from nti.app.products.courseware.interfaces import IEnrollmentOption
+
 from nti.common.property import alias
 
 from nti.dataserver.interfaces import IUser
@@ -19,6 +21,7 @@ from nti.dataserver.interfaces import IUser
 from nti.ims.sis.interfaces import IPerson
 
 from nti.schema.field import Object
+from nti.schema.field import ValidTextLine
 
 class IIMSCourseCatalog(interface.Interface):
 
@@ -62,3 +65,6 @@ class IIMSUserCreationMetadata(interface.Interface):
 		"""
 		return a map with metadata
 		"""
+
+class IIMSEnrollmentOption(IEnrollmentOption):
+	SourcedID = ValidTextLine(title="Sourced ID", required=True)
