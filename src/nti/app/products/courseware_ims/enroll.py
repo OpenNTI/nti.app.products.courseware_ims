@@ -28,8 +28,8 @@ def _tx_string(s):
 
 def _process_args(ims_file, create_persons, site=None, output=None,
 				  as_csv=False, verbose=False):
-	if site:
-		set_site(site)
+
+	set_site(site)
 
 	response = workflow.process(ims_file, create_persons)
 	if output and response:

@@ -172,7 +172,6 @@ def update_member_enrollment_status(course_instance, person, role,
 	instance_entry = ICourseCatalogEntry(course_instance)
 
 	if role.status == ACTIVE_STATUS:
-
 		# check any other enrollment
 		for entry in _drop_enrollments(course_instance, user):
 			drop_info.setdefault(entry.ProviderUniqueID, {})
@@ -197,7 +196,6 @@ def update_member_enrollment_status(course_instance, person, role,
 			enrrollment_info.setdefault(instance_entry.ProviderUniqueID, {})
 			enrrollment_info[instance_entry.ProviderUniqueID][username] = person_userid
 	elif role.status == INACTIVE_STATUS:
-
 		# if enrolled but the course is not public then drop it
 		if enrollment is not None:
 
