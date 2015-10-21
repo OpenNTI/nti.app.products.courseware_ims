@@ -35,6 +35,7 @@ from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 
 from nti.dataserver import authorization as nauth
 
+from nti.externalization.oids import to_external_ntiid_oid
 from nti.externalization.interfaces import LocatedExternalDict
 
 from .workflow import process
@@ -153,7 +154,10 @@ class IMSCoursesView(AbstractAuthenticatedView):
 			course_entry = ICourseCatalogEntry(context)
 			info = get_course_vendor_info(course_instance, False) or {}
 			entry = entries[self._get_entry_key(course_entry)] = {'VendorInfo': info}
-			entry['CatalogEntryNTIID'] = course_entry.ntiid
+			entry['NTIIDs'] = {
+				'CourseCatalogEntry': course_entry.ntiid,
+				'CourseInstance': to_external_ntiid_oid(course_instance)
+			}
 			bundle = getattr(course_instance, 'ContentPackageBundle', None)
 			if bundle is not None:
 				bundle_info = entry['ContentPackageBundle'] = {}
