@@ -37,10 +37,13 @@ from nti.dataserver import authorization as nauth
 
 from nti.externalization.oids import to_external_ntiid_oid
 from nti.externalization.interfaces import LocatedExternalDict
+from nti.externalization.interfaces import StandardExternalFields
 
 from .workflow import process
 from .workflow import create_users
 from .workflow import find_ims_courses
+
+ITEMS = StandardExternalFields.ITEMS
 
 def is_true(t):
 	result = bool(t and str(t).lower() in TRUE_VALUES)
@@ -121,8 +124,8 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 			restoreInteraction()
 
 		result = LocatedExternalDict()
-		result['Items'] = created
-		result['Total'] = len(created)
+		result[ITEMS] = created
+		result['Total'] = result['ItemCount'] = len(created)
 		return result
 
 @view_config(route_name='objects.generic.traversal',
@@ -182,6 +185,6 @@ class IMSCoursesView(AbstractAuthenticatedView):
 			catalog = component.getUtility(ICourseCatalog)
 			entries = self._get_entries(catalog.iterCatalogEntries())
 
-		result['Items'] = entries
-		result['Total'] = len(entries)
+		result[ITEMS] = entries
+		result['Total'] = result['ItemCount'] = len(entries)
 		return result
