@@ -15,11 +15,11 @@ from zope.schema.fieldproperty import FieldPropertyStoredThroughField as FP
 
 from nti.app.products.courseware.enrollment import EnrollmentOption
 
+from nti.app.products.courseware_ims.interfaces import IIMSEnrollmentOption
+
 from nti.common.representation import WithRepr
 
 from nti.schema.schema import EqHash
-
-from .interfaces import IIMSEnrollmentOption
 
 @WithRepr
 @EqHash('SourcedID',)

@@ -21,7 +21,12 @@ from pyramid.view import view_config
 from pyramid import httpexceptions as hexc
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
+
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
+
+from nti.app.products.courseware_ims.workflow import process
+from nti.app.products.courseware_ims.workflow import create_users
+from nti.app.products.courseware_ims.workflow import find_ims_courses
 
 from nti.app.products.ims.views import IMSPathAdapter
 
@@ -38,10 +43,6 @@ from nti.dataserver import authorization as nauth
 from nti.externalization.oids import to_external_ntiid_oid
 from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
-
-from .workflow import process
-from .workflow import create_users
-from .workflow import find_ims_courses
 
 ITEMS = StandardExternalFields.ITEMS
 
@@ -90,7 +91,6 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
 		ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
 		create_persons = values.get('create_users') or values.get('create_persons')
 		create_persons = is_true(create_persons)
-
 		# Make sure we don't send enrollment email, etc, during this process
 		# by not having any interaction.
 		# This is somewhat difficult to test the side-effects of, sadly.
@@ -122,7 +122,6 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 			created = create_users(ims_file)
 		finally:
 			restoreInteraction()
-
 		result = LocatedExternalDict()
 		result[ITEMS] = created
 		result['Total'] = result['ItemCount'] = len(created)
@@ -172,11 +171,7 @@ class IMSCoursesView(AbstractAuthenticatedView):
 	def __call__(self):
 		request = self.request
 		params = CaseInsensitiveDict(request.params)
-		all_courses = params.get('all') or \
-					  params.get('allCourses') or \
-					  params.get('all_courses')
-		all_courses = is_true(all_courses)
-
+		all_courses = is_true(params.get('all'))
 		result = LocatedExternalDict()
 		if not all_courses:
 			course_map = find_ims_courses()
@@ -184,7 +179,6 @@ class IMSCoursesView(AbstractAuthenticatedView):
 		else:
 			catalog = component.getUtility(ICourseCatalog)
 			entries = self._get_entries(catalog.iterCatalogEntries())
-
 		result[ITEMS] = entries
 		result['Total'] = result['ItemCount'] = len(entries)
 		return result

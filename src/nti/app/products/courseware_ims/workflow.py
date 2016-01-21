@@ -14,6 +14,14 @@ from zope import lifecycleevent
 
 from zope.event import notify
 
+from nti.app.products.courseware_ims import get_course_sourcedid
+from nti.app.products.courseware_ims import set_course_sourcedid
+
+from nti.app.products.courseware_ims.interfaces import IIMSUserFinder
+from nti.app.products.courseware_ims.interfaces import IIMSCourseCatalog
+from nti.app.products.courseware_ims.interfaces import IMSUserCreatedEvent
+from nti.app.products.courseware_ims.interfaces import IIMSUserCreationMetadata
+
 from nti.contenttypes.courses.interfaces import ES_PUBLIC
 from nti.contenttypes.courses.interfaces import ES_CREDIT_DEGREE
 
@@ -37,14 +45,6 @@ from nti.ims.sis.enterprise import Enterprise
 from nti.ims.sis.interfaces import IEnterprise
 from nti.ims.sis.interfaces import ACTIVE_STATUS
 from nti.ims.sis.interfaces import INACTIVE_STATUS
-
-from .interfaces import IIMSUserFinder
-from .interfaces import IIMSCourseCatalog
-from .interfaces import IMSUserCreatedEvent
-from .interfaces import IIMSUserCreationMetadata
-
-from . import get_course_sourcedid
-from . import set_course_sourcedid
 
 def create_proxy_person(member):
 	result = Person(sourcedid=member.sourcedid,

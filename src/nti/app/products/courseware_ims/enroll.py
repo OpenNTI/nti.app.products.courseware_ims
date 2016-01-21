@@ -15,11 +15,11 @@ import sys
 import argparse
 import simplejson as json
 
+from nti.app.products.courseware_ims import workflow
+
 from nti.dataserver.utils import run_with_dataserver
 from nti.dataserver.utils.base_script import set_site
 from nti.dataserver.utils.base_script import create_context
-
-from . import workflow
 
 def _tx_string(s):
 	if s and isinstance(s, unicode):
