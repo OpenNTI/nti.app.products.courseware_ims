@@ -33,6 +33,7 @@ from nti.contenttypes.courses.interfaces import IDenyOpenEnrollment
 from nti.contenttypes.courses.interfaces import ICourseEnrollmentManager
 from nti.contenttypes.courses.interfaces import INonPublicCourseInstance
 
+from nti.contenttypes.courses.utils import get_parent_course
 from nti.contenttypes.courses.utils import drop_any_other_enrollments
 from nti.contenttypes.courses.utils import is_there_an_open_enrollment
 
@@ -230,7 +231,7 @@ def update_member_enrollment_status(course_instance, person, role,
 			# if section and non public get main course
 			if 	ICourseSubInstance.providedBy(course_instance) and \
 				INonPublicCourseInstance.providedBy(course_instance):
-				open_course = course_instance.__parent__.__parent__
+				open_course = get_parent_course(course_instance)
 
 			# do open enrollment
 			if	not INonPublicCourseInstance.providedBy(open_course) and \
