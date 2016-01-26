@@ -263,6 +263,13 @@ def cmp_proxy(x, y):
 		result = cmp((x.course_id, x.sourcedid), (y.course_id, y.sourcedid))
 	return result
 
+def get_person(ims, member):
+	person = ims.get_person(member.id)
+	if person is None:
+		logger.warn("Person definition for %s was not found", member.id)
+		person = create_proxy_person(member)
+	return person
+
 def process(ims_file, create_persons=False):
 	# check for the old calling convention
 	assert isinstance(create_persons, bool)
@@ -275,13 +282,11 @@ def process(ims_file, create_persons=False):
 	moves = LocatedExternalDict()
 	drops = LocatedExternalDict()
 	errollment = LocatedExternalDict()
+
 	# sort members (drops come first)
 	members = sorted(ims.get_all_members(), cmp=cmp_proxy)
 	for member in members:
-		person = ims.get_person(member.id)
-		if person is None:
-			logger.warn("Person definition for %s was not found", member.id)
-			person = create_proxy_person(member)
+		person = get_person(ims, member)
 
 		# Instructors should be auto-created.
 		if member.is_instructor:
