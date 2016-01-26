@@ -131,7 +131,7 @@ def find_ims_courses():
 	result = catalog.courses() if catalog is not None else {}
 	return result
 
-def _has_assigments_submitted(course, user):
+def has_assigments_submitted(course, user):
 	try:
 		from nti.app.assessment.common import has_assigments_submitted
 		result = has_assigments_submitted(course, user)
@@ -139,12 +139,12 @@ def _has_assigments_submitted(course, user):
 		result = False
 	return result
 
-def _drop_enrollments(context, user):
+def drop_enrollments(context, user):
 	result = []
 	dropped_courses = drop_any_other_enrollments(context, user)
 	for course in dropped_courses:
 		entry = ICourseCatalogEntry(course)
-		if _has_assigments_submitted(course, user):
+		if has_assigments_submitted(course, user):
 			logger.warn("User %s has submitted to course '%s'", user,
 						entry.ProviderUniqueID)
 		result.append(entry)
@@ -175,7 +175,7 @@ def update_member_enrollment_status(course_instance, person, role,
 
 	if role.status == ACTIVE_STATUS:
 		# check any other enrollment
-		for entry in _drop_enrollments(course_instance, user):
+		for entry in drop_enrollments(course_instance, user):
 			drop_info.setdefault(entry.ProviderUniqueID, {})
 			drop_info[entry.ProviderUniqueID][username] = person_userid
 
@@ -280,6 +280,13 @@ def get_course(member, ims_courses, warns=()):
 			warns.add(course_id)
 			logger.warn("Course definition for %s was not found", course_id)
 	return course_instance
+
+def get_enrollment_cache(members):
+	result = {}
+	for member in members:
+		key = "%s,%s,%s" % (member.course_id, member.id, member.role.status)
+		result[key] = member
+	return result
 
 def process(ims_file, create_persons=False):
 	# check for the old calling convention
