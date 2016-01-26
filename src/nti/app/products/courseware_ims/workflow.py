@@ -41,11 +41,12 @@ from nti.dataserver.users import User
 
 from nti.externalization.interfaces import LocatedExternalDict
 
-from nti.ims.sis.person import Person
 from nti.ims.sis.enterprise import Enterprise
 from nti.ims.sis.interfaces import IEnterprise
 from nti.ims.sis.interfaces import ACTIVE_STATUS
 from nti.ims.sis.interfaces import INACTIVE_STATUS
+
+from nti.ims.sis.person import Person
 
 def create_proxy_person(member):
 	result = Person(sourcedid=member.sourcedid,
@@ -270,6 +271,16 @@ def get_person(ims, member):
 		person = create_proxy_person(member)
 	return person
 
+def get_course(member, ims_courses, warns=()):
+	course_id = member.course_id.id
+	context = ims_courses.get(course_id)
+	course_instance = ICourseInstance(context, None)
+	if course_instance is None:
+		if course_id not in warns:
+			warns.add(course_id)
+			logger.warn("Course definition for %s was not found", course_id)
+	return course_instance
+
 def process(ims_file, create_persons=False):
 	# check for the old calling convention
 	assert isinstance(create_persons, bool)
@@ -286,22 +297,17 @@ def process(ims_file, create_persons=False):
 	# sort members (drops come first)
 	members = sorted(ims.get_all_members(), cmp=cmp_proxy)
 	for member in members:
-		person = get_person(ims, member)
 
-		# Instructors should be auto-created.
+		# instructors should be auto-created.
 		if member.is_instructor:
+			continue
+		
+		person = get_person(ims, member)
+		course_instance = get_course(member, ims_courses, warns)
+		if course_instance is None:
 			continue
 
 		sourcedid = member.course_id
-		course_id = sourcedid.id
-		context = ims_courses.get(member.course_id.id)
-		course_instance = ICourseInstance(context, None)
-		if course_instance is None:
-			if course_id not in warns:
-				warns.add(course_id)
-				logger.warn("Course definition for %s was not found", course_id)
-			continue
-
 		sid = get_course_sourcedid(course_instance)
 		if sid != sourcedid:
 			set_course_sourcedid(course_instance, sourcedid)

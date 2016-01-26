@@ -35,13 +35,14 @@ from nti.contenttypes.courses.interfaces import ICourseEnrollments
 
 from nti.ims.sis.enterprise import Enterprise
 
-import nti.dataserver.tests.mock_dataserver as mock_dataserver
-from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
-from nti.app.testing.decorators import WithSharedApplicationMockDS
-
 from nti.app.testing.application_webtest import ApplicationLayerTest
 
+from nti.app.testing.decorators import WithSharedApplicationMockDS
+
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
+
+from nti.dataserver.tests import mock_dataserver as mock_dataserver
+from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
 
 class TestWorkflow(ApplicationLayerTest):
 
@@ -131,7 +132,7 @@ class TestWorkflow(ApplicationLayerTest):
 			assert_that(instructor_enrollments, none())
 
 			assert_that(ICourseEnrollments(course).get_enrollment_for_principal(jobs2213),
-						 has_property('Scope', self._PROTECTED_SCOPE_NAME))
+						has_property('Scope', self._PROTECTED_SCOPE_NAME))
 
 			process(ims_un_xml)
 
@@ -140,4 +141,4 @@ class TestWorkflow(ApplicationLayerTest):
 			# But he's still 'open-enrolled'
 			assert_that(jobs2213, is_in(public))
 			assert_that(ICourseEnrollments(course).get_enrollment_for_principal(jobs2213),
-						 has_property('Scope', ES_PUBLIC))
+						has_property('Scope', ES_PUBLIC))
