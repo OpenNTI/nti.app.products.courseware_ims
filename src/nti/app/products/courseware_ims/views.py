@@ -17,8 +17,10 @@ from zope import component
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
-from pyramid.view import view_config
 from pyramid import httpexceptions as hexc
+
+from pyramid.view import view_config
+from pyramid.view import view_defaults
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
@@ -30,8 +32,9 @@ from nti.app.products.courseware_ims.workflow import find_ims_courses
 
 from nti.app.products.ims.views import IMSPathAdapter
 
-from nti.common.string import TRUE_VALUES
 from nti.common.maps import CaseInsensitiveDict
+
+from nti.common.string import TRUE_VALUES
 
 from nti.contenttypes.courses import get_course_vendor_info
 from nti.contenttypes.courses.interfaces import ICourseCatalog
@@ -69,11 +72,13 @@ def get_source(values, keys, name):
 		raise hexc.HTTPUnprocessableEntity(detail='No %s source provided' % name)
 	return source
 
-@view_config(route_name='objects.generic.traversal',
-			 renderer='rest',
-			 name='nti_enrollment',
-			 permission=nauth.ACT_NTI_ADMIN,
-			 context=IMSPathAdapter)
+@view_config(name='enrollment')
+@view_config(name='nti_enrollment')
+@view_defaults(route_name='objects.generic.traversal',
+			   renderer='rest',
+			   name='nti_enrollment',
+			   context=IMSPathAdapter,
+			   permission=nauth.ACT_NTI_ADMIN)
 class IMSEnrollmentView(AbstractAuthenticatedView,
 						ModeledContentUploadRequestUtilsMixin):
 
@@ -91,21 +96,25 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
 		ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
 		create_persons = values.get('create_users') or values.get('create_persons')
 		create_persons = is_true(create_persons)
-		# Make sure we don't send enrollment email, etc, during this process
-		# by not having any interaction.
-		# This is somewhat difficult to test the side-effects of, sadly.
-		endInteraction()
+		send_email = 	values.get('email') \
+					 or values.get('sendEmail') \
+					 or values.get('send_email')
+		send_email = is_true(send_email)
+		if not send_email:
+			endInteraction()
 		try:
 			result = process(ims_file, create_persons)
 		finally:
-			restoreInteraction()
+			if not send_email:
+				restoreInteraction()
 		return result
 
-@view_config(route_name='objects.generic.traversal',
-			 renderer='rest',
-			 name='nti_create_users',
-			 permission=nauth.ACT_NTI_ADMIN,
-			 context=IMSPathAdapter)
+@view_config(name='create_users')
+@view_config(name='nti_create_users')
+@view_defaults(route_name='objects.generic.traversal',
+			   renderer='rest',
+			   context=IMSPathAdapter,
+			   permission=nauth.ACT_NTI_ADMIN)
 class IMSCreateUsersView(AbstractAuthenticatedView,
 						 ModeledContentUploadRequestUtilsMixin):
 
@@ -127,11 +136,12 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 		result['Total'] = result['ItemCount'] = len(created)
 		return result
 
-@view_config(route_name='objects.generic.traversal',
-			 renderer='rest',
-			 name='nti_courses',
-			 permission=nauth.ACT_NTI_ADMIN,
-			 context=IMSPathAdapter)
+@view_config(name='courses')
+@view_config(name='nti_courses')
+@view_defaults(route_name='objects.generic.traversal',
+			   renderer='rest',
+			   context=IMSPathAdapter,
+			   permission=nauth.ACT_NTI_ADMIN)
 class IMSCoursesView(AbstractAuthenticatedView):
 
 	def _get_entry_key(self, entry):
