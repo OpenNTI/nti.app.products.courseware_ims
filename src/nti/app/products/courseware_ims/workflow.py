@@ -22,6 +22,8 @@ from nti.app.products.courseware_ims.interfaces import IIMSCourseCatalog
 from nti.app.products.courseware_ims.interfaces import IMSUserCreatedEvent
 from nti.app.products.courseware_ims.interfaces import IIMSUserCreationMetadata
 
+from nti.common.maps import CaseInsensitiveDict
+
 from nti.contenttypes.courses.interfaces import ES_PUBLIC
 from nti.contenttypes.courses.interfaces import ES_CREDIT_DEGREE
 
@@ -281,12 +283,14 @@ def get_course(member, ims_courses, warns=()):
 			logger.warn("Course definition for %s was not found", course_id)
 	return course_instance
 
-def get_enrollment_cache(members):
-	result = {}
-	for member in members:
-		key = "%s,%s,%s" % (member.course_id, member.id, member.role.status)
-		result[key] = member
-	return result
+def skip_record(member, cache):
+	status = member.role.status
+	if status == INACTIVE_STATUS: # drop
+		# check for an enrollment op in the same course, since the enrollment
+		# process drops any other enrollment in the course
+		key = "%s,%s,%s" % (member.course_id.id, member.sourcedid.id, ACTIVE_STATUS)
+		return key in cache
+	return False
 
 def process(ims_file, create_persons=False):
 	# check for the old calling convention
@@ -300,9 +304,16 @@ def process(ims_file, create_persons=False):
 	moves = LocatedExternalDict()
 	drops = LocatedExternalDict()
 	errollment = LocatedExternalDict()
+	
+	# simple closure to populate cache
+	cache = CaseInsensitiveDict()
+	def populate(member):
+		key = "%s,%s,%s" % (member.course_id.id, member.sourcedid.id, member.role.status)
+		cache[key] = member
+		return member
 
 	# sort members (drops come first)
-	members = sorted(ims.get_all_members(), cmp=cmp_proxy)
+	members = sorted(ims.get_all_members(populate), cmp=cmp_proxy)
 	for member in members:
 
 		# instructors should be auto-created.
@@ -312,6 +323,9 @@ def process(ims_file, create_persons=False):
 		person = get_person(ims, member)
 		course_instance = get_course(member, ims_courses, warns)
 		if course_instance is None:
+			continue
+
+		if skip_record(member, cache):
 			continue
 
 		sourcedid = member.course_id
