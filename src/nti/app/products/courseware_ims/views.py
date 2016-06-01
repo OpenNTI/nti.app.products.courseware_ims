@@ -34,7 +34,7 @@ from nti.app.products.ims.views import IMSPathAdapter
 
 from nti.common.maps import CaseInsensitiveDict
 
-from nti.common.string import TRUE_VALUES
+from nti.common.string import is_true
 
 from nti.contenttypes.courses import get_course_vendor_info
 from nti.contenttypes.courses.interfaces import ICourseCatalog
@@ -48,10 +48,6 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 ITEMS = StandardExternalFields.ITEMS
-
-def is_true(t):
-	result = bool(t and str(t).lower() in TRUE_VALUES)
-	return result
 
 def get_source(values, keys, name):
 	# check map
