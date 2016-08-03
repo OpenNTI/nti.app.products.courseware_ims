@@ -17,9 +17,9 @@ from nti.app.products.courseware.enrollment import EnrollmentOption
 
 from nti.app.products.courseware_ims.interfaces import IIMSEnrollmentOption
 
-from nti.common.representation import WithRepr
+from nti.externalization.representation import WithRepr
 
-from nti.schema.schema import EqHash
+from nti.schema.eqhash import EqHash
 
 @WithRepr
 @EqHash('SourcedID',)
