@@ -110,7 +110,7 @@ def create_user(username, email, realname=None, meta=None):
 	user = User.create_user(**args)
 	return user
 
-def get_create_person_user(person):
+def get_or_create_person_user(person):
 	created = False
 	user = find_user(person)
 	userid = get_username(person)
@@ -135,7 +135,7 @@ def create_users(source):
 	for person in ims.get_persons():
 		userid = get_username(person)
 		person_userid = get_person_userid(person)
-		_, created = get_create_person_user(person)
+		_, created = get_or_create_person_user(person)
 		if created:
 			result[userid] = person_userid
 	return result
