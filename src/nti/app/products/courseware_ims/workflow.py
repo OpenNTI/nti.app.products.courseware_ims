@@ -110,6 +110,21 @@ def create_user(username, email, realname=None, meta=None):
 	user = User.create_user(**args)
 	return user
 
+def get_create_person_user(person):
+	created = False
+	user = find_user(person)
+	userid = get_username(person)
+	email = get_person_email(person)
+	user = User.get_user(userid) if user is None else user
+	if user is None:
+		mutil = component.queryUtility(IIMSUserCreationMetadata)
+		meta = mutil.data(person) if mutil is not None else None
+		realname = person.name if person.name else None
+		user = create_user(userid, email, realname, meta)
+		notify(IMSUserCreatedEvent(user, person))
+		created = True
+	return user, created
+
 def create_users(source):
 	result = {}
 	if IEnterprise.providedBy(source):
@@ -118,17 +133,10 @@ def create_users(source):
 		ims = Enterprise.parseFile(source)
 
 	for person in ims.get_persons():
-		user = find_user(person)
 		userid = get_username(person)
-		email = get_person_email(person)
 		person_userid = get_person_userid(person)
-		user = User.get_user(userid) if user is None else user
-		if user is None:
-			mutil = component.queryUtility(IIMSUserCreationMetadata)
-			meta = mutil.data(person) if mutil is not None else None
-			realname = person.name if person.name else None
-			user = create_user(userid, email, realname, meta)
-			notify(IMSUserCreatedEvent(user, person))
+		_, created = get_create_person_user(person)
+		if created:
 			result[userid] = person_userid
 	return result
 
