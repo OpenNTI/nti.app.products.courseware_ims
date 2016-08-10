@@ -97,33 +97,37 @@ def get_username(person):
 			result = result[:-16]
 	return result
 
+def create_user(username, email, realname=None, meta=None):
+	args = {'username': username}
+	ext_value = {'email': email}
+	if realname:
+		ext_value['realname'] = realname
+	args['external_value'] = ext_value
+
+	meta_data = {'check_verify_email': False}
+	meta_data.update(meta or {})
+	args['meta_data'] = meta_data
+	user = User.create_user(**args)
+	return user
+
 def create_users(source):
 	result = {}
-	ims = source if IEnterprise.providedBy(source) \
-		  else Enterprise.parseFile(source)
+	if IEnterprise.providedBy(source):
+		ims = source
+	else:
+		ims = Enterprise.parseFile(source)
 
 	for person in ims.get_persons():
-		userid = get_username(person)
-		person_userid = get_person_userid(person)
-
 		user = find_user(person)
+		userid = get_username(person)
 		email = get_person_email(person)
+		person_userid = get_person_userid(person)
 		user = User.get_user(userid) if user is None else user
 		if user is None:
-			args = {'username': userid}
-			ext_value = {'email': email}
-			if person.name:
-				ext_value['realname'] = person.name
-			args['external_value'] = ext_value
-
-			meta_data = {'check_verify_email': False}
 			mutil = component.queryUtility(IIMSUserCreationMetadata)
-			if mutil is not None:
-				data = mutil.data(person)
-				meta_data.update(data)
-			args['meta_data'] = meta_data
-
-			user = User.create_user(**args)
+			meta = mutil.data(person) if mutil is not None else None
+			realname = person.name if person.name else None
+			user = create_user(userid, email, realname, meta)
 			notify(IMSUserCreatedEvent(user, person))
 			result[userid] = person_userid
 	return result
@@ -285,7 +289,7 @@ def get_course(member, ims_courses, warns=()):
 
 def skip_record(member, cache):
 	status = member.role.status
-	if status == INACTIVE_STATUS: # drop
+	if status == INACTIVE_STATUS:  # drop
 		# check for an enrollment op in the same course, since the enrollment
 		# process drops any other enrollment in the course
 		key = "%s,%s,%s" % (member.course_id.id, member.sourcedid.id, ACTIVE_STATUS)
@@ -304,7 +308,7 @@ def process(ims_file, create_persons=False):
 	moves = LocatedExternalDict()
 	drops = LocatedExternalDict()
 	errollment = LocatedExternalDict()
-	
+
 	# simple closure to populate cache
 	cache = CaseInsensitiveDict()
 	def populate(member):
@@ -319,7 +323,7 @@ def process(ims_file, create_persons=False):
 		# instructors should be auto-created.
 		if member.is_instructor:
 			continue
-		
+
 		person = get_person(ims, member)
 		course_instance = get_course(member, ims_courses, warns)
 		if course_instance is None:
