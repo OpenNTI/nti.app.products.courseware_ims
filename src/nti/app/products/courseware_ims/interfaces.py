@@ -16,11 +16,11 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
-from nti.common.property import alias
-
 from nti.dataserver.interfaces import IUser
 
 from nti.ims.sis.interfaces import IPerson
+
+from nti.property.property import alias
 
 from nti.schema.field import Object
 from nti.schema.field import ValidTextLine
