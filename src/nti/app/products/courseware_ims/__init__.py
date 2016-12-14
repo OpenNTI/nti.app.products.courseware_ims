@@ -22,8 +22,7 @@ COURSE_SOURCEDID_KEY = 'nti.app.products.courseware_ims.COURSE_SOURCEDID_KEY'
 def get_course_sourcedid(context):
 	course = ICourseInstance(context, None)
 	annotations = IAnnotations(course, {})
-	result = annotations.get(COURSE_SOURCEDID_KEY)
-	return result
+	return annotations.get(COURSE_SOURCEDID_KEY)
 
 def set_course_sourcedid(context, sourceid=None):
 	course = ICourseInstance(context, None)

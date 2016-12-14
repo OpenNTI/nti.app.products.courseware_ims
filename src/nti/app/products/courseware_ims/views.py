@@ -48,6 +48,9 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 ITEMS = StandardExternalFields.ITEMS
+NTIID = StandardExternalFields.NTIID
+TOTAL = StandardExternalFields.TOTAL
+ITEM_COUNT = StandardExternalFields.ITEM_COUNT
 
 def get_source(values, keys, name):
 	# check map
@@ -129,7 +132,7 @@ class IMSCreateUsersView(AbstractAuthenticatedView,
 			restoreInteraction()
 		result = LocatedExternalDict()
 		result[ITEMS] = created
-		result['Total'] = result['ItemCount'] = len(created)
+		result[TOTAL] = result[ITEM_COUNT] = len(created)
 		return result
 
 @view_config(name='courses')
@@ -169,7 +172,7 @@ class IMSCoursesView(AbstractAuthenticatedView):
 			bundle = getattr(course_instance, 'ContentPackageBundle', None)
 			if bundle is not None:
 				bundle_info = entry['ContentPackageBundle'] = {}
-				bundle_info['NTIID'] = getattr(bundle, 'ntiid', None)
+				bundle_info[NTIID] = getattr(bundle, 'ntiid', None)
 				bundle_info['ContentPackages'] = \
 							[x.ntiid for x in bundle.ContentPackages or ()]
 		return entries
@@ -186,5 +189,5 @@ class IMSCoursesView(AbstractAuthenticatedView):
 			catalog = component.getUtility(ICourseCatalog)
 			entries = self._get_entries(catalog.iterCatalogEntries())
 		result[ITEMS] = entries
-		result['Total'] = result['ItemCount'] = len(entries)
+		result[TOTAL] = result[ITEM_COUNT] = len(entries)
 		return result
