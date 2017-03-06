@@ -9,6 +9,8 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+from requests.structures import CaseInsensitiveDict
+
 from zope import component
 from zope import lifecycleevent
 
@@ -21,8 +23,6 @@ from nti.app.products.courseware_ims.interfaces import IIMSUserFinder
 from nti.app.products.courseware_ims.interfaces import IIMSCourseCatalog
 from nti.app.products.courseware_ims.interfaces import IMSUserCreatedEvent
 from nti.app.products.courseware_ims.interfaces import IIMSUserCreationMetadata
-
-from nti.common.maps import CaseInsensitiveDict
 
 from nti.contenttypes.courses.interfaces import ES_PUBLIC
 from nti.contenttypes.courses.interfaces import ES_CREDIT_DEGREE

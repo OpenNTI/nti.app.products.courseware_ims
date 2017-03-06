@@ -12,6 +12,8 @@ logger = __import__('logging').getLogger(__name__)
 import os
 import six
 
+from requests.structures import CaseInsensitiveDict
+
 from zope import component
 
 from zope.security.management import endInteraction
@@ -31,8 +33,6 @@ from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
 
 from nti.app.products.ims.views import IMSPathAdapter
-
-from nti.common.maps import CaseInsensitiveDict
 
 from nti.common.string import is_true
 
