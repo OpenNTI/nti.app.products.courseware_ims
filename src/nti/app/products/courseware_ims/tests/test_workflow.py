@@ -69,8 +69,8 @@ class TestWorkflow(ApplicationLayerTest):
         return usr
 
     def test_order(self):
-        ims_xml = os.path.join(os.path.dirname(
-            __file__), 'ims_enroll_drop.xml')
+        ims_xml = os.path.join(os.path.dirname( __file__),
+							   'ims_enroll_drop.xml')
         ims = Enterprise.parseFile(ims_xml)
 
         members = list(ims.get_all_members())
@@ -102,8 +102,8 @@ class TestWorkflow(ApplicationLayerTest):
     def test_simple_workflow(self, mock_fic):
 
         ims_xml = os.path.join(os.path.dirname(__file__), 'ims_enroll.xml')
-        ims_un_xml = os.path.join(
-            os.path.dirname(__file__), 'ims_unenroll.xml')
+        ims_un_xml = os.path.join(os.path.dirname(__file__), 
+								  'ims_unenroll.xml')
 
         # create professor and student, in the global site because the names
         # are invalid in OU site
