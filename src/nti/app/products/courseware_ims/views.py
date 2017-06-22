@@ -21,11 +21,10 @@ from zope.security.management import restoreInteraction
 
 from pyramid import httpexceptions as hexc
 
-from pyramid.threadlocal import get_current_request
-
 from pyramid.view import view_config
 from pyramid.view import view_defaults
 
+from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
 from nti.app.externalization.error import raise_json_error
@@ -58,65 +57,60 @@ TOTAL = StandardExternalFields.TOTAL
 ITEM_COUNT = StandardExternalFields.ITEM_COUNT
 
 
-def get_source(values, keys, name):
-    # check map
-    source = None
-    for key in keys:
-        source = values.get(key)
-        if source is not None:
-            break
-    # validate
-    if isinstance(source, six.string_types):
-        source = os.path.expanduser(source)
-        if not os.path.exists(source):
-            message = '%s file not found.' % name
-            raise_json_error(get_current_request(),
-                             hexc.HTTPUnprocessableEntity,
-                             {
-                                 'message': message
-                             },
-                             None)
-    elif source is not None:
-        source = source.file
-        source.seek(0)
+def get_source(values, request):
+    sources = get_all_sources(request)
+    if sources:
+        ims_file = next(iter(sources.values()))
+        ims_file.seek(0)
     else:
-        message = 'No %s source provided.' % name
-        raise_json_error(get_current_request(),
+        ims_file = values.get('ims_file') or values.get('ims')
+        if isinstance(ims_file, six.string_types):
+            ims_file = os.path.expanduser(ims_file)
+            if not os.path.exists(ims_file):
+                message = u'%s file not found.' % ims_file
+                raise_json_error(request,
+                                 hexc.HTTPUnprocessableEntity,
+                                 {
+                                     'message': message
+                                 },
+                                 None)
+    if not ims_file:
+        message = u'No feed source provided.'
+        raise_json_error(request,
                          hexc.HTTPUnprocessableEntity,
                          {
                              'message': message
                          },
                          None)
-    return source
+    return ims_file
 
 
 @view_config(name='enrollment')
 @view_config(name='nti_enrollment')
 @view_defaults(route_name='objects.generic.traversal',
                renderer='rest',
-               name='nti_enrollment',
                context=IMSPathAdapter,
                permission=nauth.ACT_NTI_ADMIN)
 class IMSEnrollmentView(AbstractAuthenticatedView,
                         ModeledContentUploadRequestUtilsMixin):
 
     def readInput(self, value=None):
-        request = self.request
-        if request.POST:
-            values = CaseInsensitiveDict(request.POST)
+        if self.request.body:
+            values = super(IMSEnrollmentView, self).readInput(value)
         else:
-            values = super(IMSEnrollmentView, self).readInput(value=value)
-            values = CaseInsensitiveDict(values)
+            values = self.request.params
+        values = CaseInsensitiveDict(values)
         return values
 
     def __call__(self):
         values = self.readInput()
-        ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
+        ims_file = get_source(values, self.request)
+        # parse options
         create_persons = values.get('create_users') \
-        			  or values.get('create_persons')
+                      or values.get('create_persons')
         create_persons = is_true(create_persons)
         send_email = values.get('email') \
-           		  or values.get('sendEmail') \
+                  or values.get('sendEmail') \
                   or values.get('send_email')
         send_email = is_true(send_email)
         drop_missing = is_true(values.get('drop_missing'))
@@ -139,14 +133,17 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
 class IMSCreateUsersView(AbstractAuthenticatedView,
                          ModeledContentUploadRequestUtilsMixin):
 
-    def __call__(self):
-        request = self.request
-        if request.POST:
-            values = CaseInsensitiveDict(request.POST)
+    def readInput(self, value=None):
+        if self.request.body:
+            values = super(IMSCreateUsersView, self).readInput(value)
         else:
-            values = self.readInput()
-            values = CaseInsensitiveDict(values)
-        ims_file = get_source(values, ('ims_file', 'ims'), 'IMS')
+            values = self.request.params
+        values = CaseInsensitiveDict(values)
+        return values
+
+    def __call__(self):
+        values = self.readInput()
+        ims_file = get_source(values, self.request)
         endInteraction()
         try:
             created = create_users(ims_file)
