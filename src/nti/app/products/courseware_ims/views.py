@@ -21,10 +21,14 @@ from zope.security.management import restoreInteraction
 
 from pyramid import httpexceptions as hexc
 
+from pyramid.threadlocal import get_current_request
+
 from pyramid.view import view_config
 from pyramid.view import view_defaults
 
 from nti.app.base.abstract_views import AbstractAuthenticatedView
+
+from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
@@ -65,12 +69,24 @@ def get_source(values, keys, name):
     if isinstance(source, six.string_types):
         source = os.path.expanduser(source)
         if not os.path.exists(source):
-            raise hexc.HTTPUnprocessableEntity('%s file not found' % name)
+            message = '%s file not found.' % name
+            raise_json_error(get_current_request(),
+                             hexc.HTTPUnprocessableEntity,
+                             {
+                                 'message': message
+                             },
+                             None)
     elif source is not None:
         source = source.file
         source.seek(0)
     else:
-        raise hexc.HTTPUnprocessableEntity('No %s source provided' % name)
+        message = 'No %s source provided.' % name
+        raise_json_error(get_current_request(),
+                         hexc.HTTPUnprocessableEntity,
+                         {
+                             'message': message
+                         },
+                         None)
     return source
 
 
@@ -103,10 +119,11 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
            		  or values.get('sendEmail') \
                   or values.get('send_email')
         send_email = is_true(send_email)
+        drop_missing = is_true(values.get('drop_missing'))
         if not send_email:
             endInteraction()
         try:
-            result = process(ims_file, create_persons)
+            result = process(ims_file, create_persons, drop_missing)
         finally:
             if not send_email:
                 restoreInteraction()
@@ -181,8 +198,9 @@ class IMSCoursesView(AbstractAuthenticatedView):
             if bundle is not None:
                 bundle_info = entry['ContentPackageBundle'] = {}
                 bundle_info[NTIID] = getattr(bundle, 'ntiid', None)
-                bundle_info['ContentPackages'] = \
-                    [x.ntiid for x in bundle.ContentPackages or ()]
+                bundle_info['ContentPackages'] = [
+                    x.ntiid for x in bundle.ContentPackages or ()
+                ]
         return entries
 
     def __call__(self):

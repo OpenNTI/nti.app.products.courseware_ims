@@ -9,12 +9,16 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+from collections import defaultdict
+
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
 from zope import lifecycleevent
 
 from zope.event import notify
+
+from zope.security.interfaces import IPrincipal
 
 from nti.app.products.courseware_ims import get_course_sourcedid
 from nti.app.products.courseware_ims import set_course_sourcedid
@@ -212,7 +216,8 @@ def update_member_enrollment_status(course_instance, person, role,
             # Never before been enrolled
             logger.info('User %s enrolled in %s',
                         user, instance_entry.ProviderUniqueID)
-            enrollment_manager.enroll(user, scope=ES_CREDIT_DEGREE)
+            enrollment = enrollment_manager.enroll(user, 
+                                                   scope=ES_CREDIT_DEGREE)
         elif enrollment.Scope != ES_CREDIT_DEGREE:
             logger.info('User %s upgraded to ForCredit in %s',
                         user, instance_entry.ProviderUniqueID)
@@ -228,12 +233,12 @@ def update_member_enrollment_status(course_instance, person, role,
     elif role.status == INACTIVE_STATUS:
         # if enrolled but the course is not public then drop it
         if enrollment is not None:
-
-            if 		INonPublicCourseInstance.providedBy(course_instance) \
-            	or ICourseSubInstance.providedBy(course_instance):
+            if INonPublicCourseInstance.providedBy(course_instance) \
+                    or ICourseSubInstance.providedBy(course_instance):
                 logger.info('User %s dropping course %s',
                             user, instance_entry.ProviderUniqueID)
                 enrollment_manager.drop(user)
+                enrollment = None
 
                 # record drop
                 drop_info.setdefault(instance_entry.ProviderUniqueID, {})
@@ -253,23 +258,25 @@ def update_member_enrollment_status(course_instance, person, role,
                 move_info[instance_entry.ProviderUniqueID][username] = person_userid
 
         # set in an open enrollment
-        if enrollment is not None and enrollment.Scope != ES_PUBLIC and \
-                not is_there_an_open_enrollment(course_instance, user):
+        if      enrollment is not None \
+            and enrollment.Scope != ES_PUBLIC \
+            and not is_there_an_open_enrollment(course_instance, user):
             open_course = course_instance
 
             # if section and non public get main course
-            if 		ICourseSubInstance.providedBy(course_instance) \
-            	and INonPublicCourseInstance.providedBy(course_instance):
+            if      ICourseSubInstance.providedBy(course_instance) \
+                and INonPublicCourseInstance.providedBy(course_instance):
                 open_course = get_parent_course(course_instance)
 
             # do open enrollment
-            if  	not INonPublicCourseInstance.providedBy(open_course) \
-            	and not IDenyOpenEnrollment.providedBy(open_course):
+            if      not INonPublicCourseInstance.providedBy(open_course) \
+                and not IDenyOpenEnrollment.providedBy(open_course):
                 enrollments = ICourseEnrollments(open_course)
                 enrollment = enrollments.get_enrollment_for_principal(user)
                 if enrollment is None:
                     enrollment_manager = ICourseEnrollmentManager(open_course)
-                    enrollment_manager.enroll(user, scope=ES_PUBLIC)
+                    enrollment = enrollment_manager.enroll(
+                        user, scope=ES_PUBLIC)
 
                     # log public enrollment
                     entry = ICourseCatalogEntry(open_course)
@@ -280,11 +287,13 @@ def update_member_enrollment_status(course_instance, person, role,
                     enrrollment_info.setdefault(entry.ProviderUniqueID, {})
                     enrrollment_info[entry.ProviderUniqueID][username] = person_userid
             else:
-                logger.warn('User %s was not enolled to any PUBLIC version of course', 
-						    user)
+                logger.warn('User %s was not enolled to any PUBLIC version of course',
+                            user)
     else:
-        raise NotImplementedError("Unknown status", 
-								  role.status)
+        raise NotImplementedError("Unknown status", role.status)
+
+    # return enrollment
+    return enrollment
 
 
 def cmp_proxy(x, y):
@@ -311,8 +320,8 @@ def get_course(member, ims_courses, warns=()):
     if course_instance is None:
         if course_id not in warns:
             warns.add(course_id)
-            logger.warn("Course definition for %s was not found", 
-						course_id)
+            logger.warn("Course definition for %s was not found",
+                        course_id)
     return course_instance
 
 
@@ -327,7 +336,40 @@ def skip_record(member, cache):
     return False
 
 
-def process(ims_file, create_persons=False):
+def drop_missing_credit_students(course, enrollments=()):
+    result = set()
+    # transform list of enrollments
+    master = set()
+    for record in enrollments or ():
+        principal = IPrincipal(record, None)
+        if principal is not None:  # bad enrollment
+            master.add(principal.id.lower())
+    # drop enrollments for credit students not in master
+    course_enrollments = ICourseEnrollments(course)
+    enrollment_manager = ICourseEnrollmentManager(course)
+    for record in list(course_enrollments.iter_enrollments()):
+        drop = False
+        principal = IPrincipal(record, None)
+        if principal is None:  # bad enrollment
+            drop = True
+        elif    not principal.id.lower() in master \
+            and record.Scope == ES_CREDIT_DEGREE:
+            drop = True
+        if drop:
+            enrollment_manager.drop(principal)
+            result.add(principal)
+    # return drop principals
+    result.discard(None)
+    return result
+
+
+def process(ims_file, create_persons=False, drop_missing=False):
+    """
+    Process an IMS file feed
+    :param: ims_file: File feed
+    :param: bool create_persons: Create the users in the feed flag
+    :param: bool drop_missing: Drop missing credit students
+    """
     # check for the old calling convention
     assert isinstance(create_persons, bool)
     ims = Enterprise.parseFile(ims_file)
@@ -350,6 +392,8 @@ def process(ims_file, create_persons=False):
         cache[key] = member
         return member
 
+    enrollments = defaultdict(list)
+    enrollments.setdefault(list)
     # sort members (drops come first)
     members = sorted(ims.get_all_members(populate), cmp=cmp_proxy)
     for member in members:
@@ -371,9 +415,18 @@ def process(ims_file, create_persons=False):
         if sid != sourcedid:
             set_course_sourcedid(course_instance, sourcedid)
 
-        update_member_enrollment_status(course_instance, 
-                                        person, member.role,
-                                        errollment, moves, drops)
+        enrollment = update_member_enrollment_status(course_instance,
+                                                     person, member.role,
+                                                     errollment, moves, drops)
+        if enrollment is not None:
+            enrollments[course_instance].append(enrollment)
+
+    if drop_missing:
+        for course, values in enrollments.items():
+            principals = drop_missing_credit_students(course, values)
+            entry = ICourseCatalogEntry(course)
+            for p in principals:
+                drops[entry.ProviderUniqueID][p.id] = p.id
 
     result = LocatedExternalDict()
     result['Drops'] = drops
