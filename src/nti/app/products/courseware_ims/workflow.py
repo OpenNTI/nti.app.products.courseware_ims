@@ -393,7 +393,6 @@ def process(ims_file, create_persons=False, drop_missing=False):
         return member
 
     enrollments = defaultdict(list)
-    enrollments.setdefault(list)
     # sort members (drops come first)
     members = sorted(ims.get_all_members(populate), cmp=cmp_proxy)
     for member in members:
@@ -425,8 +424,10 @@ def process(ims_file, create_persons=False, drop_missing=False):
         for course, values in enrollments.items():
             principals = drop_missing_credit_students(course, values)
             entry = ICourseCatalogEntry(course)
-            for p in principals:
-                drops[entry.ProviderUniqueID][p.id] = p.id
+            drops.setdefault(entry.ProviderUniqueID, {})
+            for principal in principals or ():
+                principal = IPrincipal(principal)
+                drops[entry.ProviderUniqueID][principal.id] = principal.id
 
     result = LocatedExternalDict()
     result['Drops'] = drops

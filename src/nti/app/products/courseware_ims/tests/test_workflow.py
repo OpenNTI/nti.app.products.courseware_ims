@@ -69,8 +69,8 @@ class TestWorkflow(ApplicationLayerTest):
         return usr
 
     def test_order(self):
-        ims_xml = os.path.join(os.path.dirname( __file__),
-							   'ims_enroll_drop.xml')
+        ims_xml = os.path.join(os.path.dirname(__file__),
+                               'ims_enroll_drop.xml')
         ims = Enterprise.parseFile(ims_xml)
 
         members = list(ims.get_all_members())
@@ -102,8 +102,8 @@ class TestWorkflow(ApplicationLayerTest):
     def test_simple_workflow(self, mock_fic):
 
         ims_xml = os.path.join(os.path.dirname(__file__), 'ims_enroll.xml')
-        ims_un_xml = os.path.join(os.path.dirname(__file__), 
-								  'ims_unenroll.xml')
+        ims_un_xml = os.path.join(os.path.dirname(__file__),
+                                  'ims_unenroll.xml')
 
         # create professor and student, in the global site because the names
         # are invalid in OU site
@@ -133,7 +133,8 @@ class TestWorkflow(ApplicationLayerTest):
             assert_that(jobs2299, is_not(is_in(protected)))
             assert_that(jobs2299, is_not(is_in(public)))
             enrollments = ICourseEnrollments(course)
-            instructor_enrollments = enrollments.get_enrollment_for_principal(jobs2299)
+            instructor_enrollments = enrollments.get_enrollment_for_principal(
+                jobs2299)
             assert_that(instructor_enrollments, none())
 
             assert_that(enrollments.get_enrollment_for_principal(jobs2213),
@@ -147,3 +148,39 @@ class TestWorkflow(ApplicationLayerTest):
             assert_that(jobs2213, is_in(public))
             assert_that(enrollments.get_enrollment_for_principal(jobs2213),
                         has_property('Scope', ES_PUBLIC))
+
+    @WithSharedApplicationMockDS
+    @fudge.patch('nti.app.products.courseware_ims.workflow.find_ims_courses')
+    def test_drop_missing(self, mock_fic):
+
+        ims_bankai = os.path.join(os.path.dirname(__file__), 'ims_bankai.xml')
+        ims_shikai = os.path.join(os.path.dirname(__file__), 'ims_shikai.xml')
+
+        # create professor and student, in the global site because the names
+        # are invalid in OU site
+        with mock_dataserver.mock_db_trans(self.ds):
+            self._create_user(u'izuru173')
+            self._create_user(u'zaraki360')
+            self._create_user(u'ichigo1130')
+
+        with mock_dataserver.mock_db_trans(self.ds, site_name='platform.ou.edu'):
+            izuru173 = User.get_user(u'izuru173')
+            zaraki360 = User.get_user(u'zaraki360')
+            ichigo1130 = User.get_user(u'ichigo1130')
+
+            entry = self.catalog_entry()
+            course = ICourseInstance(entry)
+            courses = {u'26235.20131': course}
+            mock_fic.is_callable().with_args().returns(courses)
+
+            process(ims_shikai)
+
+            protected = course.SharingScopes[self._PROTECTED_SCOPE]
+
+            assert_that(izuru173, is_in(protected))
+
+            process(ims_bankai, drop_missing=True)
+
+            assert_that(izuru173, is_not(is_in(protected)))
+            assert_that(zaraki360, is_in(protected))
+            assert_that(ichigo1130, is_in(protected))
