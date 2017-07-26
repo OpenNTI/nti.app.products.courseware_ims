@@ -11,6 +11,7 @@ logger = __import__('logging').getLogger(__name__)
 
 import os
 import csv
+import six
 import sys
 import argparse
 import simplejson as json
@@ -23,7 +24,7 @@ from nti.dataserver.utils.base_script import create_context
 
 
 def _tx_string(s):
-    if s and isinstance(s, unicode):
+    if s and isinstance(s, six.text_type):
         s = s.encode('utf-8')
     return s
 

@@ -133,8 +133,7 @@ class TestWorkflow(ApplicationLayerTest):
             assert_that(jobs2299, is_not(is_in(protected)))
             assert_that(jobs2299, is_not(is_in(public)))
             enrollments = ICourseEnrollments(course)
-            instructor_enrollments = enrollments.get_enrollment_for_principal(
-                jobs2299)
+            instructor_enrollments = enrollments.get_enrollment_for_principal(jobs2299)
             assert_that(instructor_enrollments, none())
 
             assert_that(enrollments.get_enrollment_for_principal(jobs2213),
@@ -152,7 +151,6 @@ class TestWorkflow(ApplicationLayerTest):
     @WithSharedApplicationMockDS
     @fudge.patch('nti.app.products.courseware_ims.workflow.find_ims_courses')
     def test_drop_missing(self, mock_fic):
-
         ims_bankai = os.path.join(os.path.dirname(__file__), 'ims_bankai.xml')
         ims_shikai = os.path.join(os.path.dirname(__file__), 'ims_shikai.xml')
 

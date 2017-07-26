@@ -388,7 +388,8 @@ def process(ims_file, create_persons=False, drop_missing=False):
 
     def populate(member):
         key = "%s,%s,%s" % (member.course_id.id,
-                            member.sourcedid.id, member.role.status)
+                            member.sourcedid.id, 
+                            member.role.status)
         cache[key] = member
         return member
 
