@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 entry_points = {
     'console_scripts': [
-        "nti_ims_enrollment = nti.app.products.courseware_ims.enroll:main",
+        "nti_ims_enrollment = nti.app.products.courseware_ims.scripts.nti_ims_enrollment:main",
     ],
     "z3c.autoinclude.plugin": [
         'target = nti.app.products',

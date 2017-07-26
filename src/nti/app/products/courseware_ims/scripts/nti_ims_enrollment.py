@@ -19,6 +19,7 @@ import simplejson as json
 from nti.app.products.courseware_ims import workflow
 
 from nti.dataserver.utils import run_with_dataserver
+
 from nti.dataserver.utils.base_script import set_site
 from nti.dataserver.utils.base_script import create_context
 
@@ -72,8 +73,8 @@ def main():
     arg_parser.add_argument('--csv', dest='csv', action='store_true',
                             help="CSV output response")
 
-    arg_parser.add_argument(
-        '-o', '--output', dest='output', help="Output response path")
+    arg_parser.add_argument('-o', '--output', dest='output', 
+                            help="Output response path")
 
     args = arg_parser.parse_args()
 
