@@ -24,7 +24,7 @@ setup(
     description="Course-IMS Integration",
     long_description=(_read('README.rst') + '\n\n' + _read('CHANGES.rst')),
     license='Apache',
-    keywords='site alpha',
+    keywords='IMS courses',
     classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
