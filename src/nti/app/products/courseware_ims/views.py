@@ -35,7 +35,9 @@ from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
 
-from nti.app.products.ims.views import IMSPathAdapter
+from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
+
+from nti.app.products.ims.views import IMSPathAdapter, ConfiguredToolsGetView
 
 from nti.common.string import is_true
 
@@ -215,3 +217,18 @@ class IMSCoursesView(AbstractAuthenticatedView):
         result[ITEMS] = entries
         result[TOTAL] = result[ITEM_COUNT] = len(entries)
         return result
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='GET',
+             context=ICourseInstance,
+             name='configured_lti_tools')
+class CourseConfiguredToolView(ConfiguredToolsGetView):
+
+    def get_tools(self):
+        tools = ICourseConfiguredToolContainer(self.context)
+        return tools
+
+    def __call__(self):
+        pass

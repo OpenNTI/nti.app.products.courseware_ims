@@ -5,6 +5,9 @@
 """
 
 from __future__ import print_function, absolute_import, division
+
+from nti.ims.lti.interfaces import IConfiguredToolContainer
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -77,3 +80,7 @@ class IIMSUserCreationMetadata(interface.Interface):
 
 class IIMSEnrollmentOption(IEnrollmentOption):
     SourcedID = ValidTextLine(title=u"Sourced ID", required=True)
+
+
+class ICourseConfiguredToolContainer(IConfiguredToolContainer):
+    pass

@@ -16,4 +16,10 @@
 		root_interfaces=".interfaces.IIMSEnrollmentOption"
 		modules=".model" />
 
+	<!-- LTI -->
+
+	<adapter factory=".lti.course_to_configured_tool_container"
+			 provides=".interfaces.ICourseToolContainer"
+			 for="nti.contenttypes.courses.interfaces.ICourseInstance" />
+
 </configure>
