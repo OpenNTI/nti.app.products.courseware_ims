@@ -17,9 +17,8 @@
 		modules=".model" />
 
 	<!-- LTI -->
-
 	<adapter factory=".lti.course_to_configured_tool_container"
-			 provides=".interfaces.ICourseToolContainer"
+			 provides=".interfaces.ICourseConfiguredToolContainer"
 			 for="nti.contenttypes.courses.interfaces.ICourseInstance" />
 
 </configure>

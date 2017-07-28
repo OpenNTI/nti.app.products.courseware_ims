@@ -37,7 +37,7 @@ from nti.app.products.courseware_ims.workflow import find_ims_courses
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
-from nti.app.products.ims.views import IMSPathAdapter, ConfiguredToolsGetView
+from nti.app.products.ims.views import IMSPathAdapter, ConfiguredToolsGetView, ConfiguredToolCreateView
 
 from nti.common.string import is_true
 
@@ -230,5 +230,14 @@ class CourseConfiguredToolView(ConfiguredToolsGetView):
         tools = ICourseConfiguredToolContainer(self.context)
         return tools
 
-    def __call__(self):
-        pass
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='POST',
+             context=ICourseInstance,
+             name='create_lti_tool')
+class CourseConfiguredToolCreateView(ConfiguredToolCreateView):
+
+    def get_tools(self):
+        tools = ICourseConfiguredToolContainer(self.context)
+        return tools
