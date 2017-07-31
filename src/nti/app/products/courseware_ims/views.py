@@ -37,7 +37,11 @@ from nti.app.products.courseware_ims.workflow import find_ims_courses
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
-from nti.app.products.ims.views import IMSPathAdapter, ConfiguredToolsGetView, ConfiguredToolCreateView
+from nti.app.products.ims.views import ConfiguredToolCreateView
+from nti.app.products.ims.views import ConfiguredToolDeleteView
+from nti.app.products.ims.views import ConfiguredToolEditView
+from nti.app.products.ims.views import ConfiguredToolsGetView
+from nti.app.products.ims.views import IMSPathAdapter
 
 from nti.common.string import is_true
 
@@ -242,4 +246,32 @@ class CourseConfiguredToolCreateView(ConfiguredToolCreateView):
 
     def get_tools(self):
         tools = ICourseConfiguredToolContainer(self.context)
+        return tools
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='PUT',
+             context=ICourseInstance,
+             name='edit_lti_tool',
+             permission=nauth.ROLE_CONTENT_ADMIN)
+class CourseConfiguredToolEditView(ConfiguredToolEditView):
+
+    def get_tools(self):
+        parent = self.context.__parent__
+        tools = ICourseConfiguredToolContainer(parent)
+        return tools
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='DELETE',
+             context=ICourseInstance,
+             name='delete_lti_tool',
+             permission=nauth.ROLE_CONTENT_ADMIN)
+class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
+
+    def get_tools(self):
+        parent = self.context.__parent__
+        tools = ICourseConfiguredToolContainer(parent)
         return tools
