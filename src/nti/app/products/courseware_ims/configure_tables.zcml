@@ -1,0 +1,37 @@
+<!-- -*- mode: nxml -*- -->
+<configure	xmlns="http://namespaces.zope.org/zope"
+			xmlns:i18n="http://namespaces.zope.org/i18n"
+			xmlns:zcml="http://namespaces.zope.org/zcml">
+
+	<include package="zope.component" file="meta.zcml" />
+	<include package="zope.security" file="meta.zcml" />
+	<include package="zope.component" />
+	<include package="zope.security" />
+
+	<include package="z3c.table" />
+
+    <adapter factory="._table_utils.TitleColumn"
+             provides="z3c.table.interfaces.IColumn"
+             for="* * .views.LTIToolsTable"
+             name="title" />
+
+    <adapter factory="._table_utils.DescriptionColumn"
+         provides="z3c.table.interfaces.IColumn"
+         for="* * .views.LTIToolsTable"
+         name="description" />
+
+    <adapter factory="._table_utils.KeyColumn"
+         provides="z3c.table.interfaces.IColumn"
+         for="* * .views.LTIToolsTable"
+         name="consumer_key" />
+
+    <adapter factory="._table_utils.SecretColumn"
+         provides="z3c.table.interfaces.IColumn"
+         for="* * .views.LTIToolsTable"
+         name="secret" />
+
+    <adapter factory="._table_utils.DeleteColumn"
+         provides="z3c.table.interfaces.IColumn"
+         for="* * .views.LTIListToolsTable"
+         name="delete" />
+</configure>
