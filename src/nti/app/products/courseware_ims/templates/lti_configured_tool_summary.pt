@@ -7,6 +7,6 @@
 	</head>
 	<body>
 		<h2>Configured LTI Tool List</h2>
-            ${self/table}
+            ${table}
 	</body>
 </html>
