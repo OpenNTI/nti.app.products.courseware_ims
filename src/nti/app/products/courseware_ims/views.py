@@ -6,8 +6,6 @@
 
 from __future__ import print_function, absolute_import, division
 
-from nti.app.products.courseware_ims._table_utils import LTIToolsTable
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -17,7 +15,6 @@ import six
 
 from requests.structures import CaseInsensitiveDict
 
-from z3c.table import table
 from zope import component
 
 from zope.security.management import endInteraction
@@ -34,6 +31,9 @@ from nti.app.base.abstract_views import AbstractAuthenticatedView
 from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
+
+from nti.app.products.courseware_ims._table_utils import LTIToolsTable
+from nti.app.products.courseware_ims._table_utils import make_specific_table
 
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
@@ -287,7 +287,7 @@ class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
              name='list_lti_configured_tools')
 def list_tools(context, request):
     from IPython.core.debugger import Tracer;Tracer()()
-    tool_table = LTIListToolsTable(ICourseConfiguredToolContainer(context), request)
+    tool_table = make_specific_table(LTIListToolsTable, ICourseConfiguredToolContainer(context), request)
     return {'table': tool_table}
 
 
