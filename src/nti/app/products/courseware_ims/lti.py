@@ -24,10 +24,10 @@ class CourseConfiguredToolContainer(ConfiguredToolContainer):
 
 
 def course_to_configured_tool_container(course, create=True):
-
-    annotation = IAnnotations(course)
-    tools = annotation.get(TOOLS_ANNOTATION_KEY)
+    annotations = IAnnotations(course)
+    tools = annotations.get(TOOLS_ANNOTATION_KEY)
     if create and not tools:
         tools = CourseConfiguredToolContainer()
         tools.__parent__ = course
+        annotations[TOOLS_ANNOTATION_KEY] = tools
     return tools

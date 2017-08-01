@@ -227,8 +227,7 @@ class IMSCoursesView(AbstractAuthenticatedView):
              renderer='rest',
              request_method='GET',
              context=ICourseInstance,
-             name='configured_lti_tools',
-             permission=nauth.ROLE_CONTENT_ADMIN)
+             name='configured_lti_tools')
 class CourseConfiguredToolView(ConfiguredToolsGetView):
 
     def get_tools(self):
