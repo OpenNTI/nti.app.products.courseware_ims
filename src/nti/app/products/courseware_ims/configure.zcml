@@ -21,4 +21,10 @@
 			 provides=".interfaces.ICourseConfiguredToolContainer"
 			 for="nti.contenttypes.courses.interfaces.ICourseInstance" />
 
+	<!-- Traversal -->
+	<adapter name="LTIConfiguredTools"
+			 for=".interfaces.ICourseConfiguredToolContainer pyramid.interfaces.IRequest"
+			 factory=".lti._lti_configured_tools_adapter"
+			 provides="zope.traversing.interfaces.IPathAdapter" />
+
 </configure>
