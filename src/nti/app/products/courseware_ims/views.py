@@ -258,11 +258,11 @@ class CourseConfiguredToolEditView(ConfiguredToolEditView):
              renderer='rest',
              request_method='POST',
              context=ICourseInstance,
-             name='delete_lti_tool',
              permission=nauth.ROLE_CONTENT_ADMIN)
 class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
 
     def get_tools(self):
+        from IPython.core.debugger import Tracer;Tracer()()
         tools = ICourseConfiguredToolContainer(self.context)
         return tools
 

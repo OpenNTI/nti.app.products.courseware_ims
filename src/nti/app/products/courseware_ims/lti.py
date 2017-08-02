@@ -38,3 +38,15 @@ def course_to_configured_tool_container(course, create=True):
 @interface.implementer(IPathAdapter)
 def _course_to_configured_tool_container_path_adapter(context, request):
     return ICourseConfiguredToolContainer(context)
+
+
+def _create_tool_path_adapter(context, request):
+    pass
+
+
+def _edit_tool_path_adapter(context, request):
+    pass
+
+
+def _delete_tool_path_adapter(context, request):
+    pass

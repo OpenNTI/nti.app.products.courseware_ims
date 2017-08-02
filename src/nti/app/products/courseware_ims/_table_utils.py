@@ -36,15 +36,15 @@ class LTIToolsTable(table.Table):
 
 
 class TitleColumn(column.Column):
-    weight = 10
+    weight = 1
     header = u'Title'
 
     def renderCell(self, tool):
-        return tool.title
+        return tool.__name__
 
 
 class DescriptionColumn(column.Column):
-    weight = 10
+    weight = 2
     header = u'Description'
 
     def renderCell(self, tool):
@@ -52,7 +52,7 @@ class DescriptionColumn(column.Column):
 
 
 class KeyColumn(column.Column):
-    weight = 10
+    weight = 3
     header = u'Consumer Key'
 
     def renderCell(self, tool):
@@ -60,7 +60,7 @@ class KeyColumn(column.Column):
 
 
 class SecretColumn(column.Column):
-    weight = 10
+    weight = 4
     header = u'Secret'
 
     def renderCell(self, tool):
@@ -68,7 +68,7 @@ class SecretColumn(column.Column):
 
 
 class DeleteColumn(column.Column):
-    weight = 6
+    weight = 5
     buttonTitle = 'DELETE'
     header = u'Delete'
 
@@ -81,8 +81,9 @@ class DeleteColumn(column.Column):
 
         # if not has_permission(nauth.ACT_DELETE, item, user):
         #     return ''
+        from IPython.core.debugger import Tracer;Tracer()()
         action_url = self.request.resource_url(self.context, '@@delete_lti_tool')
-        return """<form action="%s" method="post" target="_blank">
+        return """<form action="%s" method="post">
                     <input type="hidden" name="tool_name" value=%s>
                     <button type="submit">%s</button>
 				  </form>"""\
