@@ -6,8 +6,6 @@
 
 from __future__ import print_function, absolute_import, division
 
-from nti.app.products.courseware_ims.lti import course_to_configured_tool_container
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -258,15 +256,14 @@ class CourseConfiguredToolEditView(ConfiguredToolEditView):
 
 @view_config(route_name='objects.generic.traversal',
              renderer='rest',
-             request_method='DELETE',
+             request_method='POST',
              context=ICourseInstance,
              name='delete_lti_tool',
              permission=nauth.ROLE_CONTENT_ADMIN)
 class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
 
     def get_tools(self):
-        parent = self.context.__parent__
-        tools = ICourseConfiguredToolContainer(parent)
+        tools = ICourseConfiguredToolContainer(self.context)
         return tools
 
 
@@ -276,8 +273,7 @@ class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
              context=ICourseInstance,
              name='list_lti_configured_tools')
 def list_tools(context, request):
-    context = course_to_configured_tool_container(context)
-    from IPython.core.debugger import Tracer;Tracer()()
-    tool_table = make_specific_table(LTIToolsTable, context, request)
+    container = ICourseConfiguredToolContainer(context)
+    tool_table = make_specific_table(LTIToolsTable, container, request)
     return {'table': tool_table}
 

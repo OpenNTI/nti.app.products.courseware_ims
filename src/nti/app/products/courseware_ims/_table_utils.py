@@ -25,6 +25,7 @@ class LTIToolsTable(table.Table):
 
     batchSize = 25
     startBatchingAt = 25
+    sortOn = None
 
     def batchRows(self):
         try:
@@ -39,7 +40,7 @@ class TitleColumn(column.Column):
     header = u'Title'
 
     def renderCell(self, tool):
-        return u'Title: %s' % tool.title
+        return tool.title
 
 
 class DescriptionColumn(column.Column):
@@ -47,7 +48,7 @@ class DescriptionColumn(column.Column):
     header = u'Description'
 
     def renderCell(self, tool):
-        return u'Description: %s' % tool.description
+        return tool.description
 
 
 class KeyColumn(column.Column):
@@ -55,7 +56,7 @@ class KeyColumn(column.Column):
     header = u'Consumer Key'
 
     def renderCell(self, tool):
-        return u'Consumer Key: %s' % tool.consumer_key
+        return tool.consumer_key
 
 
 class SecretColumn(column.Column):
@@ -63,7 +64,7 @@ class SecretColumn(column.Column):
     header = u'Secret'
 
     def renderCell(self, tool):
-        return u'Secret: %s' % tool.secret
+        return tool.secret
 
 
 class DeleteColumn(column.Column):
@@ -71,23 +72,21 @@ class DeleteColumn(column.Column):
     buttonTitle = 'DELETE'
     header = u'Delete'
 
-    def _oid(self, item):
-        return to_external_ntiid_oid(item)
-
     def _onsubmit(self, item):
         msg = "'Are you sure you want to delete the tool %s?'" % item.title
         return 'onclick="return confirm(%s)"' % msg
 
     def renderCell(self, item):
         user = get_remote_user(self.request)
-        if not has_permission(nauth.ACT_DELETE, item, user):
-            return ''
 
-        return """<form action="" method="post" %s>
-                    <input type="hidden" name="oid" value="%s">
+        # if not has_permission(nauth.ACT_DELETE, item, user):
+        #     return ''
+        action_url = self.request.resource_url(self.context, '@@delete_lti_tool')
+        return """<form action="%s" method="post" target="_blank">
+                    <input type="hidden" name="tool_name" value=%s>
                     <button type="submit">%s</button>
 				  </form>"""\
-               % (self._onsubmit(item), self._oid(item), self.buttonTitle)
+               % (action_url, item.__name__, self.buttonTitle)
 
 
 def make_specific_table(tableClassName, container, request):
@@ -95,8 +94,6 @@ def make_specific_table(tableClassName, container, request):
     the_table = tableClassName(container, IBrowserRequest(request))
 
     try:
-        from IPython.core.debugger import Tracer;Tracer()()
-
         the_table.update()
     except IndexError:
         the_table.batchStart = len(the_table.rows) - the_table.getBatchSize()
