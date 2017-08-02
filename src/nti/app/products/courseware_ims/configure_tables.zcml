@@ -12,26 +12,26 @@
 
     <adapter factory="._table_utils.TitleColumn"
              provides="z3c.table.interfaces.IColumn"
-             for="* * .views.LTIToolsTable"
+             for="* * ._table_utils.LTIToolsTable"
              name="title" />
 
     <adapter factory="._table_utils.DescriptionColumn"
          provides="z3c.table.interfaces.IColumn"
-         for="* * .views.LTIToolsTable"
+         for="* * ._table_utils.LTIToolsTable"
          name="description" />
 
     <adapter factory="._table_utils.KeyColumn"
          provides="z3c.table.interfaces.IColumn"
-         for="* * .views.LTIToolsTable"
+         for="* * ._table_utils.LTIToolsTable"
          name="consumer_key" />
 
     <adapter factory="._table_utils.SecretColumn"
          provides="z3c.table.interfaces.IColumn"
-         for="* * .views.LTIToolsTable"
+         for="* * ._table_utils.LTIToolsTable"
          name="secret" />
 
     <adapter factory="._table_utils.DeleteColumn"
          provides="z3c.table.interfaces.IColumn"
-         for="* * .views.LTIListToolsTable"
+         for="* * ._table_utils.LTIToolsTable"
          name="delete" />
 </configure>

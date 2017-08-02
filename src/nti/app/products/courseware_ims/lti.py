@@ -15,8 +15,6 @@ from zope.traversing.interfaces import IPathAdapter
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
-
-
 from nti.ims.lti.consumer import ConfiguredToolContainer
 
 TOOLS_ANNOTATION_KEY = 'lti_configured_tools'

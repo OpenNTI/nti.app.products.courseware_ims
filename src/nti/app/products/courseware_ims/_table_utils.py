@@ -95,6 +95,8 @@ def make_specific_table(tableClassName, container, request):
     the_table = tableClassName(container, IBrowserRequest(request))
 
     try:
+        from IPython.core.debugger import Tracer;Tracer()()
+
         the_table.update()
     except IndexError:
         the_table.batchStart = len(the_table.rows) - the_table.getBatchSize()

@@ -6,6 +6,8 @@
 
 from __future__ import print_function, absolute_import, division
 
+from nti.app.products.courseware_ims.lti import course_to_configured_tool_container
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -274,11 +276,8 @@ class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
              context=ICourseInstance,
              name='list_lti_configured_tools')
 def list_tools(context, request):
-    context = ICourseConfiguredToolContainer(context)
+    context = course_to_configured_tool_container(context)
     from IPython.core.debugger import Tracer;Tracer()()
-    tool_table = make_specific_table(LTIListToolsTable, context, request)
+    tool_table = make_specific_table(LTIToolsTable, context, request)
     return {'table': tool_table}
 
-
-class LTIListToolsTable(LTIToolsTable):
-    pass
