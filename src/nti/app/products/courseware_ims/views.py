@@ -229,18 +229,6 @@ class IMSCoursesView(AbstractAuthenticatedView):
 
 @view_config(route_name='objects.generic.traversal',
              renderer='rest',
-             request_method='GET',
-             context=ICourseInstance,
-             name='configured_lti_tools')
-class CourseConfiguredToolView(ConfiguredToolsGetView):
-
-    def get_tools(self):
-        tools = ICourseConfiguredToolContainer(self.context)
-        return tools
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='rest',
              request_method='POST',
              context=ICourseInstance,
              name='create_lti_tool',
@@ -283,8 +271,7 @@ class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
 @view_config(route_name='objects.generic.traversal',
              renderer='templates/lti_configured_tool_summary.pt',
              request_method='GET',
-             context=ICourseInstance,
-             name='list_lti_configured_tools')
+             context=ICourseInstance)
 def list_tools(context, request):
     from IPython.core.debugger import Tracer;Tracer()()
     tool_table = make_specific_table(LTIListToolsTable, ICourseConfiguredToolContainer(context), request)

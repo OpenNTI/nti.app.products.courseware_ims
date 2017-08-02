@@ -8,6 +8,6 @@
 	</head>
 	<body>
 		<h2>Configured LTI Tool List</h2>
-            <table tal:condition="python: len(table.context)" tal:replace="structure table/render" />
+            <table tal:replace="structure context/table/render" />
 	</body>
 </html>
