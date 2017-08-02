@@ -84,3 +84,4 @@ class IIMSEnrollmentOption(IEnrollmentOption):
 
 class ICourseConfiguredToolContainer(IConfiguredToolContainer):
     pass
+

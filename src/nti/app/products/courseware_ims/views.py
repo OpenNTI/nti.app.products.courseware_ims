@@ -6,6 +6,10 @@
 
 from __future__ import print_function, absolute_import, division
 
+from nti.ims.lti.interfaces import IConfiguredTool
+from zope.formlib import form
+from zope.publisher.browser import TestRequest
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -276,4 +280,30 @@ def list_tools(context, request):
     container = ICourseConfiguredToolContainer(context)
     tool_table = make_specific_table(LTIToolsTable, container, request)
     return {'table': tool_table}
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/lti_create_configured_tool.pt',
+             request_method='GET',
+             context=ICourseInstance,
+             name='create_configured_lti_tool')
+def create_tool(context, request):
+
+    request = TestRequest()
+    form_fields = form.Fields(IConfiguredTool, omit_readonly=False)
+    form_fields = form_fields.omit('config')
+    prefix = 'form'
+    actions = form.Actions(
+        form.Action('Create', success='handle_creation'),
+    )
+
+    widgets = form.setUpWidgets(form_fields, prefix, None, request,
+                            ignore_request=True)
+
+    result = [widget() for widget in widgets]
+
+    for action in actions:
+        result.append(action.render())
+
+    return {'form': '\n'.join(result)}
 
