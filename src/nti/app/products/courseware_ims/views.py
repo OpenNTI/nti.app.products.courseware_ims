@@ -271,10 +271,12 @@ class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
 @view_config(route_name='objects.generic.traversal',
              renderer='templates/lti_configured_tool_summary.pt',
              request_method='GET',
-             context=ICourseInstance)
+             context=ICourseInstance,
+             name='list_lti_configured_tools')
 def list_tools(context, request):
+    context = ICourseConfiguredToolContainer(context)
     from IPython.core.debugger import Tracer;Tracer()()
-    tool_table = make_specific_table(LTIListToolsTable, ICourseConfiguredToolContainer(context), request)
+    tool_table = make_specific_table(LTIListToolsTable, context, request)
     return {'table': tool_table}
 
 
