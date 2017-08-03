@@ -36,9 +36,6 @@ from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
-from nti.app.products.courseware_ims._table_utils import LTIToolsTable
-from nti.app.products.courseware_ims._table_utils import make_specific_table
-
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
