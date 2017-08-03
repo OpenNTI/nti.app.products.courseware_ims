@@ -5,9 +5,48 @@
     <head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>Create an LTI Configured Tool</title>
+        <script type="text/javascript">
+            function displayForm(uploadXML){
+                if(uploadXML.value == "1"){
+                    document.getElementById("upload").style.visibility='visible';
+                    document.getElementById("input").style.visibility='hidden';
+                }
+                else if(uploadXML.value =="2"){
+                    document.getElementById("upload").style.visibility='hidden';
+                    document.getElementById("input").style.visibility='visible';
+                }
+                else{
+                }
+
+            }
+        </script>
 	</head>
 	<body>
 		<h2>Create an LTI Configured Tool</h2>
-            <form tal:replace="structure options/form" />
+            <form method="post" target="creation_response" action="@@create_lti_tool">
+                <label>Title<input type="text" name="title"></label><br>
+                <label>Description<input type="textarea" name="description" rows="3" cols="50"></label><br>
+                <label>Consumer Key<input type="text" name="consumer_key"></label><br>
+                <label>Secret<input type="text" name="secret"></label><br>
+
+                <label>Upload XML Tool Config<input checked="checked" value="1" type="radio" name="formselector" onclick="displayForm(this)"></label>
+                <label>Input Tool Config parameters<input value="2" type="radio" name="formselector" onclick="displayForm(this)"></label>
+
+                <div id="upload" style="visibility:visible">
+                    <input type="file" accept=".xml/*"/>
+                </div>
+
+                <div id="input" style="visibility:hidden">
+                    <label>Launch URL<input type="text" name="launch_url"></label><br>
+                    <label>Secure Launch URL<input type="text" name="secure_launch_url"></label>
+                </div>
+
+                <input type="hidden" name="MimeType" value="application/vnd.nextthought.ims.consumer.configuredtool">
+
+                <button type="submit" value="Submit">Submit</button>
+                <button type="reset">Reset</button>
+            </form>
+            <iframe name="creation_response"></iframe>
+
 	</body>
 </html>

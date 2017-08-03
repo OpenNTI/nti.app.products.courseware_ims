@@ -6,6 +6,7 @@
 
 from __future__ import print_function, absolute_import, division
 
+from lti import tool_config
 from nti.ims.lti.interfaces import IConfiguredTool
 from zope.formlib import form
 from zope.publisher.browser import TestRequest
@@ -287,7 +288,7 @@ def list_tools(context, request):
              request_method='GET',
              context=ICourseInstance,
              name='create_configured_lti_tool')
-def create_tool(context, request):
+def create_tool_view(context, request):
 
     request = TestRequest()
     form_fields = form.Fields(IConfiguredTool, omit_readonly=False)
@@ -306,4 +307,18 @@ def create_tool(context, request):
         result.append(action.render())
 
     return {'form': '\n'.join(result)}
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='POST',
+             context=ICourseInstance,
+             name='handle_tool_creation')
+def handle_tool_creation(context, request):
+
+    from IPython.core.debugger import Tracer;Tracer()()
+
+    creator = ConfiguredToolCreateView(request)
+
+    return creator()
 
