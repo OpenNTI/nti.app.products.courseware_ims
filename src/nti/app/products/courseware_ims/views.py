@@ -40,12 +40,6 @@ from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
 
-from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
-
-from nti.app.products.ims.views import ConfiguredToolCreateView
-from nti.app.products.ims.views import ConfiguredToolDeleteView
-from nti.app.products.ims.views import ConfiguredToolEditView
-from nti.app.products.ims.views import ConfiguredToolsGetView
 from nti.app.products.ims.views import IMSPathAdapter
 
 from nti.common.string import is_true
@@ -226,41 +220,3 @@ class IMSCoursesView(AbstractAuthenticatedView):
         result[ITEMS] = entries
         result[TOTAL] = result[ITEM_COUNT] = len(entries)
         return result
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='rest',
-             request_method='POST',
-             context=ICourseInstance,
-             name='create_lti_tool',
-             permission=nauth.ROLE_CONTENT_ADMIN)
-class CourseConfiguredToolCreateView(ConfiguredToolCreateView):
-
-    def get_tools(self):
-        tools = ICourseConfiguredToolContainer(self.context)
-        return tools
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='rest',
-             request_method='PUT',
-             context=ICourseInstance,
-             name='edit_lti_tool',
-             permission=nauth.ROLE_CONTENT_ADMIN)
-class CourseConfiguredToolEditView(ConfiguredToolEditView):
-
-    def get_tools(self):
-        tools = ICourseConfiguredToolContainer(self.context)
-        return tools
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='rest',
-             request_method='POST',
-             context=ICourseInstance,
-             permission=nauth.ROLE_CONTENT_ADMIN)
-class CourseConfiguredToolDeleteView(ConfiguredToolDeleteView):
-
-    def get_tools(self):
-        tools = ICourseConfiguredToolContainer(self.context)
-        return tools

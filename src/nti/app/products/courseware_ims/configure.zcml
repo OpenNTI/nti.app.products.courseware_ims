@@ -27,9 +27,4 @@
 			 factory=".lti._course_to_configured_tool_container_path_adapter"
 			 provides="zope.traversing.interfaces.IPathAdapter" />
 
-	<adapter name="delete"
-			 for="nti.contenttypes.courses.interfaces.ICourseInstance pyramid.interfaces.IRequest"
-			 factory=".lti._delete_tool_path_adapter"
-			 provides="zope.traversing.interfaces.IPathAdapter" />
-
 </configure>
