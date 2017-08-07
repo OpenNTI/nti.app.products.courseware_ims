@@ -6,10 +6,6 @@
 
 from __future__ import print_function, absolute_import, division
 
-from nti.ims.lti.interfaces import IConfiguredTool
-from zope.formlib import form
-from zope.publisher.browser import TestRequest
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)

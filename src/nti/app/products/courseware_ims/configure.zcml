@@ -27,4 +27,6 @@
 			 factory=".lti._course_to_configured_tool_container_path_adapter"
 			 provides="zope.traversing.interfaces.IPathAdapter" />
 
+	<!-- ACL -->
+	<adapter factory=".lti._CourseConfiguredToolContainerACLProvider" />
 </configure>
