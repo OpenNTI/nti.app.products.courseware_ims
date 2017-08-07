@@ -12,6 +12,8 @@ from zope import interface
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
+from nti.contenttypes.courses.acl import editor_aces_for_course
+
 from nti.dataserver import authorization as nauth
 
 from nti.dataserver.authorization_acl import ace_allowing
@@ -36,6 +38,6 @@ class _CourseConfiguredToolContainerACLProvider(object):
     def __acl__(self):
         aces = [ace_allowing(x, CRUD)
                 for x in self.course.instructors]
-        aces.append(ace_allowing(nauth.ROLE_CONTENT_EDITOR, CRUD))
+        aces.append(editor_aces_for_course(self.course, self))
 
         return acl_from_aces(aces)
