@@ -87,4 +87,3 @@ class ICourseConfiguredToolContainer(IConfiguredToolContainer):
     A course instance wrapper of an LTI Configured Tool Container
     """
     pass
-
