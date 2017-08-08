@@ -16,4 +16,19 @@
 		root_interfaces=".interfaces.IIMSEnrollmentOption"
 		modules=".model" />
 
+	<!-- LTI -->
+	<adapter factory=".adapters.course_to_configured_tool_container"
+			 provides=".interfaces.ICourseConfiguredToolContainer"
+			 for="nti.contenttypes.courses.interfaces.ICourseInstance" />
+
+	<!-- Traversal -->
+	<adapter name="LTIConfiguredTools"
+			 for="nti.contenttypes.courses.interfaces.ICourseInstance pyramid.interfaces.IRequest"
+			 factory=".traversal._course_to_configured_tool_container_path_adapter"
+			 provides="zope.traversing.interfaces.IPathAdapter" />
+
+	<!-- ACL -->
+	<adapter factory=".acl._CourseConfiguredToolContainerACLProvider"
+			 provides="nti.dataserver.interfaces.IACLProvider"
+			 for=".interfaces.ICourseConfiguredToolContainer"/>
 </configure>

@@ -5,6 +5,7 @@
 """
 
 from __future__ import print_function, absolute_import, division
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -18,6 +19,8 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
 from nti.dataserver.interfaces import IUser
+
+from nti.ims.lti.interfaces import IConfiguredToolContainer
 
 from nti.ims.sis.interfaces import IPerson
 
@@ -77,3 +80,11 @@ class IIMSUserCreationMetadata(interface.Interface):
 
 class IIMSEnrollmentOption(IEnrollmentOption):
     SourcedID = ValidTextLine(title=u"Sourced ID", required=True)
+
+
+class ICourseConfiguredToolContainer(IConfiguredToolContainer):
+    """
+    A course instance wrapper of an LTI Configured Tool Container
+    """
+    pass
+
