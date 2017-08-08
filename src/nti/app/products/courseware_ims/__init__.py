@@ -9,8 +9,7 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-import zope.i18nmessageid
-MessageFactory = zope.i18nmessageid.MessageFactory("nti.app.products.ims")
+from nti.app.products.ims import MessageFactory
 
 from zope.annotation.interfaces import IAnnotations
 
