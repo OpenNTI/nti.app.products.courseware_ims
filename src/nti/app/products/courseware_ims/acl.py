@@ -19,6 +19,7 @@ from nti.dataserver import authorization as nauth
 from nti.dataserver.authorization_acl import ace_allowing
 from nti.dataserver.authorization_acl import acl_from_aces
 
+from nti.dataserver.interfaces import ACE_DENY_ALL
 from nti.dataserver.interfaces import IACLProvider
 
 CRUD = (nauth.ACT_CREATE.id,
@@ -39,5 +40,6 @@ class _CourseConfiguredToolContainerACLProvider(object):
         aces = [ace_allowing(x, CRUD)
                 for x in self.course.instructors]
         aces.extend(editor_aces_for_course(self.course, self))
+        aces.append(ACE_DENY_ALL)
 
         return acl_from_aces(aces)
