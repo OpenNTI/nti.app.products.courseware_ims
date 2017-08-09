@@ -11,22 +11,20 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope.annotation import IAnnotations
 
-from ZODB.interfaces import IConnection
-
 from nti.app.products.courseware_ims.lti import CourseConfiguredToolContainer
+
+from nti.contenttypes.courses.interfaces import ICourseInstance
 
 TOOLS_ANNOTATION_KEY = 'lti_configured_tools'
 
 
-def course_to_configured_tool_container(course, create=True):
+def course_to_configured_tool_container(context, create=True):
+    course = ICourseInstance(context)
     annotations = IAnnotations(course)
     tools = annotations.get(TOOLS_ANNOTATION_KEY)
-    if create and not tools:
+    if create and tools is None:
         tools = CourseConfiguredToolContainer()
         tools.__parent__ = course
         tools.__name__ = TOOLS_ANNOTATION_KEY
         annotations[TOOLS_ANNOTATION_KEY] = tools
-        connection = IConnection(course, None)
-        if connection is not None and IConnection(tools, None) is None:
-            connection.add(tools)
     return tools
