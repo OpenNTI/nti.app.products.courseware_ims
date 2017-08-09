@@ -8,8 +8,8 @@
     </head>
     <body>
         <form tal:attributes="action context/launch_url" target="tool" method="post" >
-            <tal:block tal:repeat="(key, value) options/launch_data">
-                <input type="hidden" tal:attributes="name='key' value='value'">
+            <tal:block tal:repeat="(key, value) options/launch_data/items">
+                <input type="hidden" tal:attributes="name 'key'; value 'value'">
             </tal:block>
             <input type="submit" value="Submit">
         </form>
