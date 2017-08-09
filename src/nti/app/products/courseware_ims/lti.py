@@ -45,3 +45,7 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
     @readproperty
     def launch_url(self):
         return self.configured_tool.launch_url
+
+    @readproperty
+    def config(self):
+        return self.configured_tool.config
