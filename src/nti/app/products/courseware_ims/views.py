@@ -219,3 +219,15 @@ class IMSCoursesView(AbstractAuthenticatedView):
         result[ITEMS] = entries
         result[TOTAL] = result[ITEM_COUNT] = len(entries)
         return result
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             name='launch',
+             context=IExternalToolAsset,
+             permission=nauth.ACT_CREATE)
+class LaunchExternalToolAssetView(AbstractAuthenticatedView):
+
+    def __call__(self):
+        tool = self.context
+        tool_consumer = ToolConsumer(tool.consumer_key, tool.secret, params={'launch_url': None})
+        tool_consumer.set_config(tool.config)

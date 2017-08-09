@@ -39,7 +39,6 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
         self.__name__ = tool.__name__
         self.__parent__ = ICourseInstance
         self._configured_tool = tool
-        self.configured_tool = None
 
     @property
     def configured_tool(self):
