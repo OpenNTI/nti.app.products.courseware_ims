@@ -11,8 +11,6 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope import interface
 
-from zope.container.constraints import contains
-
 from zope.lifecycleevent import ObjectCreatedEvent
 
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
@@ -20,11 +18,10 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
 from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
-from nti.contenttypes.presentation.interfaces import IPresentationAssetContainer
+from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
 
 from nti.dataserver.interfaces import IUser
 
-from nti.ims.lti.interfaces import IConfiguredTool
 from nti.ims.lti.interfaces import IConfiguredToolContainer
 
 from nti.ims.sis.interfaces import IPerson
@@ -94,15 +91,8 @@ class ICourseConfiguredToolContainer(IConfiguredToolContainer):
     pass
 
 
-class ILTIExternalTool(ICoursePresentationAsset):
+class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset):
     """
-    An NTI representation of an LTI defined Tool
+    A marker interface for the NTI representation of an LTI defined Tool
     """
 
-    configured_tool = Object(IConfiguredTool,
-                             required=True)
-
-
-class ILTIExternalToolContainer(IPresentationAssetContainer):
-
-    contains(ILTIExternalTool)
