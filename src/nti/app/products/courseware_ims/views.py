@@ -241,18 +241,15 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
         tool_consumer = ToolConsumer(tool.consumer_key, tool.secret, params=parsed)
         tool_consumer.set_config(tool.config)
 
-        launch_request = tool_consumer.generate_launch_request()
-
-        return launch_view(self.context, self.request, launch_request)
+        return launch_view(tool_consumer, self.request)
 
 
 @view_config(route_name='objects.generic.traversal',
              renderer='templates/launch_external_tool.pt',
              request_method='GET',
-             context=IExternalToolAsset,
+             context=ToolConsumer,
              permission=nauth.ACT_READ)
 def launch_view(context, request, launch_request):
-
     return
 
 
