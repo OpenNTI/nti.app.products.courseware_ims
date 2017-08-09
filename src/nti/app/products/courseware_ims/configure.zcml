@@ -21,6 +21,11 @@
 			 provides=".interfaces.ICourseConfiguredToolContainer"
 			 for="nti.contenttypes.courses.interfaces.ICourseInstance" />
 
+	<!-- TODO what this adapts for may need revised -->
+	<adapter factory=".lti.LTIExternalToolAsset"
+			 provides=".interfaces.IExternalToolAsset"
+			 for="nti.ims.lti.interfaces.IConfiguredTool" />
+
 	<!-- Traversal -->
 	<adapter name="LTIConfiguredTools"
 			 for="nti.contenttypes.courses.interfaces.ICourseInstance pyramid.interfaces.IRequest"

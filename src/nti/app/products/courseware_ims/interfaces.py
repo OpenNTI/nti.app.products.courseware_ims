@@ -18,6 +18,7 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
 from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
+from nti.contenttypes.presentation.interfaces import IGroupOverViewable
 from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
 
 from nti.dataserver.interfaces import IUser
@@ -91,8 +92,8 @@ class ICourseConfiguredToolContainer(IConfiguredToolContainer):
     pass
 
 
-class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset):
+class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset, IGroupOverViewable):
     """
-    A marker interface for the NTI representation of an LTI defined Tool
+    The NTI representation of an LTI defined Tool
     """
 
