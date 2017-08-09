@@ -17,7 +17,7 @@ from zope.cachedescriptors.property import readproperty
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
-from nti.base.mixins import CreatedAndModifiedTimeMixin
+from nti.contenttypes.presentation.mixins import PersistentPresentationAsset
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
@@ -30,7 +30,7 @@ class CourseConfiguredToolContainer(ConfiguredToolContainer):
 
 
 @interface.implementer(IExternalToolAsset)
-class LTIExternalToolAsset(CreatedAndModifiedTimeMixin):
+class LTIExternalToolAsset(PersistentPresentationAsset):
 
     def __init__(self, tool):
         super(LTIExternalToolAsset, self).__init__()
