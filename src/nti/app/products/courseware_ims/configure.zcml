@@ -13,8 +13,10 @@
 	<include package="nti.externalization" file="meta.zcml" />
 	<include package="nti.externalization" />
 	<ext:registerAutoPackageIO
-		root_interfaces=".interfaces.IIMSEnrollmentOption"
-		modules=".model" />
+		root_interfaces=".interfaces.IIMSEnrollmentOption
+						 .interfaces.IExternalToolAsset"
+		modules=".model
+				 .lti" />
 
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"
@@ -26,8 +28,13 @@
 			 provides=".interfaces.IExternalToolAsset"
 			 for="nti.ims.lti.interfaces.IConfiguredTool" />
 
+	<!-- Internalization -->
+	<adapter factory=".lti.ExternalToolAssetUpdater"
+			 provides="nti.externalization.interfaces.IInternalObjectUpdater"
+			 for=".interfaces.IExternalToolAsset" />
+
 	<!-- Traversal -->
-	<adapter name="LTIConfiguredTools"
+	<adapter name="lti_configured_tools"
 			 for="nti.contenttypes.courses.interfaces.ICourseInstance pyramid.interfaces.IRequest"
 			 factory=".traversal._course_to_configured_tool_container_path_adapter"
 			 provides="zope.traversing.interfaces.IPathAdapter" />

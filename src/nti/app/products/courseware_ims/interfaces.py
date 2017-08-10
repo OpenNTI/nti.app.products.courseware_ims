@@ -23,7 +23,7 @@ from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
 
 from nti.dataserver.interfaces import IUser
 
-from nti.ims.lti.interfaces import IConfiguredToolContainer
+from nti.ims.lti.interfaces import IConfiguredToolContainer, IConfiguredTool
 
 from nti.ims.sis.interfaces import IPerson
 
@@ -96,4 +96,7 @@ class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset, IGroupOver
     """
     The NTI representation of an LTI defined Tool
     """
+
+    ConfiguredTool = Object(IConfiguredTool,
+                            required=True)
 
