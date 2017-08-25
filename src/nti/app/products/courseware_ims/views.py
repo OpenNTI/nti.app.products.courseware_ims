@@ -19,6 +19,8 @@ from zope import component
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
+from lti import ToolConsumer
+
 from pyramid import httpexceptions as hexc
 
 from pyramid.view import view_config
@@ -32,6 +34,8 @@ from nti.app.externalization.error import raise_json_error
 from nti.app.externalization.internalization import read_body_as_external_object
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
+
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
@@ -247,9 +251,3 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
              permission=nauth.ACT_READ)
 def launch_view(context, request, tool_consumer):
     return {'launch_data': tool_consumer.generate_launch_data()}
-
-
-
-
-
-
