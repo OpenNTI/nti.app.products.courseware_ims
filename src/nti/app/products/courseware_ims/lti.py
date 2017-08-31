@@ -50,6 +50,9 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     __name__ = alias('ntiid')
 
+    def __init__(self, *args, **kwargs):
+        super(LTIExternalToolAsset, self).__init__(*args, **kwargs)
+
     @readproperty
     def ntiid(self):
         self.ntiid = self.generate_ntiid(self.nttype)

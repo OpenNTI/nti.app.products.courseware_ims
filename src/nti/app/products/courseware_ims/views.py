@@ -5,6 +5,7 @@
 """
 
 from __future__ import print_function, absolute_import, division
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -50,6 +51,8 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 
 from nti.contenttypes.courses.utils import get_course_vendor_info
+
+from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
 
 from nti.dataserver import authorization as nauth
 
@@ -222,13 +225,21 @@ class IMSCoursesView(AbstractAuthenticatedView):
         result[TOTAL] = result[ITEM_COUNT] = len(entries)
         return result
 
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/create_external_tool.pt',
+             name='create_external_tool',
+             request_method='GET',
+             context=INTICourseOverviewGroup)
+class CreateExternalToolAssetView(AbstractAuthenticatedView):
+    pass
+
 
 @view_config(route_name='objects.generic.traversal',
              renderer='rest',
              name='launch',
              request_method='POST',
              context=IExternalToolAsset,
-             permission=nauth.ACT_CREATE)
+             permission=nauth.ACT_READ)
 class LaunchExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
