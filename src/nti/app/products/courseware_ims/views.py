@@ -6,6 +6,8 @@
 
 from __future__ import print_function, absolute_import, division
 
+from nti.ims.lti.consumer import ConfiguredTool
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -225,13 +227,23 @@ class IMSCoursesView(AbstractAuthenticatedView):
         result[TOTAL] = result[ITEM_COUNT] = len(entries)
         return result
 
+
 @view_config(route_name='objects.generic.traversal',
              renderer='templates/create_external_tool.pt',
              name='create_external_tool',
              request_method='GET',
              context=INTICourseOverviewGroup)
 class CreateExternalToolAssetView(AbstractAuthenticatedView):
-    pass
+
+    def __call__(self):
+        tool = ConfiguredTool()
+        tool.title = 'test'
+        tool.description = 'test desc'
+        tool.launch_url = 'launch'
+        tool.secure_launch_url = 'secure_launch'
+        tool.ntiid = 'ntiid'
+        container = [tool]
+        return {'tools': container}
 
 
 @view_config(route_name='objects.generic.traversal',

@@ -5,10 +5,12 @@
 """
 
 from __future__ import print_function, absolute_import, division
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+from zope import component
 from zope import interface
 
 from zope.cachedescriptors.property import readproperty
@@ -21,8 +23,11 @@ from nti.contenttypes.presentation.mixins import PersistentPresentationAsset
 from nti.externalization.datastructures import InterfaceObjectIO
 
 from nti.externalization.interfaces import IInternalObjectUpdater
+from nti.externalization.interfaces import StandardExternalFields
 
 from nti.ims.lti.consumer import ConfiguredToolContainer
+
+from nti.ntiids.interfaces import INTIIDResolver
 
 from nti.property.property import alias
 
@@ -76,4 +81,14 @@ class ExternalToolAssetUpdater(InterfaceObjectIO):
 
     _ext_iface_upper_bound = IExternalToolAsset
 
-    __external_oids__ = ('ConfiguredTool', )
+    __external_oids__ = ('ConfiguredTool',)
+
+
+@interface.implementer(INTIIDResolver)
+class NTIIDReferenceResolver(object):
+
+    _ext_iface = IExternalToolAsset
+
+    def resolve(self, key):
+        result = component.queryUtility(self._ext_iface, name=key)
+        return result

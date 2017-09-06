@@ -23,10 +23,10 @@
 			 provides=".interfaces.ICourseConfiguredToolContainer"
 			 for="nti.contenttypes.courses.interfaces.ICourseInstance" />
 
-	<!-- TODO what this adapts for may need revised -->
-	<adapter factory=".lti.LTIExternalToolAsset"
-			 provides=".interfaces.IExternalToolAsset"
-			 for="nti.ims.lti.interfaces.IConfiguredTool" />
+	<!-- NTIID Resolver -->
+	<utility factory=".lti.NTIIDReferenceResolver"
+			 provides="nti.ntiids.interfaces.INTIIDResolver"
+			 name="NTIExternalToolAsset" />
 
 	<!-- Internalization -->
 	<adapter factory=".lti.ExternalToolAssetUpdater"
