@@ -229,24 +229,6 @@ class IMSCoursesView(AbstractAuthenticatedView):
 
 
 @view_config(route_name='objects.generic.traversal',
-             renderer='templates/create_external_tool.pt',
-             name='create_external_tool',
-             request_method='GET',
-             context=INTICourseOverviewGroup)
-class CreateExternalToolAssetView(AbstractAuthenticatedView):
-
-    def __call__(self):
-        tool = ConfiguredTool()
-        tool.title = 'test'
-        tool.description = 'test desc'
-        tool.launch_url = 'launch'
-        tool.secure_launch_url = 'secure_launch'
-        tool.ntiid = 'ntiid'
-        container = [tool]
-        return {'tools': container}
-
-
-@view_config(route_name='objects.generic.traversal',
              renderer='rest',
              name='launch',
              request_method='POST',
