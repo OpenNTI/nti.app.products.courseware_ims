@@ -100,3 +100,13 @@ class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset, IGroupOver
     ConfiguredTool = Object(IConfiguredTool,
                             required=True)
 
+
+class ILTILaunchParamBuilder(interface.Interface):
+    """
+    Subscriber interface that adds runtime params to the ToolConsumer launch params
+    """
+
+    def build_params(consumer):
+        """
+        Mutates an instance of ToolConsumer launch params with context specific values
+        """
