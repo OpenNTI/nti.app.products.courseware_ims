@@ -47,9 +47,6 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     Creator = alias('creator')
     desc = alias('description')
-    target_ntiid = alias('target')
-    ntiRequirements = alias('nti_requirements')
-    targetMimeType = target_mime_type = alias('type')
 
     nttype = u'NTIExternalToolAsset'
 
