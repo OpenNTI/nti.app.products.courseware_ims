@@ -103,7 +103,7 @@ class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset, IGroupOver
 
 class ILTILaunchParamBuilder(interface.Interface):
     """
-    Subscriber interface that adds runtime params to the ToolConsumer launch params
+    Subscriber interface that adds launch time params to the ToolConsumer launch params
     """
 
     def build_params(consumer):
