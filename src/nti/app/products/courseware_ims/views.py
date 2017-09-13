@@ -6,8 +6,6 @@
 
 from __future__ import print_function, absolute_import, division
 
-from nti.ims.lti.consumer import ConfiguredTool
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -22,8 +20,6 @@ from zope import component
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
-from lti import ToolConsumer
-
 from pyramid import httpexceptions as hexc
 
 from pyramid.view import view_config
@@ -34,11 +30,7 @@ from nti.app.base.abstract_views import AbstractAuthenticatedView
 
 from nti.app.externalization.error import raise_json_error
 
-from nti.app.externalization.internalization import read_body_as_external_object
-
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
-
-from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
@@ -53,8 +45,6 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 
 from nti.contenttypes.courses.utils import get_course_vendor_info
-
-from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
 
 from nti.dataserver import authorization as nauth
 
@@ -226,33 +216,3 @@ class IMSCoursesView(AbstractAuthenticatedView):
         result[ITEMS] = entries
         result[TOTAL] = result[ITEM_COUNT] = len(entries)
         return result
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='rest',
-             name='launch',
-             request_method='POST',
-             context=IExternalToolAsset,
-             permission=nauth.ACT_READ)
-class LaunchExternalToolAssetView(AbstractAuthenticatedView):
-
-    def __call__(self):
-
-        parsed = read_body_as_external_object(self.request)
-        # Required to instantiate ToolConsumer
-        parsed['launch_url'] = None
-
-        tool = self.context
-        tool_consumer = ToolConsumer(tool.consumer_key, tool.secret, params=parsed)
-        tool_consumer.set_config(tool.config)
-
-        return launch_view(self.context, self.request, tool_consumer)
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='templates/launch_external_tool.pt',
-             request_method='GET',
-             context=IExternalToolAsset,
-             permission=nauth.ACT_READ)
-def launch_view(context, request, tool_consumer):
-    return {'launch_data': tool_consumer.generate_launch_data()}
