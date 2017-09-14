@@ -17,5 +17,5 @@ from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolCont
 
 
 @interface.implementer(IPathAdapter)
-def _course_to_configured_tool_container_path_adapter(context, _):
+def _course_to_configured_tool_container_path_adapter(context, unused):
     return ICourseConfiguredToolContainer(context)
