@@ -43,7 +43,7 @@ from nti.contenttypes.courses.utils import get_parent_course
 from nti.contenttypes.courses.utils import drop_any_other_enrollments
 from nti.contenttypes.courses.utils import is_there_an_open_enrollment
 
-from nti.dataserver.users import User
+from nti.dataserver.users.users import User
 
 from nti.externalization.interfaces import LocatedExternalDict
 
@@ -216,7 +216,7 @@ def update_member_enrollment_status(course_instance, person, role,
             # Never before been enrolled
             logger.info('User %s enrolled in %s',
                         user, instance_entry.ProviderUniqueID)
-            enrollment = enrollment_manager.enroll(user, 
+            enrollment = enrollment_manager.enroll(user,
                                                    scope=ES_CREDIT_DEGREE)
         elif enrollment.Scope != ES_CREDIT_DEGREE:
             logger.info('User %s upgraded to ForCredit in %s',
@@ -388,7 +388,7 @@ def process(ims_file, create_persons=False, drop_missing=False):
 
     def populate(member):
         key = "%s,%s,%s" % (member.course_id.id,
-                            member.sourcedid.id, 
+                            member.sourcedid.id,
                             member.role.status)
         cache[key] = member
         return member
