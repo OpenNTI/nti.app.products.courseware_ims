@@ -10,6 +10,13 @@ entry_points = {
     ],
 }
 
+TESTS_REQUIRE = [
+    'nti.app.testing',
+    'nti.testing',
+    'zope.dottedname',
+    'zope.testrunner',
+]
+
 
 def _read(fname):
     with codecs.open(fname, encoding='utf-8') as f:
@@ -26,25 +33,30 @@ setup(
     license='Apache',
     keywords='IMS courses',
     classifiers=[
+        'Framework :: Zope',
+        'Framework :: Pyramid',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Framework :: Zope',
-        'Framework :: Pyramid',
     ],
+    url="https://github.com/NextThought/nti.app.products.courseware_ims",
     zip_safe=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
     include_package_data=True,
     namespace_packages=['nti', 'nti.app', 'nti.app.products'],
+    tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
         'nti.app.assessment',
         'nti.app.products.ims',
         'nti.app.products.courseware',
     ],
-    entry_points=entry_points
+    extras_require={
+        'test': TESTS_REQUIRE,
+    },
+    entry_points=entry_points,
 )
