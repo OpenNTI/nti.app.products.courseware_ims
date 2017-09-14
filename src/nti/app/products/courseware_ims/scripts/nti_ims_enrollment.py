@@ -39,7 +39,7 @@ def _process_args(ims_file, create_persons, site=None, output=None,
             if not as_csv:
                 json.dump(response, fp, indent=4, encoding="utf-8")
             else:
-                header =  ['Course', 'Operation', 'Username', 'PersonID']
+                header = ['Course', 'Operation', 'Username', 'PersonID']
                 csv_writer = csv.writer(fp)
                 csv_writer.writerow(header)
 
@@ -65,15 +65,15 @@ def main():
     arg_parser.add_argument('--create', help="Create users", action='store_true',
                             dest='create_persons', default=False)
 
-    arg_parser.add_argument( '-i', '--ims', help="IMS file location", 
-							dest='ims_file')
+    arg_parser.add_argument('-i', '--ims', help="IMS file location",
+                            dest='ims_file')
 
     arg_parser.add_argument('-s', '--site', dest='site', help="Request site")
 
     arg_parser.add_argument('--csv', dest='csv', action='store_true',
                             help="CSV output response")
 
-    arg_parser.add_argument('-o', '--output', dest='output', 
+    arg_parser.add_argument('-o', '--output', dest='output',
                             help="Output response path")
 
     args = arg_parser.parse_args()

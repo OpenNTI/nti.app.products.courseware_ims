@@ -31,4 +31,5 @@
 	<adapter factory=".acl._CourseConfiguredToolContainerACLProvider"
 			 provides="nti.dataserver.interfaces.IACLProvider"
 			 for=".interfaces.ICourseConfiguredToolContainer"/>
+
 </configure>
