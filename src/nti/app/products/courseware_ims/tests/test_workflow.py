@@ -31,7 +31,7 @@ from nti.contenttypes.courses.interfaces import ICourseCatalog
 from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseEnrollments
 
-from nti.dataserver.users import User
+from nti.dataserver.users.users import User
 
 from nti.ims.sis.enterprise import Enterprise
 
