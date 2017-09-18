@@ -101,90 +101,11 @@ class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset, IGroupOver
                             required=True)
 
 
-class ILTIResourceLaunchParamBuilder(interface.Interface):
+class ILTILaunchParamBuilder(interface.Interface):
     """
-    Subscriber interface that adds launch time params to the ToolConsumer resource launch params
-    Specifically:
-    - resource_link_id
-    - resource_link_title
-    - resource_link_description
-    """
-
-    def build_params(consumer):
-        """
-        Mutates an instance of ToolConsumer launch params with context specific values
-        """
-
-
-class ILTIUserProfileLaunchParamBuilder(interface.Interface):
-    """
-    Subscriber interface that adds launch time params to the ToolConsumer user related launch params
-    Specifically:
-    - user_id
-    - roles
-    - lis_person_name_given
-    - lis_person_name_family
-    - lis_person_name_full
-    """
-
-    def build_params(consumer):
-        """
-        Mutates an instance of ToolConsumer launch params with context specific values
-        """
-
-
-class ILTIContextLaunchParamBuilder(interface.Interface):
-    """
-    Subscriber interface that adds launch time params to the ToolConsumer context launch params
-    Specifically:
-    - context_id
-    - context_type
-    - context_title
-    - context_label
-    """
-
-    def build_params(consumer):
-        """
-        Mutates an instance of ToolConsumer launch params with context specific values
-        """
-
-
-class ILTIToolConsumerInfoLaunchParamBuilder(interface.Interface):
-    """
-    Subscriber interface that adds launch time params to the ToolConsumer consumer details launch params
-    Specifically:
-    - tool_consumer_instance_guid
-    - tool_consumer_instance_name
-    - tool_consumer_instance_url
-    """
-
-    def build_params(consumer):
-        """
-        Mutates an instance of ToolConsumer launch params with context specific values
-        """
-
-
-class ILTIPresentationLaunchParamBuilder(interface.Interface):
-    """
-    Subscriber interface that adds launch time params to the ToolConsumer presentation launch params
-    Specifically:
-    - launch_presentation_locale
-    - launch_presentation_document_target
-    - launch_presentation_width
-    - launch_presentation_height
-    - launch_presentation_return_url
-    """
-
-    def build_params(consumer):
-        """
-        Mutates an instance of ToolConsumer launch params with context specific values
-        """
-
-
-class ILTICustomLaunchParamBuilder(interface.Interface):
-    """
-    Subscriber interface that adds launch time params to the ToolConsumer custom launch params
-    Any values added here are prefixed by custom e.g. custom_launch_param
+    Subscriber interface that adds launch time params to the ToolConsumer launch params
+    These parameters are defined in section 3 of the IMS LTI implementation guide
+    https://www.imsglobal.org/specs/ltiv1p0/implementation-guide
     """
 
     def build_params(consumer):
