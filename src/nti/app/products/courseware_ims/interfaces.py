@@ -17,9 +17,13 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
+from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
+from nti.contenttypes.presentation.interfaces import IGroupOverViewable
+from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
+
 from nti.dataserver.interfaces import IUser
 
-from nti.ims.lti.interfaces import IConfiguredToolContainer
+from nti.ims.lti.interfaces import IConfiguredToolContainer, IConfiguredTool
 
 from nti.ims.sis.interfaces import IPerson
 
@@ -86,3 +90,25 @@ class ICourseConfiguredToolContainer(IConfiguredToolContainer):
     A course instance wrapper of an LTI Configured Tool Container
     """
     pass
+
+
+class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset, IGroupOverViewable):
+    """
+    The NTI representation of an LTI defined Tool
+    """
+
+    ConfiguredTool = Object(IConfiguredTool,
+                            required=True)
+
+
+class ILTILaunchParamBuilder(interface.Interface):
+    """
+    Subscriber interface that adds launch time params to the ToolConsumer launch params
+    These parameters are defined in section 3 of the IMS LTI implementation guide
+    https://www.imsglobal.org/specs/ltiv1p0/implementation-guide
+    """
+
+    def build_params(consumer):
+        """
+        Mutates an instance of ToolConsumer launch params with context specific values
+        """
