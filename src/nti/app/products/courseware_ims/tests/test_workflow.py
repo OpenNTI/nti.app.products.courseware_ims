@@ -55,7 +55,7 @@ class TestWorkflow(ApplicationLayerTest):
     layer = InstructedCourseApplicationTestLayer
 
     default_origin = 'http://janux.ou.edu'
-    course_ntiid = u'tag:nextthought.com,2011-10:NTI-CourseInfo-Fall2013_CLC3403_LawAndJustice'
+    course_ntiid = 'tag:nextthought.com,2011-10:NTI-CourseInfo-Fall2013_CLC3403_LawAndJustice'
 
     @classmethod
     def catalog_entry(self):
@@ -169,7 +169,7 @@ class TestWorkflow(ApplicationLayerTest):
 
             entry = self.catalog_entry()
             course = ICourseInstance(entry)
-            courses = {u'26235.20131': course}
+            courses = {'26235.20131': course}
             mock_fic.is_callable().with_args().returns(courses)
 
             process(ims_shikai)

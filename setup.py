@@ -51,7 +51,6 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
-        'nti.app.assessment',
         'nti.app.products.ims',
         'nti.app.products.courseware',
     ],
