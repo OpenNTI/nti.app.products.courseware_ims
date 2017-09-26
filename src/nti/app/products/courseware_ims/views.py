@@ -14,6 +14,7 @@ import six
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
+from zope.component import getUtility
 
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
@@ -33,6 +34,7 @@ from nti.app.externalization.internalization import read_body_as_external_object
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
+from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.app.products.courseware_ims.workflow import process
@@ -48,6 +50,8 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 
 from nti.contenttypes.courses.utils import get_course_vendor_info
+
+from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
 
 from nti.dataserver import authorization as nauth
 
@@ -251,3 +255,16 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
              permission=nauth.ACT_READ)
 def launch_view(context, request, tool_consumer):
     return {'launch_data': tool_consumer.generate_launch_data()}
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/create_external_tool.pt',
+             name='create_external_tool',
+             request_method='GET',
+             context=INTICourseOverviewGroup,
+             permission=nauth.ACT_CREATE)
+class CreateExternalToolAssetView(AbstractAuthenticatedView):
+
+    def __call__(self):
+        tools = getUtility(ICourseConfiguredToolContainer)
+        return {'tools': tools}
