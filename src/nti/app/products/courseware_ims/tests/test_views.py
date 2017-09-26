@@ -29,7 +29,7 @@ from nti.app.testing.decorators import WithSharedApplicationMockDS
 
 from nti.app.testing.webtest import TestApp
 
-from nti.dataserver.tests import mock_dataserver as mock_dataserver
+from nti.dataserver.tests import mock_dataserver
 
 
 class TestWorkflow(ApplicationLayerTest):
@@ -37,7 +37,7 @@ class TestWorkflow(ApplicationLayerTest):
     layer = InstructedCourseApplicationTestLayer
 
     default_origin = 'http://janux.ou.edu'
-    course_ntiid = u'tag:nextthought.com,2011-10:NTI-CourseInfo-Fall2013_CLC3403_LawAndJustice'
+    course_ntiid = 'tag:nextthought.com,2011-10:NTI-CourseInfo-Fall2013_CLC3403_LawAndJustice'
 
     @classmethod
     def catalog_entry(self):
@@ -84,7 +84,7 @@ class TestWorkflow(ApplicationLayerTest):
         with mock_dataserver.mock_db_trans(self.ds, site_name='platform.ou.edu'):
             entry = self.catalog_entry()
             course = ICourseInstance(entry)
-            courses = {u'26235.20131': course}
+            courses = {'26235.20131': course}
             mock_fic.is_callable().with_args().returns(courses)
 
         testapp = TestApp(self.app)
