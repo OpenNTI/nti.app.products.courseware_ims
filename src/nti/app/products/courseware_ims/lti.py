@@ -4,32 +4,33 @@
 .. $Id$
 """
 
-from __future__ import print_function, absolute_import, division
-
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 from zope import component
 from zope import interface
 
 from zope.cachedescriptors.property import readproperty
 
-from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
+from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
 from nti.contenttypes.presentation.mixins import PersistentPresentationAsset
 
 from nti.externalization.datastructures import InterfaceObjectIO
 
 from nti.externalization.interfaces import IInternalObjectUpdater
-from nti.externalization.interfaces import StandardExternalFields
 
 from nti.ims.lti.consumer import ConfiguredToolContainer
 
 from nti.ntiids.interfaces import INTIIDResolver
 
 from nti.property.property import alias
+
+from nti.schema.fieldproperty import createDirectFieldProperties
+
+logger = __import__('logging').getLogger(__name__)
 
 
 @interface.implementer(ICourseConfiguredToolContainer)
@@ -39,14 +40,17 @@ class CourseConfiguredToolContainer(ConfiguredToolContainer):
 
 @interface.implementer(IExternalToolAsset)
 class LTIExternalToolAsset(PersistentPresentationAsset):
+    createDirectFieldProperties(IExternalToolAsset)
 
-    mimeType = mime_type = u'application/vnd.nextthought.contenttypes.presentation.lticonfiguredtool'
+    mimeType = mime_type = 'application/vnd.nextthought.contenttypes.presentation.lticonfiguredtool'
+
     __external_class_name__ = "ExternalToolAsset"
 
     target = None
 
     Creator = alias('creator')
     desc = alias('description')
+    configured_tool = alias('ConfiguredTool')
 
     nttype = u'NTIExternalToolAsset'
 
@@ -59,10 +63,6 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
     def ntiid(self):
         self.ntiid = self.generate_ntiid(self.nttype)
         return self.ntiid
-
-    @property
-    def configured_tool(self):
-        return self._configured_tool
 
     @readproperty
     def launch_url(self):

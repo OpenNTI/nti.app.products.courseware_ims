@@ -4,10 +4,9 @@
 .. $Id$
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 from collections import defaultdict
 
@@ -53,6 +52,8 @@ from nti.ims.sis.interfaces import ACTIVE_STATUS
 from nti.ims.sis.interfaces import INACTIVE_STATUS
 
 from nti.ims.sis.person import Person
+
+logger = __import__('logging').getLogger(__name__)
 
 
 def create_proxy_person(member):

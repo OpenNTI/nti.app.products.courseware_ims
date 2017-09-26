@@ -4,10 +4,9 @@
 .. $Id$
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 from zope import component
 from zope import interface
@@ -39,8 +38,9 @@ class _CourseConfiguredToolContainerACLProvider(object):
 
     @property
     def __acl__(self):
-        aces = [ace_allowing(x, CRUD)
-                for x in self.course.instructors]
+        aces = [
+            ace_allowing(x, CRUD) for x in self.course.instructors
+        ]
         aces.extend(editor_aces_for_course(self.course, self))
         aces.append(ACE_DENY_ALL)
         return acl_from_aces(aces)

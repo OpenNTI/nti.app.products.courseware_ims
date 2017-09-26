@@ -4,10 +4,9 @@
 .. $Id$
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 from zope import interface
 
@@ -17,13 +16,14 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
-from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
-from nti.contenttypes.presentation.interfaces import IGroupOverViewable
 from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
+from nti.contenttypes.presentation.interfaces import IGroupOverViewable
+from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
 
 from nti.dataserver.interfaces import IUser
 
-from nti.ims.lti.interfaces import IConfiguredToolContainer, IConfiguredTool
+from nti.ims.lti.interfaces import IConfiguredTool
+from nti.ims.lti.interfaces import IConfiguredToolContainer
 
 from nti.ims.sis.interfaces import IPerson
 
@@ -92,13 +92,14 @@ class ICourseConfiguredToolContainer(IConfiguredToolContainer):
     pass
 
 
-class IExternalToolAsset(ICoursePresentationAsset, IUserCreatedAsset, IGroupOverViewable):
+class IExternalToolAsset(ICoursePresentationAsset,
+                         IUserCreatedAsset,
+                         IGroupOverViewable):
     """
     The NTI representation of an LTI defined Tool
     """
 
-    ConfiguredTool = Object(IConfiguredTool,
-                            required=True)
+    ConfiguredTool = Object(IConfiguredTool, required=True)
 
 
 class ILTILaunchParamBuilder(interface.Interface):

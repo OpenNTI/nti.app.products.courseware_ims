@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
-__docformat__ = "restructuredtext en"
+# disable: accessing protected members, too many methods
+# pylint: disable=W0212,R0904
 
-logger = __import__('logging').getLogger(__name__)
-
-from hamcrest import assert_that
-from hamcrest import has_length
 from hamcrest import is_
+from hamcrest import has_length
+from hamcrest import assert_that
 
 from nti.testing.matchers import validly_provides
 from nti.testing.matchers import verifiably_provides
@@ -20,8 +21,6 @@ from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
-from nti.app.products.courseware_ims.tests import SharedConfiguringTestLayer
-
 from nti.contenttypes.presentation.group import NTICourseOverViewGroup
 
 from nti.contenttypes.presentation.lesson import NTILessonOverView
@@ -29,14 +28,17 @@ from nti.contenttypes.presentation.lesson import NTILessonOverView
 from nti.ims.lti.consumer import ConfiguredTool
 from nti.ims.lti.consumer import PersistentToolConfig
 
+from nti.app.products.courseware_ims.tests import SharedConfiguringTestLayer
 
-TOOL_CONFIG = {'key': u'Test Key',
-               'secret': u'Test Secret',
-               'title': u'Test',
-               'description': u'A test tool',
-               'launch_url': u'http://test.com',
-               'secure_launch_url': u'https://test.com'
-               }
+
+TOOL_CONFIG = {
+    'key': u'Test Key',
+    'secret': u'Test Secret',
+    'title': u'Test',
+    'description': u'A test tool',
+    'launch_url': u'http://test.com',
+    'secure_launch_url': u'https://test.com'
+}
 
 
 class TestExternalToolAsset(unittest.TestCase):
@@ -56,14 +58,13 @@ class TestExternalToolAsset(unittest.TestCase):
         assert_that(tool.title, is_(TOOL_CONFIG['title']))
         assert_that(tool.description, is_(TOOL_CONFIG['description']))
         assert_that(tool.launch_url, is_(TOOL_CONFIG['launch_url']))
-        assert_that(tool.secure_launch_url, is_(TOOL_CONFIG['secure_launch_url']))
-
+        assert_that(tool.secure_launch_url, 
+                    is_(TOOL_CONFIG['secure_launch_url']))
         return tool
 
     def test_external_tool_asset(self):
-
         tool = self._create_configured_tool()
-        asset = LTIExternalToolAsset(tool)
+        asset = LTIExternalToolAsset(ConfiguredTool=tool)
         assert_that(asset.launch_url, is_(tool.launch_url))
 
         assert_that(asset, verifiably_provides(IExternalToolAsset))
