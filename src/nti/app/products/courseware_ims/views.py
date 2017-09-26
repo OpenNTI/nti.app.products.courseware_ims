@@ -4,11 +4,9 @@
 .. $Id$
 """
 
-from __future__ import print_function, absolute_import, division
-
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 import six
@@ -57,6 +55,8 @@ ITEMS = StandardExternalFields.ITEMS
 NTIID = StandardExternalFields.NTIID
 TOTAL = StandardExternalFields.TOTAL
 ITEM_COUNT = StandardExternalFields.ITEM_COUNT
+
+logger = __import__('logging').getLogger(__name__)
 
 
 def get_source(values, request):

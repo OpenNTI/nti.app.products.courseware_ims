@@ -15,8 +15,7 @@
 	<ext:registerAutoPackageIO
 		root_interfaces=".interfaces.IIMSEnrollmentOption
 						 .interfaces.IExternalToolAsset"
-		modules=".model
-				 .lti" />
+		modules=".model .lti" />
 
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"
