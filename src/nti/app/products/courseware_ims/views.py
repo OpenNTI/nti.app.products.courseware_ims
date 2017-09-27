@@ -10,11 +10,12 @@ from __future__ import absolute_import
 
 import os
 import six
+from nti.app.products.courseware_ims.adapters import course_to_configured_tool_container
+from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
-from zope.component import getUtility
 
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
@@ -266,5 +267,12 @@ def launch_view(context, request, tool_consumer):
 class CreateExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
-        tools = getUtility(ICourseConfiguredToolContainer)
-        return {'tools': tools}
+        tools = course_to_configured_tool_container(self.context)
+        post_url = self.request.current_route_url()
+        post_url = post_url[:len(post_url)-22]  # Temporary - ugly - bad
+        post_url = post_url + 'contents'
+
+
+        return {'tools': tools,
+                'post_url': post_url,
+                'MimeType': LTIExternalToolAsset.MimeType}

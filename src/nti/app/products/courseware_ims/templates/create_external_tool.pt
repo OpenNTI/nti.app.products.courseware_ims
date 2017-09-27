@@ -7,7 +7,7 @@
 		<title>Add an External Tool Asset</title>
     </head>
     <body>
-        <form tal:attributes="action context" method="post">
+        <form tal:attributes="action options/post_url" method="post">
             <select id="configured_tools">
                 <option value="#" selected> -- Select an LTI Configured Tool -- </option>
                 <tal:block tal:repeat="tool options/tools">
@@ -15,6 +15,7 @@
                             tal:content="tool/title">
                     </option>
                 </tal:block>
+                <input type="hidden" name="MimeType" value="options/MimeType">
             </select>
             <input type="submit" value="Submit">
         </form>
