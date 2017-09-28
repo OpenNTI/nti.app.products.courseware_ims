@@ -272,7 +272,6 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
         post_url = post_url[:len(post_url)-22]  # Temporary - ugly - bad
         post_url = post_url + 'contents'
 
-
         return {'tools': tools,
                 'post_url': post_url,
-                'MimeType': LTIExternalToolAsset.MimeType}
+                'MimeType': LTIExternalToolAsset.mimeType}

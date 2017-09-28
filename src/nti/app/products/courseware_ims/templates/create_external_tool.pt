@@ -11,7 +11,7 @@
             <select id="configured_tools">
                 <option value="#" selected> -- Select an LTI Configured Tool -- </option>
                 <tal:block tal:repeat="tool options/tools">
-                    <option tal:attributes="value tool/ntiid"
+                    <option tal:attributes="value tool/NTIID"
                             tal:content="tool/title">
                     </option>
                 </tal:block>
