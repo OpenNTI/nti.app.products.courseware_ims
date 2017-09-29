@@ -12,10 +12,12 @@ import os
 import six
 from nti.app.products.courseware_ims.adapters import course_to_configured_tool_container
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
+from nti.links import Link, render_link
 
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
+from zope.component import interface
 
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
@@ -60,6 +62,8 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.ntiids.oids import to_external_ntiid_oid
+
+from nti.dataserver.interfaces import ILinkExternalHrefOnly
 
 ITEMS = StandardExternalFields.ITEMS
 NTIID = StandardExternalFields.NTIID
@@ -267,11 +271,17 @@ def launch_view(context, request, tool_consumer):
 class CreateExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
-        tools = course_to_configured_tool_container(self.context)
-        post_url = self.request.current_route_url()
-        post_url = post_url[:len(post_url)-22]  # Temporary - ugly - bad
-        post_url = post_url + 'contents'
+        course = ICourseInstance(self.context)
+        tools_link = Link(course,
+                          method="GET",
+                          elements=("lti_configured_tools",))
+        interface.alsoProvides(tools_link, ILinkExternalHrefOnly)
 
-        return {'tools': tools,
-                'post_url': post_url,
-                'MimeType': LTIExternalToolAsset.mimeType}
+        post_link = Link(self.context,
+                          method="POST",
+                          elements=("contents",))
+        interface.alsoProvides(post_link, ILinkExternalHrefOnly)
+
+        return {'tool_url': render_link(tools_link),
+                'MimeType': LTIExternalToolAsset.mimeType,
+                'post_url': render_link(post_link)}

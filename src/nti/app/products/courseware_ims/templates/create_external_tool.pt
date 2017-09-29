@@ -5,19 +5,76 @@
     <head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>Add an External Tool Asset</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script tal:content="string:var tool_url='${options/tool_url}';"></script>
+        <script tal:content="string:var post_url='${options/post_url}';"></script>
+        <script>
+            var xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = JSON.parse(this.responseText);
+                    makeDropdown(response);
+                }
+            };
+            xmlhttp.open("GET", tool_url, true);
+            xmlhttp.setRequestHeader("Content-Type", "application/vnd.nextthought+json");
+            xmlhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xmlhttp.send();
+
+            function makeDropdown(response) {
+                var tools = response['Items'];
+                for(var tool in tools) {
+                    var iter_tool = tools[tool]
+                    $('<option />', {value: iter_tool.NTIID, text: iter_tool.consumer_key, name: "ConfiguredTool"}).appendTo("#configured_tools");
+                }
+            }
+        </script>
+        <script>
+            $(document).ready(function () {
+
+                $("#submit").click(function (event) {
+
+                    //stop submit the form, we will post it manually.
+                    event.preventDefault();
+
+                    // Get form
+                    var form = $("#form")[0];
+
+                    // Create an FormData object
+                    var data = new FormData(form);
+
+                    $.ajax({
+                        type: 'POST',
+                        enctype: 'application/json',
+                        url: post_url,
+                        data: data,
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        timeout: 600000,
+                        success: function() {
+                            window.location.href = "http://www.google.com";
+                        },
+                        error: function (e) {
+                            window.alert("An error occurred. Please make sure all fields are correctly completed")
+
+                        }
+                    });
+
+                });
+
+            });
+        </script>
+
     </head>
     <body>
-        <form tal:attributes="action options/post_url" method="post">
+        <form id="form">
             <select id="configured_tools">
                 <option value="#" selected> -- Select an LTI Configured Tool -- </option>
-                <tal:block tal:repeat="tool options/tools">
-                    <option tal:attributes="value tool/NTIID"
-                            tal:content="tool/title">
-                    </option>
-                </tal:block>
-                <input type="hidden" name="MimeType" value="options/MimeType">
             </select>
-            <input type="submit" value="Submit">
+            <input type="hidden" name="MimeType" tal:attributes="value options/MimeType">
+            <input type="button" id="submit" value="Submit">
         </form>
     </body>
 </html>
