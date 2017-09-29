@@ -10,9 +10,6 @@ from __future__ import absolute_import
 
 import os
 import six
-from nti.app.products.courseware_ims.adapters import course_to_configured_tool_container
-from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
-from nti.links import Link, render_link
 
 from requests.structures import CaseInsensitiveDict
 
@@ -37,8 +34,9 @@ from nti.app.externalization.internalization import read_body_as_external_object
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
-from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
+
+from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
@@ -60,6 +58,9 @@ from nti.dataserver import authorization as nauth
 
 from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
+
+from nti.links import Link
+from nti.links import render_link
 
 from nti.ntiids.oids import to_external_ntiid_oid
 
