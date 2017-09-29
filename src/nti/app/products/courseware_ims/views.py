@@ -19,8 +19,6 @@ from zope.component import interface
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
-from lti import ToolConsumer
-
 from pyramid import httpexceptions as hexc
 
 from pyramid.view import view_config
@@ -30,11 +28,8 @@ from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
 from nti.app.externalization.error import raise_json_error
-from nti.app.externalization.internalization import read_body_as_external_object
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
-
-from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
@@ -234,36 +229,6 @@ class IMSCoursesView(AbstractAuthenticatedView):
 
 
 @view_config(route_name='objects.generic.traversal',
-             renderer='rest',
-             name='launch',
-             request_method='POST',
-             context=IExternalToolAsset,
-             permission=nauth.ACT_READ)
-class LaunchExternalToolAssetView(AbstractAuthenticatedView):
-
-    def __call__(self):
-
-        parsed = read_body_as_external_object(self.request)
-        # Required to instantiate ToolConsumer
-        parsed['launch_url'] = None
-
-        tool = self.context
-        tool_consumer = ToolConsumer(tool.consumer_key, tool.secret, params=parsed)
-        tool_consumer.set_config(tool.config)
-
-        return launch_view(self.context, self.request, tool_consumer)
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='templates/launch_external_tool.pt',
-             request_method='GET',
-             context=IExternalToolAsset,
-             permission=nauth.ACT_READ)
-def launch_view(context, request, tool_consumer):
-    return {'launch_data': tool_consumer.generate_launch_data()}
-
-
-@view_config(route_name='objects.generic.traversal',
              renderer='templates/create_external_tool.pt',
              name='create_external_tool',
              request_method='GET',
@@ -279,8 +244,8 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
         interface.alsoProvides(tools_link, ILinkExternalHrefOnly)
 
         post_link = Link(self.context,
-                          method="POST",
-                          elements=("contents",))
+                         method="POST",
+                         elements=("contents",))
         interface.alsoProvides(post_link, ILinkExternalHrefOnly)
 
         return {'tool_url': render_link(tools_link),
