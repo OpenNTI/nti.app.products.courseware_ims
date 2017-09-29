@@ -26,42 +26,54 @@
                 var tools = response['Items'];
                 for(var tool in tools) {
                     var iter_tool = tools[tool]
-                    $('<option />', {value: iter_tool.NTIID, text: iter_tool.consumer_key, name: "ConfiguredTool"}).appendTo("#configured_tools");
+                    $('<option />', {value: iter_tool.NTIID, text: iter_tool.consumer_key}).appendTo("#configured_tools");
                 }
             }
         </script>
         <script>
+            function ConvertFormToJSON(form){
+                var array = jQuery(form).serializeArray();
+                var json = {};
+
+                jQuery.each(array, function() {
+                    json[this.name] = this.value || '';
+                });
+
+                return JSON.stringify(json);
+            }
+            function validateForm() {
+                var dropdown = document.getElementById("configured_tools");
+                if (dropdown.options[dropdown.selectedIndex].value == "#") {
+                    return false;
+                }
+                return true;
+            }
             $(document).ready(function () {
 
                 $("#submit").click(function (event) {
 
                     //stop submit the form, we will post it manually.
                     event.preventDefault();
+                    if(validateForm()) {
 
-                    // Get form
-                    var form = $("#form")[0];
+                        // Get form
+                        var form = $("#form");
+                        form = ConvertFormToJSON(form);
 
-                    // Create an FormData object
-                    var data = new FormData(form);
+                        $.ajax({
+                            type: 'POST',
+                            url: post_url,
+                            data: form,
+                            contentType: 'application/json',
+                            success: function () {
+                                window.alert("Successfully created an LTI Tool");
+                            },
+                            error: function (e) {
+                                window.alert("An error occurred. Please make sure all fields are correctly completed")
 
-                    $.ajax({
-                        type: 'POST',
-                        enctype: 'application/json',
-                        url: post_url,
-                        data: data,
-                        processData: false,
-                        contentType: false,
-                        cache: false,
-                        timeout: 600000,
-                        success: function() {
-                            window.location.href = "http://www.google.com";
-                        },
-                        error: function (e) {
-                            window.alert("An error occurred. Please make sure all fields are correctly completed")
-
-                        }
-                    });
-
+                            }
+                        });
+                    }
                 });
 
             });
@@ -70,8 +82,8 @@
     </head>
     <body>
         <form id="form">
-            <select id="configured_tools">
-                <option value="#" selected> -- Select an LTI Configured Tool -- </option>
+            <select id="configured_tools" name="ConfiguredTool">
+                <option value="#" name="default" selected> -- Select an LTI Configured Tool -- </option>
             </select>
             <input type="hidden" name="MimeType" tal:attributes="value options/MimeType">
             <input type="button" id="submit" value="Submit">
