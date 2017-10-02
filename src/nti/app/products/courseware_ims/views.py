@@ -268,21 +268,26 @@ def launch_view(context, request, tool_consumer):
              name='create_external_tool',
              request_method='GET',
              context=INTICourseOverviewGroup,
-             permission=nauth.ACT_CREATE)
+             permission=nauth.ACT_NTI_ADMIN)
 class CreateExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
         course = ICourseInstance(self.context)
-        tools_link = Link(course,
-                          method="GET",
-                          elements=("lti_configured_tools",))
-        interface.alsoProvides(tools_link, ILinkExternalHrefOnly)
+        tools_link = self._create_link(course,
+                                       method="GET",
+                                       elements=("lti_configured_tools",))
+        post_link = self._create_link(self.context,
+                                      method="POST",
+                                      elements=("contents",))
 
-        post_link = Link(self.context,
-                          method="POST",
-                          elements=("contents",))
-        interface.alsoProvides(post_link, ILinkExternalHrefOnly)
-
-        return {'tool_url': render_link(tools_link),
+        return {'tool_url': tools_link,
                 'MimeType': LTIExternalToolAsset.mimeType,
-                'post_url': render_link(post_link)}
+                'post_url': post_link}
+
+    @staticmethod
+    def _create_link(self, context, method, elements):
+        link = Link(context,
+                    method=method,
+                    elements=elements)
+        interface.alsoProvides(link, ILinkExternalHrefOnly)
+        return render_link(link)
