@@ -285,7 +285,7 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
                 'post_url': post_link}
 
     @staticmethod
-    def _create_link(self, context, method, elements):
+    def _create_link(context, method, elements):
         link = Link(context,
                     method=method,
                     elements=elements)
