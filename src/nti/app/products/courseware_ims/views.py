@@ -233,7 +233,7 @@ class IMSCoursesView(AbstractAuthenticatedView):
              name='create_external_tool',
              request_method='GET',
              context=INTICourseOverviewGroup,
-             permission=nauth.ACT_NTI_ADMIN)
+             permission=nauth.ACT_CREATE)
 class CreateExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
