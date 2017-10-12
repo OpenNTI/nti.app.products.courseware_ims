@@ -35,6 +35,9 @@ from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
+from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
+
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
