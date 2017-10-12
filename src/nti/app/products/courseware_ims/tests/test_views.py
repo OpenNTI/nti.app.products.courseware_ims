@@ -107,6 +107,7 @@ class TestLTIAsset(ApplicationLayerTest):
                         is_(TOOL_DATA.get('secure_launch_url')))
 
 
+
 class TestWorkflow(ApplicationLayerTest):
 
     layer = InstructedCourseApplicationTestLayer
