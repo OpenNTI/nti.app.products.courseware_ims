@@ -14,11 +14,14 @@ import six
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
-
 from zope.component import interface
+from zope.component import subscribers
 
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
+
+from lti import LaunchParams
+from lti import ToolConsumer
 
 from pyramid import httpexceptions as hexc
 
@@ -34,6 +37,8 @@ from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtils
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
+from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
@@ -257,3 +262,29 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
                     elements=elements)
         interface.alsoProvides(link, ILinkExternalHrefOnly)
         return render_link(link)
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/launch_external_tool.pt',
+             request_method='GET',
+             context=IExternalToolAsset,
+             permission=nauth.ACT_READ)
+class LaunchExternalToolAssetView(AbstractAuthenticatedView):
+
+    def __call__(self):
+
+        config = self.context.ConfiguredTool.config
+
+        launch_params = LaunchParams()
+        # Add instance specific launch params
+        for subscriber in subscribers((self.context,), ILTILaunchParamBuilder):
+            subscriber.build_params(launch_params)
+
+        tool_consumer = ToolConsumer(config.consumer_key,
+                                     config.secret,
+                                     params=launch_params,
+                                     launch_url=config.launch_url)
+
+        tool_consumer.set_config(config)
+        request = tool_consumer.generate_launch_request()
+        return {'launch_url': request}
