@@ -275,19 +275,20 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
 class LaunchExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
+        from IPython.core.debugger import Tracer;Tracer()()
 
-        config = self.context.ConfiguredTool.config
+        tool = self.context.ConfiguredTool
 
         launch_params = LaunchParams()
         # Add instance specific launch params
-        for subscriber in subscribers((self.context,), ILTILaunchParamBuilder):
+        for subscriber in subscribers((self.request,), ILTILaunchParamBuilder):
             subscriber.build_params(launch_params)
 
-        tool_consumer = ToolConsumer(config.consumer_key,
-                                     config.secret,
+        tool_consumer = ToolConsumer(tool.consumer_key,
+                                     tool.secret,
                                      params=launch_params,
-                                     launch_url=config.launch_url)
+                                     launch_url=tool.launch_url)
 
-        tool_consumer.set_config(config)
+        tool_consumer.set_config(tool.config)
         request = tool_consumer.generate_launch_request()
         return {'launch_url': request}

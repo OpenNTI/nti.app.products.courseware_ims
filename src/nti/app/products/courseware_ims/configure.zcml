@@ -43,4 +43,12 @@
 			 provides="nti.dataserver.interfaces.IACLProvider"
 			 for=".interfaces.ICourseConfiguredToolContainer"/>
 
+	<!-- Subscribers -->
+	<subscriber factory=".subscribers.LTIResourceParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest" />
+
+	<subscriber factory=".subscribers.LTIUserParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest" />
 </configure>
