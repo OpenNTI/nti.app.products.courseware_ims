@@ -46,9 +46,13 @@
 	<!-- Subscribers -->
 	<subscriber factory=".subscribers.LTIResourceParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest" />
+				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 
 	<subscriber factory=".subscribers.LTIUserParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+
+	<subscriber factory=".subscribers.LTIInstanceParams"
+			provides=".interfaces.ILTILaunchParamBuilder"
+			for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 </configure>
