@@ -41,21 +41,23 @@ from nti.ims.lti.consumer import ConfiguredTool
 
 from nti.ntiids.ntiids import find_object_with_ntiid
 
-TOOL_DATA = {"consumer_key": "Test Key",
-             "secret": "Test Secret",
-             "title": "Test",
-             "description": "A test tool",
-             "launch_url": "http://www.test.com",
-             "secure_launch_url": "https://www.test.com",
-             "MimeType": ConfiguredTool.mimeType,
-             "formselector": "input"}
+TOOL_DATA = {
+    "consumer_key": "Test Key",
+    "secret": "Test Secret",
+    "title": "Test",
+    "description": "A test tool",
+    "launch_url": "http://www.test.com",
+    "secure_launch_url": "https://www.test.com",
+    "MimeType": ConfiguredTool.mimeType,
+    "formselector": "input"
+}
 
 
 class TestLTIAsset(ApplicationLayerTest):
 
     layer = InstructedCourseApplicationTestLayer
 
-    default_origin = b'http://janux.ou.edu'
+    default_origin = 'http://janux.ou.edu'
 
     course_ntiid = 'tag:nextthought.com,2011-10:NTI-CourseInfo-Fall2015_CS_1323'
     course_url = '/dataserver2/%2B%2Betc%2B%2Bhostsites/platform.ou.edu/%2B%2Betc%2B%2Bsite/Courses/Fall2015/CS%201323'
@@ -77,9 +79,12 @@ class TestLTIAsset(ApplicationLayerTest):
         assert_that(tool.get("MimeType"), is_(ConfiguredTool.mimeType))
         tool_ntiid = tool.get('NTIID')
 
-        # POST asset information to a CourseOverviewGroup for creation and insertion
-        asset_data = {"MimeType": LTIExternalToolAsset.mimeType,
-                      "ConfiguredTool": tool_ntiid}
+        # POST asset information to a CourseOverviewGroup for creation and
+        # insertion
+        asset_data = {
+            "MimeType": LTIExternalToolAsset.mimeType,
+            "ConfiguredTool": tool_ntiid
+        }
         res = self.testapp.post_json(self.group_url, asset_data, status=201)
 
         # Test attributes of the asset info returned
@@ -98,7 +103,9 @@ class TestLTIAsset(ApplicationLayerTest):
             assert_that(tool.secret, is_(TOOL_DATA.get('secret')))
             assert_that(tool.consumer_key, is_(TOOL_DATA.get('consumer_key')))
             assert_that(tool.launch_url, is_(TOOL_DATA.get('launch_url')))
-            assert_that(tool.secure_launch_url, is_(TOOL_DATA.get('secure_launch_url')))
+            assert_that(tool.secure_launch_url, 
+                        is_(TOOL_DATA.get('secure_launch_url')))
+
 
 class TestWorkflow(ApplicationLayerTest):
 
