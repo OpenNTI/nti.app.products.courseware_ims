@@ -21,15 +21,14 @@ from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
+from nti.app.products.courseware_ims.tests import SharedConfiguringTestLayer
+
 from nti.contenttypes.presentation.group import NTICourseOverViewGroup
 
 from nti.contenttypes.presentation.lesson import NTILessonOverView
 
 from nti.ims.lti.consumer import ConfiguredTool
 from nti.ims.lti.consumer import PersistentToolConfig
-
-from nti.app.products.courseware_ims.tests import SharedConfiguringTestLayer
-
 
 TOOL_CONFIG = {
     'key': u'Test Key',
