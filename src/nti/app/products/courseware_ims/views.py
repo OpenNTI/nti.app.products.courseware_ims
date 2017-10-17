@@ -14,6 +14,7 @@ import six
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
+from zope.component import interface
 
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
@@ -30,6 +31,8 @@ from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
+from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
+
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
@@ -44,12 +47,19 @@ from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 
 from nti.contenttypes.courses.utils import get_course_vendor_info
 
+from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
+
 from nti.dataserver import authorization as nauth
 
 from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
+from nti.links import Link
+from nti.links import render_link
+
 from nti.ntiids.oids import to_external_ntiid_oid
+
+from nti.dataserver.interfaces import ILinkExternalHrefOnly
 
 ITEMS = StandardExternalFields.ITEMS
 NTIID = StandardExternalFields.NTIID
@@ -216,3 +226,33 @@ class IMSCoursesView(AbstractAuthenticatedView):
         result[ITEMS] = entries
         result[TOTAL] = result[ITEM_COUNT] = len(entries)
         return result
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/create_external_tool.pt',
+             name='create_external_tool',
+             request_method='GET',
+             context=INTICourseOverviewGroup,
+             permission=nauth.ACT_CREATE)
+class CreateExternalToolAssetView(AbstractAuthenticatedView):
+
+    def __call__(self):
+        course = ICourseInstance(self.context)
+        tools_link = self._create_link(course,
+                                       method="GET",
+                                       elements=("lti_configured_tools",))
+        post_link = self._create_link(self.context,
+                                      method="POST",
+                                      elements=("contents",))
+
+        return {'tool_url': tools_link,
+                'MimeType': LTIExternalToolAsset.mimeType,
+                'post_url': post_link}
+
+    @staticmethod
+    def _create_link(context, method, elements):
+        link = Link(context,
+                    method=method,
+                    elements=elements)
+        interface.alsoProvides(link, ILinkExternalHrefOnly)
+        return render_link(link)
