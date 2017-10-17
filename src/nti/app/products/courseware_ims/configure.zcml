@@ -50,5 +50,5 @@
 
 	<subscriber factory=".subscribers.LTIUserParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest" />
+				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 </configure>

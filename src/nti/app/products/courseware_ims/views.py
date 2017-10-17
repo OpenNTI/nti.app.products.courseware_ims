@@ -281,7 +281,7 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
 
         launch_params = LaunchParams()
         # Add instance specific launch params
-        for subscriber in subscribers((self.request,), ILTILaunchParamBuilder):
+        for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
             subscriber.build_params(launch_params)
 
         tool_consumer = ToolConsumer(tool.consumer_key,
