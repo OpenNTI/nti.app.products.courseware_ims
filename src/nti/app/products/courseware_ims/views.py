@@ -14,6 +14,7 @@ import six
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
+
 from zope.component import interface
 
 from zope.security.management import endInteraction
@@ -51,6 +52,8 @@ from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
 
 from nti.dataserver import authorization as nauth
 
+from nti.dataserver.interfaces import ILinkExternalHrefOnly
+
 from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
@@ -58,8 +61,6 @@ from nti.links import Link
 from nti.links import render_link
 
 from nti.ntiids.oids import to_external_ntiid_oid
-
-from nti.dataserver.interfaces import ILinkExternalHrefOnly
 
 ITEMS = StandardExternalFields.ITEMS
 NTIID = StandardExternalFields.NTIID
