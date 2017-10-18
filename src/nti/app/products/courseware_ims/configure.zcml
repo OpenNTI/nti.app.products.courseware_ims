@@ -53,6 +53,14 @@
 				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 
 	<subscriber factory=".subscribers.LTIInstanceParams"
-			provides=".interfaces.ILTILaunchParamBuilder"
-			for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+
+	<subscriber factory=".subscribers.LTIContextParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+
+	<subscriber factory=".subscribers.LTIPresentationParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 </configure>

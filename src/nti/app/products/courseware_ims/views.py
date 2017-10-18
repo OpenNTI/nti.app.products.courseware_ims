@@ -275,8 +275,6 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
 class LaunchExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
-        from IPython.core.debugger import Tracer;Tracer()()
-
         tool = self.context.ConfiguredTool
 
         launch_params = LaunchParams()
