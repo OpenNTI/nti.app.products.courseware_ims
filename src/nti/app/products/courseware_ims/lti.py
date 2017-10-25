@@ -58,6 +58,12 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     def __init__(self, *args, **kwargs):
         super(LTIExternalToolAsset, self).__init__(*args, **kwargs)
+        # SchemaConfigured initializes these to None if a value isn't given
+        # and breaks readproperty so they need to be explicitly removed
+        #  if they were not intentionally set to None
+        for attr in ('title', 'description'):
+            if attr not in kwargs and self.__dict__.get(attr, None) is None:
+                del self.__dict__[attr]
 
     @readproperty
     def ntiid(self):
@@ -74,11 +80,13 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     @readproperty
     def title(self):
-        return self.config.title
+        # This must be unicode to work with SchemaConfigured
+        return unicode(self.config.title)
 
     @readproperty
     def description(self):
-        return self.config.description
+        # This must be unicode to work with SchemaConfigured
+        return unicode(self.config.description)
 
 
 @interface.implementer(IInternalObjectUpdater)
