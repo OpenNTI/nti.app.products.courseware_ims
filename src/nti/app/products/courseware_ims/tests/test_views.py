@@ -103,9 +103,9 @@ class TestLTIAsset(ApplicationLayerTest):
             assert_that(tool.secret, is_(TOOL_DATA.get('secret')))
             assert_that(tool.consumer_key, is_(TOOL_DATA.get('consumer_key')))
             assert_that(tool.launch_url, is_(TOOL_DATA.get('launch_url')))
-            assert_that(tool.secure_launch_url, 
-                        is_(TOOL_DATA.get('secure_launch_url')))
-
+            assert_that(tool.secure_launch_url, is_(TOOL_DATA.get('secure_launch_url')))
+            assert_that(asset.title, is_(TOOL_DATA.get('title')))
+            assert_that(asset.title, is_(TOOL_DATA.get('description')))
 
 
 class TestWorkflow(ApplicationLayerTest):

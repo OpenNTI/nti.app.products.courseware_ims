@@ -67,7 +67,8 @@ class LTIRoleParams(LTIParams):
     def build_params(self, params):
         user_obj = get_remote_user(request=self.request)
         profile = ICompleteUserProfile(user_obj)
-        params['roles'] = [profile.role]  # TODO needs mapped to lis vocabulary
+        if profile.role:  # This may need to be handled as an exception instead of avoided
+            params['roles'] = [profile.role]  # TODO needs mapped to lis vocabulary
 
 
 @interface.implementer(ILTILaunchParamBuilder)

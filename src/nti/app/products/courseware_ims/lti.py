@@ -78,7 +78,7 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     @readproperty
     def description(self):
-        return self.config.title
+        return self.config.description
 
 
 @interface.implementer(IInternalObjectUpdater)

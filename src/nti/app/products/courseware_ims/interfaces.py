@@ -101,6 +101,10 @@ class IExternalToolAsset(ICoursePresentationAsset,
 
     ConfiguredTool = Object(IConfiguredTool, required=True)
 
+    title = ValidTextLine(title=u"Title of an external tool", required=False)
+
+    description = ValidTextLine(title=u"Description of an external tool", required=False)
+
 
 class ILTILaunchParamBuilder(interface.Interface):
     """
