@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, absolute_import, division
+
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -21,9 +23,12 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.contenttypes.courses.utils import is_course_instructor
 
-from nti.dataserver.users.interfaces import ICompleteUserProfile
+from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
+
+from nti.mailer.interfaces import IEmailAddressable
+
 
 LTI_LEARNER = u"Learner"
 LTI_INSTRUCTOR = u"Instructor"
@@ -59,15 +64,18 @@ class LTIUserParams(LTIParams):
     def build_params(self, params):
         user_obj = get_remote_user(request=self.request)
         params['user_id'] = toExternalOID(user_obj)
-        user_obj = ICompleteUserProfile(user_obj)
-        if user_obj.realname:
-            name = human_name(user_obj.realname)
+
+        named_user = IFriendlyNamed(user_obj)
+        if named_user.realname:
+            name = human_name(named_user.realname)
             params['lis_person_name_full'] = name.full_name
             if name.first:
                 params['lis_person_name_given'] = name.first
             if name.last:
                 params['lis_person_name_family'] = name.last
-        params['lis_person_contact_email_primary'] = user_obj.email
+
+        user_email = IEmailAddressable(user_obj)
+        params['lis_person_contact_email_primary'] = user_email.email
 
 
 @interface.implementer(ILTILaunchParamBuilder)

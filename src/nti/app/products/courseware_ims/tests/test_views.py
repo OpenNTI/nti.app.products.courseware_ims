@@ -108,6 +108,8 @@ class TestLTIAsset(ApplicationLayerTest):
             assert_that(asset.title, is_(TOOL_DATA.get('title')))
             assert_that(asset.description, is_(TOOL_DATA.get('description')))
 
+    def test_subscribers(self):
+        pass
 
 class TestWorkflow(ApplicationLayerTest):
 
