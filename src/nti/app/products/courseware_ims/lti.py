@@ -72,6 +72,14 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
     def config(self):
         return self.configured_tool.config
 
+    @readproperty
+    def title(self):
+        return self.config.title
+
+    @readproperty
+    def description(self):
+        return self.config.title
+
 
 @interface.implementer(IInternalObjectUpdater)
 class ExternalToolAssetUpdater(InterfaceObjectIO):

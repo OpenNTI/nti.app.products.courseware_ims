@@ -2,20 +2,26 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, absolute_import, division
+
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-from zope import interface, component
+from zope import interface
+
+from nti.app.authentication import get_remote_user
 
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 
 from nti.appserver.policies.site_policies import guess_site_display_name
 
-from nti.contenttypes.courses.interfaces import ICourseCatalog
+from nti.common.nameparser import human_name
+
+from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
-from nti.dataserver.users import User
+from nti.dataserver.users.interfaces import ICompleteUserProfile
 
 from nti.externalization.oids import toExternalOID
 
@@ -34,18 +40,34 @@ class LTIResourceParams(LTIParams):
         asset = self.context
         asset_oid = toExternalOID(asset)
         params['resource_link_id'] = asset_oid
-        params['resource_link_title'] = asset.ConfiguredTool.config.title
-        params['resource_link_description'] = asset.ConfiguredTool.config.description
+        params['resource_link_title'] = asset.title
+        params['resource_link_description'] = asset.description
 
 
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIUserParams(LTIParams):
 
     def build_params(self, params):
-        user_obj = User.get_user(self.request.authenticated_userid)
+        user_obj = get_remote_user(request=self.request)
         params['user_id'] = toExternalOID(user_obj)
-        params['roles'] = [role.__name__ for role in user_obj.dynamic_memberships]
-        # TODO find user attributes on user_obj for lis_person_* params
+        user_obj = ICompleteUserProfile(user_obj)
+        if user_obj.realname:
+            name = human_name(user_obj.realname)
+            params['lis_person_name_full'] = name.full_name
+            if name.first:
+                params['lis_person_name_given'] = name.first
+            if name.last:
+                params['lis_person_name_family'] = name.last
+        params['lis_person_contact_email_primary'] = user_obj.email
+
+
+@interface.implementer(ILTILaunchParamBuilder)
+class LTIRoleParams(LTIParams):
+
+    def build_params(self, params):
+        user_obj = get_remote_user(request=self.request)
+        profile = ICompleteUserProfile(user_obj)
+        params['roles'] = [profile.role]  # TODO needs mapped to lis vocabulary
 
 
 @interface.implementer(ILTILaunchParamBuilder)
@@ -56,6 +78,7 @@ class LTIInstanceParams(LTIParams):
         params['tool_consumer_instance_name'] = guess_site_display_name(self.request)
         params['tool_consumer_instance_url'] = self.request.host_url
         params['tool_consumer_info_product_family_code'] = "NextThought"
+        params['tool_consumer_instance_contact_email'] = "support@nextthought.com"
 
 
 @interface.implementer(ILTILaunchParamBuilder)
@@ -63,17 +86,11 @@ class LTIContextParams(LTIParams):
 
     def build_params(self, params):
         course = ICourseInstance(self.context)
-        catalog = component.getUtility(ICourseCatalog)
-        catalog_entry = None
-        for entry in catalog.iterCatalogEntries():
-            if entry.__parent__ is course:
-                catalog_entry = entry
-                break
+        catalog_entry = ICourseCatalogEntry(course)
         params['context_type'] = "CourseSection"
         params['context_id'] = toExternalOID(course)
-        if catalog_entry:
-            params['context_title'] = catalog_entry.title
-            params['context_label'] = catalog_entry.ProviderUniqueID
+        params['context_title'] = catalog_entry.title
+        params['context_label'] = catalog_entry.ProviderUniqueID
 
 
 @interface.implementer(ILTILaunchParamBuilder)

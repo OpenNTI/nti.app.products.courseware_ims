@@ -26,7 +26,7 @@
                 var tools = response['Items'];
                 for(var tool in tools) {
                     var iter_tool = tools[tool]
-                    $('<option />', {value: iter_tool.NTIID, text: iter_tool.consumer_key}).appendTo("#configured_tools");
+                    $('<option />', {value: iter_tool.NTIID, text: iter_tool.config.title}).appendTo("#configured_tools");
                 }
             }
         </script>

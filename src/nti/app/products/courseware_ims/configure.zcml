@@ -63,4 +63,9 @@
 	<subscriber factory=".subscribers.LTIPresentationParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+
+	<subscriber factory=".subscribers.LTIRoleParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+
 </configure>

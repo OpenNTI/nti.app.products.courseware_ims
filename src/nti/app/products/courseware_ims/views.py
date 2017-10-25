@@ -271,6 +271,7 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
              renderer='templates/launch_external_tool.pt',
              request_method='GET',
              context=IExternalToolAsset,
+             name='launch',
              permission=nauth.ACT_READ)
 class LaunchExternalToolAssetView(AbstractAuthenticatedView):
 
@@ -288,5 +289,4 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
                                      launch_url=tool.launch_url)
 
         tool_consumer.set_config(tool.config)
-        request = tool_consumer.generate_launch_request()
-        return {'launch_url': request}
+        return {'consumer': tool_consumer}

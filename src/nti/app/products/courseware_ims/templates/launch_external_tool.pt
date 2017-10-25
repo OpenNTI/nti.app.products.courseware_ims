@@ -4,10 +4,13 @@
 	  xmlns:tal="http://xml.zope.org/namespaces/tal">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<title>Add an External Tool Asset</title>
+		<title>Launch an External Tool</title>
     </head>
     <body>
-        <form id="form" method="post" tal:attributes="action options/request_url">
+        <form id="form" tal:attributes="action options/consumer/launch_url" tal:define="launch_data options/consumer/generate_launch_data">
+            <tal:loop tal:repeat="key launch_data">
+                <input type="hidden" tal:attributes="name key; value launch_data/?key" />
+            </tal:loop>
             <input type="submit" value="Launch">
         </form>
     </body>
