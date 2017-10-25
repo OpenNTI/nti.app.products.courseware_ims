@@ -280,8 +280,6 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
 
         launch_params = LaunchParams()
         # Add instance specific launch params
-        from IPython.core.debugger import Tracer;Tracer()()
-
         for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
             subscriber.build_params(launch_params)
 

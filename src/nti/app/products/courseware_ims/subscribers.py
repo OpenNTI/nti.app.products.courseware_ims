@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, absolute_import, division
-
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -21,9 +19,20 @@ from nti.common.nameparser import human_name
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
+from nti.contenttypes.courses.utils import is_course_instructor
+
 from nti.dataserver.users.interfaces import ICompleteUserProfile
 
 from nti.externalization.oids import toExternalOID
+
+LTI_LEARNER = u"Learner"
+LTI_INSTRUCTOR = u"Instructor"
+
+NTI = u"NextThought"
+NTI_EMAIL = u"support@nextthought.com"
+NTI_CONTEXT_TYPE = u"CourseSection"
+
+TARGET = u"window"
 
 
 class LTIParams(object):
@@ -66,9 +75,11 @@ class LTIRoleParams(LTIParams):
 
     def build_params(self, params):
         user_obj = get_remote_user(request=self.request)
-        profile = ICompleteUserProfile(user_obj)
-        if profile.role:  # This may need to be handled as an exception instead of avoided
-            params['roles'] = [profile.role]  # TODO needs mapped to lis vocabulary
+        course = ICourseInstance(self.context)
+        if is_course_instructor(course, user_obj):
+            params['role'] = LTI_INSTRUCTOR
+        else:
+            params['role'] = LTI_LEARNER
 
 
 @interface.implementer(ILTILaunchParamBuilder)
@@ -78,8 +89,8 @@ class LTIInstanceParams(LTIParams):
         params['tool_consumer_instance_guid'] = self.request.domain
         params['tool_consumer_instance_name'] = guess_site_display_name(self.request)
         params['tool_consumer_instance_url'] = self.request.host_url
-        params['tool_consumer_info_product_family_code'] = "NextThought"
-        params['tool_consumer_instance_contact_email'] = "support@nextthought.com"
+        params['tool_consumer_info_product_family_code'] = NTI
+        params['tool_consumer_instance_contact_email'] = NTI_EMAIL
 
 
 @interface.implementer(ILTILaunchParamBuilder)
@@ -88,7 +99,7 @@ class LTIContextParams(LTIParams):
     def build_params(self, params):
         course = ICourseInstance(self.context)
         catalog_entry = ICourseCatalogEntry(course)
-        params['context_type'] = "CourseSection"
+        params['context_type'] = NTI_CONTEXT_TYPE
         params['context_id'] = toExternalOID(course)
         params['context_title'] = catalog_entry.title
         params['context_label'] = catalog_entry.ProviderUniqueID
@@ -99,5 +110,5 @@ class LTIPresentationParams(LTIParams):
 
     def build_params(self, params):
         params['launch_presentation_locale'] = self.request.locale_name
-        params['launch_presentation_document_target'] = "window"
+        params['launch_presentation_document_target'] = TARGET
         params['launch_presentation_return_url'] = self.request.current_route_url()
