@@ -3,12 +3,14 @@
 
 from __future__ import print_function, absolute_import, division
 
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
 from zope import interface
+
+from lti.tool_base import ROLES_INSTRUCTOR
+from lti.tool_base import ROLES_STUDENT
 
 from nti.app.authentication import get_remote_user
 
@@ -85,9 +87,9 @@ class LTIRoleParams(LTIParams):
         user_obj = get_remote_user(request=self.request)
         course = ICourseInstance(self.context)
         if is_course_instructor(course, user_obj):
-            params['role'] = LTI_INSTRUCTOR
+            params['role'] = ROLES_INSTRUCTOR.pop()
         else:
-            params['role'] = LTI_LEARNER
+            params['role'] = ROLES_STUDENT.pop()
 
 
 @interface.implementer(ILTILaunchParamBuilder)
