@@ -18,12 +18,16 @@ import fudge
 
 from zope import component
 
+from lti import LaunchParams
+
 from nti.contenttypes.courses.interfaces import ICourseCatalog
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.app.contenttypes.presentation import VIEW_CONTENTS
 
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
+
+from nti.app.products.courseware_ims import subscribers
 
 from nti.app.products.courseware_ims.adapters import TOOLS_ANNOTATION_KEY
 
@@ -104,12 +108,16 @@ class TestLTIAsset(ApplicationLayerTest):
             assert_that(tool.consumer_key, is_(TOOL_DATA.get('consumer_key')))
             assert_that(tool.launch_url, is_(TOOL_DATA.get('launch_url')))
             assert_that(tool.secure_launch_url, is_(TOOL_DATA.get('secure_launch_url')))
-            # these properties should not be None
+            # These properties should not be None
             assert_that(asset.title, is_(TOOL_DATA.get('title')))
             assert_that(asset.description, is_(TOOL_DATA.get('description')))
 
     def test_subscribers(self):
-        pass
+        params = LaunchParams()
+        subscriber = subscribers.LTIResourceParams()
+        subscriber.build_params(params)
+
+
 
 class TestWorkflow(ApplicationLayerTest):
 
