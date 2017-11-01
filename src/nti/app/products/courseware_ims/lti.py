@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import six
+
 from zope import component
 from zope import interface
 
@@ -81,12 +83,12 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
     @readproperty
     def title(self):
         # This must be unicode to work with SchemaConfigured
-        return unicode(self.config.title)
+        return six.text_type(self.config.title)
 
     @readproperty
     def description(self):
         # This must be unicode to work with SchemaConfigured
-        return unicode(self.config.description)
+        return six.text_type(self.config.description)
 
 
 @interface.implementer(IInternalObjectUpdater)
