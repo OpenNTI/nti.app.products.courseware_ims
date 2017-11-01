@@ -60,10 +60,10 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
         super(LTIExternalToolAsset, self).__init__(*args, **kwargs)
         # SchemaConfigured initializes these to None if a value isn't given
         # and breaks readproperty so they need to be explicitly removed
-        #  if they were not intentionally set to None
+        # if they were not intentionally set to None
         for attr in ('title', 'description'):
-            if attr not in kwargs and self.__dict__.get(attr, None) is None:
-                del self.__dict__[attr]
+            if attr not in kwargs and getattr(self, attr, self) is None:
+                delattr(self, attr)
 
     @readproperty
     def ntiid(self):
