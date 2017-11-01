@@ -18,12 +18,21 @@ import fudge
 
 from zope import component
 
+from lti import LaunchParams
+
+from lti.tool_base import ROLES_STUDENT
+
+from pyramid.testing import DummyRequest
+
 from nti.contenttypes.courses.interfaces import ICourseCatalog
+from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.app.contenttypes.presentation import VIEW_CONTENTS
 
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
+
+from nti.app.products.courseware_ims import subscribers
 
 from nti.app.products.courseware_ims.adapters import TOOLS_ANNOTATION_KEY
 
@@ -35,11 +44,18 @@ from nti.app.testing.decorators import WithSharedApplicationMockDS
 
 from nti.app.testing.webtest import TestApp
 
+from nti.appserver.policies.site_policies import guess_site_display_name
+
 from nti.dataserver.tests import mock_dataserver
+
+from nti.dataserver.users.users import User
+
+from nti.externalization.oids import toExternalOID
 
 from nti.ims.lti.consumer import ConfiguredTool
 
 from nti.ntiids.ntiids import find_object_with_ntiid
+
 
 TOOL_DATA = {
     "consumer_key": "Test Key",
@@ -69,6 +85,79 @@ class TestLTIAsset(ApplicationLayerTest):
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_asset(self):
+        self._create_asset()
+        # Test that the contained ConfiguredTool is the right object
+        with mock_dataserver.mock_db_trans(self.ds, 'janux.ou.edu'):
+            asset = find_object_with_ntiid(self.asset_ntiid)
+            tool = find_object_with_ntiid(self.tool_ntiid)
+            assert_that(asset.ConfiguredTool, is_(tool))
+            assert_that(tool.secret, is_(TOOL_DATA.get('secret')))
+            assert_that(tool.consumer_key, is_(TOOL_DATA.get('consumer_key')))
+            assert_that(tool.launch_url, is_(TOOL_DATA.get('launch_url')))
+            assert_that(tool.secure_launch_url, is_(TOOL_DATA.get('secure_launch_url')))
+            # These properties should not be None
+            assert_that(asset.title, is_(TOOL_DATA.get('title')))
+            assert_that(asset.description, is_(TOOL_DATA.get('description')))
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    def test_subscribers(self):
+        # Setup
+        environ = self._make_extra_environ()
+        environ['REQUEST_METHOD'] = 'GET'
+        self._create_asset()
+        with mock_dataserver.mock_db_trans(self.ds, 'janux.ou.edu'):
+            user = User.get_user(self.extra_environ_default_user)
+            asset = find_object_with_ntiid(self.asset_ntiid)
+            params = LaunchParams()
+            request = DummyRequest(current_route_url=self._test_current_url)
+
+            # Resource params
+            subscriber = subscribers.LTIResourceParams(request, asset)
+            subscriber.build_params(params)
+            asset_oid = toExternalOID(asset)
+            assert_that(params['resource_link_id'], is_(asset_oid))
+            assert_that(params['resource_link_title'], is_(asset.title))
+            assert_that(params['resource_link_description'], is_(asset.description))
+
+            # User params
+            subscriber = subscribers.LTIUserParams(request, asset)
+            subscriber._user = user
+            subscriber.build_params(params)
+            assert_that(params['user_id'], is_(toExternalOID(user)))
+
+            # Role params
+            subscriber = subscribers.LTIRoleParams(request, asset)
+            subscriber._user = user
+            subscriber.build_params(params)
+            assert_that(params['roles'], is_(ROLES_STUDENT))
+
+            # Instance params
+            subscriber = subscribers.LTIInstanceParams(request, asset)
+            subscriber.build_params(params)
+            assert_that(params['tool_consumer_instance_guid'], is_(request.domain))
+            assert_that(params['tool_consumer_instance_name'], is_(guess_site_display_name(request)))
+            assert_that(params['tool_consumer_instance_url'], is_(request.host_url))
+            assert_that(params['tool_consumer_info_product_family_code'], is_(u'NextThought'))
+            assert_that(params['tool_consumer_instance_contact_email'], is_(u"support@nextthought.com"))
+
+            # Context params
+            subscriber = subscribers.LTIContextParams(request, asset)
+            subscriber.build_params(params)
+            course = ICourseInstance(asset)
+            catalog_entry = ICourseCatalogEntry(course)
+            assert_that(params['context_type'], is_([u"CourseSection"]))
+            assert_that(params['context_id'], is_(toExternalOID(course)))
+            assert_that(params['context_title'], is_(catalog_entry.title))
+            assert_that(params['context_label'], is_(catalog_entry.ProviderUniqueID))
+
+            # Presentation params
+            subscriber = subscribers.LTIPresentationParams(request, asset)
+            subscriber.build_params(params)
+            assert_that(params['launch_presentation_locale'], is_(request.locale_name))
+            assert_that(params['launch_presentation_document_target'], is_(u"window"))
+            assert_that(params['launch_presentation_return_url'], is_(request.current_route_url()))
+
+    def _create_asset(self):
         # Create a Configured Tool in the CourseConfiguredToolContainer
         self.testapp.post_json(self.tool_url, TOOL_DATA, status=201)
 
@@ -77,34 +166,27 @@ class TestLTIAsset(ApplicationLayerTest):
         res = res.json_body
         tool = res.get('Items')[0]
         assert_that(tool.get("MimeType"), is_(ConfiguredTool.mimeType))
-        tool_ntiid = tool.get('NTIID')
+        self.tool_ntiid = tool.get('NTIID')
 
         # POST asset information to a CourseOverviewGroup for creation and
         # insertion
         asset_data = {
             "MimeType": LTIExternalToolAsset.mimeType,
-            "ConfiguredTool": tool_ntiid
+            "ConfiguredTool": self.tool_ntiid
         }
+
         res = self.testapp.post_json(self.group_url, asset_data, status=201)
 
         # Test attributes of the asset info returned
         res = res.json_body
         asset_href = res.get('href')
-        asset_ntiid = res.get('NTIID')
+        self.asset_ntiid = res.get('NTIID')
         assert_that(asset_href, not_none())
         assert_that(res.get("MimeType"), is_(LTIExternalToolAsset.mimeType))
         assert_that(res.get('Creator'), is_('sjohnson@nextthought.com'))
 
-        # Test that the contained ConfiguredTool is the right object
-        with mock_dataserver.mock_db_trans(self.ds, 'janux.ou.edu'):
-            asset = find_object_with_ntiid(asset_ntiid)
-            tool = find_object_with_ntiid(tool_ntiid)
-            assert_that(asset.ConfiguredTool, is_(tool))
-            assert_that(tool.secret, is_(TOOL_DATA.get('secret')))
-            assert_that(tool.consumer_key, is_(TOOL_DATA.get('consumer_key')))
-            assert_that(tool.launch_url, is_(TOOL_DATA.get('launch_url')))
-            assert_that(tool.secure_launch_url, 
-                        is_(TOOL_DATA.get('secure_launch_url')))
+    def _test_current_url(self):
+        return u"http://www.testurl.com"
 
 
 class TestWorkflow(ApplicationLayerTest):

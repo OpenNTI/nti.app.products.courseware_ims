@@ -101,15 +101,19 @@ class IExternalToolAsset(ICoursePresentationAsset,
 
     ConfiguredTool = Object(IConfiguredTool, required=True)
 
+    title = ValidTextLine(title=u"Title of an external tool", required=False)
+
+    description = ValidTextLine(title=u"Description of an external tool", required=False)
+
 
 class ILTILaunchParamBuilder(interface.Interface):
     """
-    Subscriber interface that adds launch time params to the ToolConsumer launch params
+    Subscriber interface that adds launch time params to the LTI LaunchParams
     These parameters are defined in section 3 of the IMS LTI implementation guide
     https://www.imsglobal.org/specs/ltiv1p0/implementation-guide
     """
 
-    def build_params(consumer):
+    def build_params(params):
         """
-        Mutates an instance of ToolConsumer launch params with context specific values
+        Mutates an instance of LaunchParams with context specific values
         """

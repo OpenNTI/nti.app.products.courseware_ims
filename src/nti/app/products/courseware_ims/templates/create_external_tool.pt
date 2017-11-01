@@ -36,7 +36,10 @@
                 var json = {};
 
                 jQuery.each(array, function() {
-                    json[this.name] = this.value || '';
+                    if (!((this.name == "title" && this.value == "") ||
+                                    (this.name == "description" && this.value == ""))) {
+                        json[this.name] = this.value || '';
+                }
                 });
 
                 return JSON.stringify(json);
@@ -85,6 +88,8 @@
             <select id="configured_tools" name="ConfiguredTool">
                 <option value="#" name="default" selected> -- Select an LTI Configured Tool -- </option>
             </select>
+            <label>Title<input type="text" name="title"></label>
+            <label>Description<input type="text" name="description"></label>
             <input type="hidden" name="MimeType" tal:attributes="value options/MimeType">
             <input type="button" id="submit" value="Submit">
         </form>
