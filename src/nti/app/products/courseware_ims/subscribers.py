@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
-from __future__ import print_function, absolute_import, division
-
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 from zope import interface
 
@@ -31,7 +32,6 @@ from nti.externalization.oids import toExternalOID
 
 from nti.mailer.interfaces import IEmailAddressable
 
-
 LTI_LEARNER = u"Learner"
 LTI_INSTRUCTOR = u"Instructor"
 
@@ -40,6 +40,8 @@ NTI_EMAIL = u"support@nextthought.com"
 NTI_CONTEXT_TYPE = u"CourseSection"
 
 TARGET = u"window"
+
+logger = __import__('logging').getLogger(__name__)
 
 
 class LTIParams(object):
