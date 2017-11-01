@@ -63,8 +63,11 @@ class LTIResourceParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIUserParams(LTIParams):
 
+    def _get_remote_user(self):
+        return self._user or get_remote_user(request=self.request)
+
     def build_params(self, params):
-        user_obj = get_remote_user(request=self.request)
+        user_obj = self._get_remote_user()
         params['user_id'] = toExternalOID(user_obj)
 
         named_user = IFriendlyNamed(user_obj)
@@ -83,13 +86,16 @@ class LTIUserParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIRoleParams(LTIParams):
 
+    def _get_remote_user(self):
+        return self._user or get_remote_user(request=self.request)
+
     def build_params(self, params):
-        user_obj = get_remote_user(request=self.request)
+        user_obj = self._get_remote_user()
         course = ICourseInstance(self.context)
         if is_course_instructor(course, user_obj):
-            params['role'] = ROLES_INSTRUCTOR.pop()
+            params['roles'] = ROLES_INSTRUCTOR
         else:
-            params['role'] = ROLES_STUDENT.pop()
+            params['roles'] = ROLES_STUDENT
 
 
 @interface.implementer(ILTILaunchParamBuilder)

@@ -20,6 +20,8 @@ from zope import component
 
 from lti import LaunchParams
 
+from lti.tool_base import ROLES_STUDENT
+
 from pyramid.testing import DummyRequest
 
 from nti.contenttypes.courses.interfaces import ICourseCatalog
@@ -98,15 +100,13 @@ class TestLTIAsset(ApplicationLayerTest):
             assert_that(asset.description, is_(TOOL_DATA.get('description')))
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
-    @fudge.patch('nti.app.authentication.get_remote_user')
-    def test_subscribers(self, fake_remote):
+    def test_subscribers(self):
         # Setup
         environ = self._make_extra_environ()
         environ['REQUEST_METHOD'] = 'GET'
         self._create_asset()
         with mock_dataserver.mock_db_trans(self.ds, 'janux.ou.edu'):
             user = User.get_user(self.extra_environ_default_user)
-            fake_remote.is_callable().returns(user)
             asset = find_object_with_ntiid(self.asset_ntiid)
             params = LaunchParams()
             request = DummyRequest(current_route_url=self._test_current_url)
@@ -121,15 +121,15 @@ class TestLTIAsset(ApplicationLayerTest):
 
             # User params
             subscriber = subscribers.LTIUserParams(request, asset)
-            # TODO: make dummy request return a user on get_remote_user
+            subscriber._user = user
             subscriber.build_params(params)
             assert_that(params['user_id'], is_(toExternalOID(user)))
-            assert_that(params['lis_person_name_full'], is_(user.full_name))
-            assert_that(params['lis_person_contact_email_primary'], is_(user.email))
 
             # Role params
             subscriber = subscribers.LTIRoleParams(request, asset)
-            # subscriber.build_params(params)
+            subscriber._user = user
+            subscriber.build_params(params)
+            assert_that(params['roles'], is_(ROLES_STUDENT))
 
             # Instance params
             subscriber = subscribers.LTIInstanceParams(request, asset)
