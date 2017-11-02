@@ -57,7 +57,7 @@ class TestExternalToolAsset(unittest.TestCase):
         assert_that(tool.title, is_(TOOL_CONFIG['title']))
         assert_that(tool.description, is_(TOOL_CONFIG['description']))
         assert_that(tool.launch_url, is_(TOOL_CONFIG['launch_url']))
-        assert_that(tool.secure_launch_url, 
+        assert_that(tool.secure_launch_url,
                     is_(TOOL_CONFIG['secure_launch_url']))
         return tool
 
