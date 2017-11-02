@@ -8,7 +8,8 @@ from __future__ import absolute_import
 # disable: accessing protected members, too many methods
 # pylint: disable=W0212,R0904,E1121
 
-from hamcrest import is_, not_none
+from hamcrest import is_
+from hamcrest import not_none
 from hamcrest import has_entry
 from hamcrest import has_length
 from hamcrest import assert_that
@@ -193,7 +194,7 @@ class TestWorkflow(ApplicationLayerTest):
 
     layer = InstructedCourseApplicationTestLayer
 
-    default_origin = 'http://janux.ou.edu'
+    default_origin = 'http://platform.ou.edu'
     course_ntiid = 'tag:nextthought.com,2011-10:NTI-CourseInfo-Fall2013_CLC3403_LawAndJustice'
 
     @classmethod
