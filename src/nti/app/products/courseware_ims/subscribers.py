@@ -66,7 +66,10 @@ class LTIResourceParams(LTIParams):
 class LTIUserParams(LTIParams):
 
     def _get_remote_user(self):
-        return self._user or get_remote_user(request=self.request)
+        try:
+            return self._user
+        except AttributeError:  # Expected behavior if not in a test
+            return get_remote_user(request=self.request)
 
     def build_params(self, params):
         user_obj = self._get_remote_user()
@@ -89,7 +92,10 @@ class LTIUserParams(LTIParams):
 class LTIRoleParams(LTIParams):
 
     def _get_remote_user(self):
-        return self._user or get_remote_user(request=self.request)
+        try:
+            return self._user
+        except AttributeError:  # Expected behavior if not in a test
+            return get_remote_user(request=self.request)
 
     def build_params(self, params):
         user_obj = self._get_remote_user()
