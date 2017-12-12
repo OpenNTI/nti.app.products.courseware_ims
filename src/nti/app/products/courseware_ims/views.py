@@ -31,6 +31,8 @@ from pyramid.view import view_defaults
 from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
+from nti.app.externalization.internalization import read_body_as_external_object
+
 from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
@@ -274,6 +276,8 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
         tool = self.context.ConfiguredTool
+        body = read_body_as_external_object(self.request)
+        auto_launch = body['auto_launch'].encode('ascii')
 
         launch_params = LaunchParams()
         # Add instance specific launch params
@@ -286,4 +290,5 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
                                      launch_url=tool.launch_url)
 
         tool_consumer.set_config(tool.config)
-        return {'consumer': tool_consumer}
+        return {'consumer': tool_consumer,
+                'auto_launch': auto_launch}
