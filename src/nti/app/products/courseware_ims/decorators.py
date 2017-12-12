@@ -5,11 +5,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from zope import component
 from zope import interface
 
 from nti.app.products.courseware_ims import LTI_CONFIGURED_TOOLS
+from nti.app.products.courseware_ims import EXTERNAL_TOOL_ASSET_LAUNCH
+
+from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
@@ -25,6 +28,9 @@ LINKS = StandardExternalFields.LINKS
 logger = __import__('logging').getLogger(__name__)
 
 
+LAUNCH_PATH = '@@launch'
+
+
 @component.adapter(ICourseInstance)
 @interface.implementer(IExternalMappingDecorator)
 class _CourseInstanceLinkDecorator(Singleton):
@@ -34,3 +40,12 @@ class _CourseInstanceLinkDecorator(Singleton):
         if tools:
             _links = result.setdefault(LINKS, [])
             _links.append(Link(tools, rel=LTI_CONFIGURED_TOOLS))
+
+
+@component.adapter(IExternalToolAsset)
+@interface.implementer(IExternalMappingDecorator)
+class _ExternalToolAssetInstanceLinkDecorator(Singleton):
+
+    def decorateExternalMapping(self, context, result):
+        _links = result.setdefault(LINKS, [])
+        _links.append(Link(context, rel=EXTERNAL_TOOL_ASSET_LAUNCH, elements=(LAUNCH_PATH,)))

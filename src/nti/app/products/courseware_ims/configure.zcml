@@ -72,4 +72,7 @@
 	<subscriber factory=".decorators._CourseInstanceLinkDecorator"
 				provides="nti.externalization.interfaces.IExternalMappingDecorator" />
 
+	<subscriber factory=".decorators._ExternalToolAssetInstanceLinkDecorator"
+				provides="nti.externalization.interfaces.IExternalMappingDecorator" />
+
 </configure>
