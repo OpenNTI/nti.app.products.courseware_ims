@@ -278,6 +278,10 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
         tool = self.context.ConfiguredTool
         body = read_body_as_external_object(self.request)
         auto_launch = body['auto_launch'].encode('ascii')
+        if auto_launch == "True":
+            auto_launch = True
+        else:
+            auto_launch = False
 
         launch_params = LaunchParams()
         # Add instance specific launch params
