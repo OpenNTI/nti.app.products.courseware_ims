@@ -44,7 +44,7 @@ class CourseConfiguredToolContainer(ConfiguredToolContainer):
 class LTIExternalToolAsset(PersistentPresentationAsset):
     createDirectFieldProperties(IExternalToolAsset)
 
-    mimeType = mime_type = 'application/vnd.nextthought.externaltoolasset'
+    mimeType = mime_type = 'application/vnd.nextthought.ltiexternaltoolasset'
 
     __external_class_name__ = "ExternalToolAsset"
 
