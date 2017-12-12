@@ -17,6 +17,9 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 #: Annotation key to store the IMS course SourcedID
 COURSE_SOURCEDID_KEY = 'nti.app.products.courseware_ims.COURSE_SOURCEDID_KEY'
 
+#: LTI Configured Tools workspace
+LTI_CONFIGURED_TOOLS = 'LTI Configured Tools'
+
 
 def get_course_sourcedid(context):
     course = ICourseInstance(context, None)

@@ -68,4 +68,8 @@
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 
+	<!-- Decorators -->
+	<subscriber factory=".decorators._CourseInstanceLinkDecorator"
+				provides="nti.externalization.interfaces.IExternalMappingDecorator" />
+
 </configure>
