@@ -16,7 +16,7 @@
         </script>
     </head>
     <body>
-        <form id="form" tal:attributes="action options/consumer/launch_url" tal:define="launch_data options/consumer/generate_launch_data">
+        <form id="form" method="POST" tal:attributes="action options/consumer/launch_url" tal:define="launch_data options/consumer/generate_launch_data">
             <tal:loop tal:repeat="key launch_data">
                 <input type="hidden" tal:attributes="name key; value launch_data/?key" />
             </tal:loop>
