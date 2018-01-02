@@ -283,7 +283,7 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
         # else:
         #     auto_launch = 1
 
-        launch_params = LaunchParams()
+        launch_params = LaunchParams(lti_version='LTI-1p0')
         # Add instance specific launch params
         for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
             subscriber.build_params(launch_params)
