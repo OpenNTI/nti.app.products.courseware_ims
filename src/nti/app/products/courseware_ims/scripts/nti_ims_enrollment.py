@@ -32,9 +32,9 @@ def _tx_string(s):
 
 
 def _process_args(ims_file, create_persons, site=None, output=None,
-                  as_csv=False, verbose=False):
+                  as_csv=False, drop_missing=False, verbose=False):
     set_site(site)
-    response = workflow.process(ims_file, create_persons)
+    response = workflow.process(ims_file, create_persons, drop_missing)
     if output and response:
         with open(output, "wb") as fp:
             if not as_csv:
@@ -63,23 +63,27 @@ def main():
     arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
                             dest='verbose')
 
-    arg_parser.add_argument('--create', help="Create users", action='store_true',
+    arg_parser.add_argument('-c', '--create', help="Create users", action='store_true',
                             dest='create_persons', default=False)
+
+    arg_parser.add_argument('-d', '--drop', help="Drop missing", action='store_true',
+                            dest='drop_missing')
 
     arg_parser.add_argument('-i', '--ims', help="IMS file location",
                             dest='ims_file')
 
     arg_parser.add_argument('-s', '--site', dest='site', help="Request site")
 
-    arg_parser.add_argument('--csv', dest='csv', action='store_true',
-                            help="CSV output response")
-
     arg_parser.add_argument('-o', '--output', dest='output',
                             help="Output response path")
+
+    arg_parser.add_argument('--csv', dest='csv', action='store_true',
+                            help="CSV output response")
 
     args = arg_parser.parse_args()
 
     verbose = args.verbose
+    drop_missing = args.drop_missing
 
     ims_file = args.ims_file
     ims_file = os.path.expanduser(ims_file) if ims_file else None
@@ -117,6 +121,7 @@ def main():
                                                        output=output,
                                                        verbose=verbose,
                                                        ims_file=ims_file,
+                                                       drop_missing=drop_missing,
                                                        create_persons=create_persons))
 
 
