@@ -77,18 +77,14 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
         return self.configured_tool.launch_url
 
     @readproperty
-    def config(self):
-        return self.configured_tool.config
-
-    @readproperty
     def title(self):
         # This must be unicode to work with SchemaConfigured
-        return six.text_type(self.config.title)
+        return six.text_type(self.configured_tool.title)
 
     @readproperty
     def description(self):
         # This must be unicode to work with SchemaConfigured
-        return six.text_type(self.config.description)
+        return six.text_type(self.configured_tool.description)
 
 
 @interface.implementer(IInternalObjectUpdater)
