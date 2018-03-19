@@ -34,6 +34,7 @@ from nti.schema.fieldproperty import createDirectFieldProperties
 
 logger = __import__('logging').getLogger(__name__)
 
+PARSE_VALS = ('title', 'description')
 
 @interface.implementer(ICourseConfiguredToolContainer)
 class CourseConfiguredToolContainer(ConfiguredToolContainer):
@@ -63,7 +64,7 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
         # SchemaConfigured initializes these to None if a value isn't given
         # and breaks readproperty so they need to be explicitly removed
         # if they were not intentionally set to None
-        for attr in ('title', 'description'):
+        for attr in PARSE_VALS:
             if attr not in kwargs and getattr(self, attr, self) is None:
                 delattr(self, attr)
 
@@ -93,6 +94,14 @@ class ExternalToolAssetUpdater(InterfaceObjectIO):
     _ext_iface_upper_bound = IExternalToolAsset
 
     __external_oids__ = ('ConfiguredTool',)
+
+    def updateFromExternalObject(self, parsed, *args, **kwargs):
+        # This checks to see if title and/or description have no value. If they do not, we delete
+        # them so that this information is instead gleaned off the ConfiguredTool
+        for attr in PARSE_VALS:
+            if attr in parsed and parsed[attr] == '':
+                del parsed[attr]
+        super(ExternalToolAssetUpdater, self).updateFromExternalObject(parsed, *args, **kwargs)
 
 
 @interface.implementer(INTIIDResolver)
