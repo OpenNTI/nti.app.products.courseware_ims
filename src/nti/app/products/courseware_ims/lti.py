@@ -99,7 +99,7 @@ class ExternalToolAssetUpdater(InterfaceObjectIO):
         # This checks to see if title and/or description have no value. If they do not, we delete
         # them so that this information is instead gleaned off the ConfiguredTool
         for attr in PARSE_VALS:
-            if attr in parsed and parsed[attr] == '':
+            if attr in parsed and not parsed[attr]:
                 del parsed[attr]
         super(ExternalToolAssetUpdater, self).updateFromExternalObject(parsed, *args, **kwargs)
 
