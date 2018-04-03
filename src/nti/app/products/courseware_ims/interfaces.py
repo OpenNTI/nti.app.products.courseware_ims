@@ -16,7 +16,7 @@ from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
-from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
+from nti.contenttypes.presentation.interfaces import IUserCreatedAsset, href_schema_field
 from nti.contenttypes.presentation.interfaces import IGroupOverViewable
 from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
 
@@ -104,6 +104,8 @@ class IExternalToolAsset(ICoursePresentationAsset,
     title = ValidTextLine(title=u"Title of an external tool", required=False)
 
     description = ValidTextLine(title=u"Description of an external tool", required=False)
+
+    icon = href_schema_field(title=u"External tool asset icon href", required=False)
 
 
 class ILTILaunchParamBuilder(interface.Interface):

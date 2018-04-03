@@ -51,6 +51,15 @@ class LTIParams(object):
         self.context = context
 
 
+class LTIUserMixin(object):
+
+    def _get_remote_user(self):
+        try:
+            return self._user
+        except AttributeError:  # Expected behavior if not in a test
+            return get_remote_user(request=self.request)
+
+
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIResourceParams(LTIParams):
 
@@ -63,10 +72,7 @@ class LTIResourceParams(LTIParams):
 
 
 @interface.implementer(ILTILaunchParamBuilder)
-class LTIUserParams(LTIParams):
-
-    def _get_remote_user(self):
-        return self._user or get_remote_user(request=self.request)
+class LTIUserParams(LTIParams, LTIUserMixin):
 
     def build_params(self, params):
         user_obj = self._get_remote_user()
@@ -86,10 +92,7 @@ class LTIUserParams(LTIParams):
 
 
 @interface.implementer(ILTILaunchParamBuilder)
-class LTIRoleParams(LTIParams):
-
-    def _get_remote_user(self):
-        return self._user or get_remote_user(request=self.request)
+class LTIRoleParams(LTIParams, LTIUserMixin):
 
     def build_params(self, params):
         user_obj = self._get_remote_user()

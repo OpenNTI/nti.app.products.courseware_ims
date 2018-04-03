@@ -34,6 +34,7 @@ from nti.schema.fieldproperty import createDirectFieldProperties
 
 logger = __import__('logging').getLogger(__name__)
 
+PARSE_VALS = ('title', 'description')
 
 @interface.implementer(ICourseConfiguredToolContainer)
 class CourseConfiguredToolContainer(ConfiguredToolContainer):
@@ -44,7 +45,7 @@ class CourseConfiguredToolContainer(ConfiguredToolContainer):
 class LTIExternalToolAsset(PersistentPresentationAsset):
     createDirectFieldProperties(IExternalToolAsset)
 
-    mimeType = mime_type = 'application/vnd.nextthought.contenttypes.presentation.lticonfiguredtool'
+    mimeType = mime_type = 'application/vnd.nextthought.ltiexternaltoolasset'
 
     __external_class_name__ = "ExternalToolAsset"
 
@@ -63,7 +64,7 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
         # SchemaConfigured initializes these to None if a value isn't given
         # and breaks readproperty so they need to be explicitly removed
         # if they were not intentionally set to None
-        for attr in ('title', 'description'):
+        for attr in PARSE_VALS:
             if attr not in kwargs and getattr(self, attr, self) is None:
                 delattr(self, attr)
 
@@ -77,18 +78,14 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
         return self.configured_tool.launch_url
 
     @readproperty
-    def config(self):
-        return self.configured_tool.config
-
-    @readproperty
     def title(self):
         # This must be unicode to work with SchemaConfigured
-        return six.text_type(self.config.title)
+        return six.text_type(self.configured_tool.title)
 
     @readproperty
     def description(self):
         # This must be unicode to work with SchemaConfigured
-        return six.text_type(self.config.description)
+        return six.text_type(self.configured_tool.description)
 
 
 @interface.implementer(IInternalObjectUpdater)
@@ -97,6 +94,14 @@ class ExternalToolAssetUpdater(InterfaceObjectIO):
     _ext_iface_upper_bound = IExternalToolAsset
 
     __external_oids__ = ('ConfiguredTool',)
+
+    def updateFromExternalObject(self, parsed, *args, **kwargs):
+        # This checks to see if title and/or description have no value. If they do not, we delete
+        # them so that this information is instead gleaned off the ConfiguredTool
+        for attr in PARSE_VALS:
+            if attr in parsed and not parsed[attr]:
+                del parsed[attr]
+        super(ExternalToolAssetUpdater, self).updateFromExternalObject(parsed, *args, **kwargs)
 
 
 @interface.implementer(INTIIDResolver)
