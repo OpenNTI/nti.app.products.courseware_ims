@@ -37,7 +37,7 @@ class _CourseInstanceLinkDecorator(Singleton):
 
     def decorateExternalMapping(self, context, result):
         tools = ICourseConfiguredToolContainer(context)
-        if tools:
+        if tools is not None:
             _links = result.setdefault(LINKS, [])
             _links.append(Link(tools, rel=LTI_CONFIGURED_TOOLS))
 

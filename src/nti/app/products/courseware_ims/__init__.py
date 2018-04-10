@@ -18,7 +18,7 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 COURSE_SOURCEDID_KEY = 'nti.app.products.courseware_ims.COURSE_SOURCEDID_KEY'
 
 #: LTI Configured Tools workspace
-LTI_CONFIGURED_TOOLS = 'LTI Configured Tools'
+LTI_CONFIGURED_TOOLS = 'lti-configured-tools'
 
 #: Launch an external tool asset rel
 EXTERNAL_TOOL_ASSET_LAUNCH = 'Launch'
