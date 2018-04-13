@@ -3,13 +3,6 @@
 
 from __future__ import print_function, absolute_import, division
 
-from nti.contenttypes.courses.exporter import BaseSectionExporter
-from nti.contenttypes.courses.interfaces import ICourseSectionExporter, ICourseInstance
-from nti.contenttypes.presentation import IContentBackedPresentationAsset
-from nti.externalization.externalization import to_external_object
-from nti.ims.lti.interfaces import IConfiguredToolContainer
-from nti.ntiids.ntiids import find_object_with_ntiid
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -17,6 +10,15 @@ logger = __import__('logging').getLogger(__name__)
 from zope import interface
 
 from nti.app.products.courseware_ims import IMS_CONFIGURED_TOOLS_FILE_NAME
+
+from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
+
+from nti.contenttypes.courses.exporter import BaseSectionExporter
+
+from nti.contenttypes.courses.interfaces import ICourseInstance
+from nti.contenttypes.courses.interfaces import ICourseSectionExporter
+
+from nti.externalization.externalization import to_external_object
 
 
 @interface.implementer(ICourseSectionExporter)
@@ -26,7 +28,7 @@ class IMSCourseSectionExporter(BaseSectionExporter):
         """
         Exports the tools in the ICourseConfiguredToolContainer for this course.
         """
-        tool_container = IConfiguredToolContainer(course)
+        tool_container = ICourseConfiguredToolContainer(course)
         ext_tools = to_external_object(tool_container)
         if ext_tools is not None:
             source = self.dump(ext_tools)
