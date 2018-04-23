@@ -34,7 +34,7 @@ class IMSCourseSectionImporter(BaseSectionImporter):
 
     def process(self, context, filer, writeout=True):
         course = ICourseInstance(context)
-        for key, iface in ((IMS_CONFIGURED_TOOLS_FILE_NAME, ICourseConfiguredToolContainer)):
+        for key, iface in ((IMS_CONFIGURED_TOOLS_FILE_NAME, ICourseConfiguredToolContainer),):
             path = self.course_bucket_path(course) + key
             source = self.safe_get(filer, path)
             if source is not None:
@@ -46,7 +46,7 @@ class IMSCourseSectionImporter(BaseSectionImporter):
                 # save source
                 if writeout and IFilesystemBucket.providedBy(course.root):
                     path = self.course_bucket_path(course) + key
-                    source = self.safe_get(filer, path) # reload
+                    source = self.safe_get(filer, path)  # reload
                     if source is not None:
                         self.makedirs(course.root.absolute_path)
                         new_path = os.path.join(course.root.absolute_path,

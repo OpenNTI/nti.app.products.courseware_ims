@@ -14,8 +14,17 @@
 	<include package="nti.externalization" />
 	<ext:registerAutoPackageIO
 		root_interfaces=".interfaces.IIMSEnrollmentOption
-						 .interfaces.IExternalToolAsset"
+						 .interfaces.IExternalToolAsset
+						 .interfaces.ICourseConfiguredToolContainer"
 		modules=".model .lti" />
+
+	<adapter factory=".externalization._CourseConfiguredToolContainerExternalObject"
+			 provides="nti.externalization.interfaces.IExternalObject"
+			 for=".interfaces.ICourseConfiguredToolContainer" />
+
+	<adapter factory=".internalization._CourseConfiguredToolContainerUpdater"
+			 provides="nti.externalization.interfaces.IInternalObjectUpdater"
+			 for=".interfaces.ICourseConfiguredToolContainer" />
 
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"
