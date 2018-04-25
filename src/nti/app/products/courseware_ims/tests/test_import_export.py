@@ -71,8 +71,6 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
         exporter = IMSCourseSectionExporter()
         importer = IMSCourseSectionImporter()
 
-        from IPython.core.debugger import Tracer;Tracer()()
-
         # Backup with no data
         try:
             exporter.export(source_course, export_filer, backup=True, salt=1111)
