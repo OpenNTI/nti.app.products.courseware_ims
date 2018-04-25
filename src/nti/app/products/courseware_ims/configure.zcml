@@ -69,10 +69,11 @@
 				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 
 	<!-- Decorators -->
+	<configure zcml:condition="have devmode">
 	<subscriber factory=".decorators._CourseInstanceLinkDecorator"
 				provides="nti.externalization.interfaces.IExternalMappingDecorator" />
 
 	<subscriber factory=".decorators._ExternalToolAssetInstanceLinkDecorator"
 				provides="nti.externalization.interfaces.IExternalMappingDecorator" />
-
+	</configure>
 </configure>
