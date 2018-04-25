@@ -6,6 +6,7 @@ from __future__ import print_function, absolute_import, division
 from hamcrest import assert_that
 from hamcrest import has_length
 from hamcrest import is_
+from hamcrest import is_not
 
 import fudge
 
@@ -44,7 +45,8 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
 
     layer = PersistentInstructedCourseApplicationTestLayer
 
-    def _validate_target_data(self, source_course, target_course):
+    def _validate_target_data(self, source_course, target_course, copied=True):
+        ntiid_copy_check = is_ if copied else is_not
         source_tool_container = ICourseConfiguredToolContainer(source_course)
         target_tool_container = ICourseConfiguredToolContainer(target_course)
 
@@ -53,7 +55,7 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
 
         for source_key, target_key in zip(source_tool_container.values(),
                                           target_tool_container.values()):
-            assert_that(target_key, is_(source_key))
+            assert_that(target_key, ntiid_copy_check(source_key))
 
     @fudge.patch('nti.app.products.courseware_ims.internalization.find_object_with_ntiid')
     @WithMockDSTrans
@@ -69,15 +71,26 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
         exporter = IMSCourseSectionExporter()
         importer = IMSCourseSectionImporter()
 
-        # No data
+        from IPython.core.debugger import Tracer;Tracer()()
+
+        # Backup with no data
         try:
-            exporter.export(source_course, export_filer)
+            exporter.export(source_course, export_filer, backup=True, salt=1111)
             importer.process(target_course, export_filer)
         finally:
             shutil.rmtree(tmp_dir)
-        self._validate_target_data(source_course, target_course)
+        self._validate_target_data(source_course, target_course, copied=True)
 
-        # Data
+        # No backup with no data
+        tmp_dir = tempfile.mkdtemp(dir="/tmp")
+        try:
+            exporter.export(source_course, export_filer, backup=False, salt=1111)
+            importer.process(target_course, export_filer)
+        finally:
+            shutil.rmtree(tmp_dir)
+        self._validate_target_data(source_course, target_course, copied=False)
+
+        # Backup with Data
         tool1 = create_configured_tool()
         tool2 = create_configured_tool()
         tool_container = ICourseConfiguredToolContainer(source_course)
@@ -90,8 +103,26 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
 
         tmp_dir = tempfile.mkdtemp(dir="/tmp")
         try:
-            exporter.export(source_course, export_filer)
+            exporter.export(source_course, export_filer, backup=True, salt=1111)
             importer.process(target_course, export_filer)
         finally:
             shutil.rmtree(tmp_dir)
-        self._validate_target_data(source_course, target_course)
+        self._validate_target_data(source_course, target_course, copied=True)
+
+        # No backup with data
+        # These are for when the ntiid is looked up to be hashed
+        fake_find.next_call().returns(tool1)
+        fake_find.next_call().returns(tool2)
+        # These are for when the ntiid is looked up to add back to the target container
+        fake_find.next_call().returns(tool1)
+        fake_find.next_call().returns(tool2)
+
+        target_course = ContentCourseInstance()
+        conn.add(target_course)
+        tmp_dir = tempfile.mkdtemp(dir="/tmp")
+        try:
+            exporter.export(source_course, export_filer, backup=False, salt=1111)
+            importer.process(target_course, export_filer)
+        finally:
+            shutil.rmtree(tmp_dir)
+        self._validate_target_data(source_course, target_course, copied=False)
