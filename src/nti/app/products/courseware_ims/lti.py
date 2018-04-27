@@ -9,6 +9,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import six
+from nti.app.contenttypes.presentation.interfaces import IPresentationAssetProcessor
+from nti.app.contenttypes.presentation.processors.mixins import BaseAssetProcessor
 
 from zope import component
 from zope import interface
@@ -113,3 +115,10 @@ class NTIIDReferenceResolver(object):
     def resolve(self, key):
         result = component.queryUtility(self._ext_iface, name=key)
         return result
+
+
+@interface.implementer(IPresentationAssetProcessor)
+class LTIExternalToolAssetProcessor(BaseAssetProcessor):
+
+    def handle(self, item, context, creator=None, request=None):
+        pass
