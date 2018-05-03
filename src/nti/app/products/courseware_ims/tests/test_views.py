@@ -90,7 +90,7 @@ class TestLTIAsset(ApplicationLayerTest):
         # Test that the contained ConfiguredTool is the right object
         with mock_dataserver.mock_db_trans(self.ds, 'janux.ou.edu'):
             asset = find_object_with_ntiid(self.asset_ntiid)
-            tool = find_object_with_ntiid(self.tool_ntiid)
+            tool = find_object_with_ntiid(self.tool_oid)
             assert_that(asset.ConfiguredTool, is_(tool))
             assert_that(tool.secret, is_(TOOL_DATA.get('secret')))
             assert_that(tool.consumer_key, is_(TOOL_DATA.get('consumer_key')))
@@ -110,7 +110,7 @@ class TestLTIAsset(ApplicationLayerTest):
             user = User.get_user(self.extra_environ_default_user)
             asset = find_object_with_ntiid(self.asset_ntiid)
             params = LaunchParams()
-            request = DummyRequest(current_route_url=self._test_current_url)
+            request = DummyRequest(current_route_url=self.current_route_url)
 
             # Resource params
             subscriber = subscribers.LTIResourceParams(request, asset)
@@ -167,13 +167,13 @@ class TestLTIAsset(ApplicationLayerTest):
         res = res.json_body
         tool = res.get('Items')[0]
         assert_that(tool.get("MimeType"), is_(ConfiguredTool.mimeType))
-        self.tool_ntiid = tool.get('NTIID')
+        self.tool_oid = tool.get('OID')
 
         # POST asset information to a CourseOverviewGroup for creation and
         # insertion
         asset_data = {
             "MimeType": LTIExternalToolAsset.mimeType,
-            "ConfiguredTool": self.tool_ntiid
+            "ConfiguredTool": self.tool_oid
         }
 
         res = self.testapp.post_json(self.group_url, asset_data, status=201)
@@ -186,8 +186,8 @@ class TestLTIAsset(ApplicationLayerTest):
         assert_that(res.get("MimeType"), is_(LTIExternalToolAsset.mimeType))
         assert_that(res.get('Creator'), is_('sjohnson@nextthought.com'))
 
-    def _test_current_url(self):
-        return u"http://www.testurl.com"
+    def current_route_url(self):
+        return TOOL_DATA['launch_url']
 
 
 class TestWorkflow(ApplicationLayerTest):

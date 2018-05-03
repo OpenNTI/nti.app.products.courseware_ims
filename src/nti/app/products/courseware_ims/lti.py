@@ -36,6 +36,7 @@ logger = __import__('logging').getLogger(__name__)
 
 PARSE_VALS = ('title', 'description')
 
+
 @interface.implementer(ICourseConfiguredToolContainer)
 class CourseConfiguredToolContainer(ConfiguredToolContainer):
     pass
