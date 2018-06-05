@@ -15,8 +15,6 @@ import shutil
 import tempfile
 
 from nti.app.contenttypes.presentation import VIEW_CONTENTS
-from nti.app.contenttypes.presentation.exporter import LessonOverviewsExporter
-from nti.app.contenttypes.presentation.importer import UserAssetsImporter, LessonOverviewsImporter
 
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
 
@@ -33,13 +31,10 @@ from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 from nti.app.products.courseware_ims.tests import create_configured_tool
 
 from nti.app.testing.application_webtest import ApplicationLayerTest
-from nti.app.testing.decorators import WithSharedApplicationMockDS
 
 from nti.cabinet.filer import DirectoryFiler
 
 from nti.contenttypes.courses.courses import ContentCourseInstance
-from nti.contenttypes.courses.exporter import CourseOutlineExporter
-from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.dataserver.tests import mock_dataserver
 
@@ -156,8 +151,6 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
         finally:
             shutil.rmtree(tmp_dir)
         self._validate_target_data(source_course, target_course, copied=False)
-
-        from IPython.core.debugger import Tracer;Tracer()()
 
         # Backup with Data
         tool1 = create_configured_tool()

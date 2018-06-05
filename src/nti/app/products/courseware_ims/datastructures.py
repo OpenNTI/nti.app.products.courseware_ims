@@ -4,6 +4,7 @@
 from __future__ import print_function, absolute_import, division
 
 from nti.contentfile.datastructures import BaseFactory
+
 from nti.ims.lti.consumer import ConfiguredTool
 
 __docformat__ = "restructuredtext en"

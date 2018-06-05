@@ -5,13 +5,13 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from nti.ntiids.oids import to_external_ntiid_oid
 from zope import component
 from zope import interface
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
-from nti.externalization.externalization import to_standard_external_dictionary, toExternalObject, to_external_object
+from nti.externalization.externalization import to_external_object
+from nti.externalization.externalization import to_standard_external_dictionary
 
 from nti.externalization.interfaces import IExternalObject
 from nti.externalization.interfaces import StandardExternalFields

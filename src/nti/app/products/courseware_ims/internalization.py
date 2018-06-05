@@ -5,7 +5,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from nti.externalization.internalization import find_factory_for, update_from_external_object
+
 from zope import component
 from zope import interface
 
@@ -15,6 +15,9 @@ from nti.externalization.datastructures import InterfaceObjectIO
 
 from nti.externalization.interfaces import IInternalObjectUpdater
 from nti.externalization.interfaces import StandardExternalFields
+
+from nti.externalization.internalization import find_factory_for
+from nti.externalization.internalization import update_from_external_object
 
 from nti.ntiids.ntiids import find_object_with_ntiid
 
