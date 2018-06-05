@@ -121,4 +121,4 @@ class NTIIDReferenceResolver(object):
 class LTIExternalToolAssetProcessor(BaseAssetProcessor):
 
     def handle(self, item, context, creator=None, request=None):
-        pass
+        from IPython.core.debugger import Tracer;Tracer()()

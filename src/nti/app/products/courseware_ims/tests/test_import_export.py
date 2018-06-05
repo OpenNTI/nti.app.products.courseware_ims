@@ -113,33 +113,6 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
         assert_that(res.get("MimeType"), is_(LTIExternalToolAsset.mimeType))
         assert_that(res.get('Creator'), is_('sjohnson@nextthought.com'))
 
-    @WithSharedApplicationMockDS(testapp=True, users=True)
-    def test_lti_external_tool_asset(self):
-        from IPython.core.debugger import Tracer;Tracer()()
-
-        self._create_asset()
-
-        # LTIExternalToolAsset backup
-        tmp_dir = tempfile.mkdtemp(dir="/tmp")
-        try:
-            export_filer = DirectoryFiler(tmp_dir)
-            with mock_dataserver.mock_db_trans(self.ds, site_name=self.default_origin):
-                course = ICourseInstance(self.course_entry())
-                for factory in (CourseOutlineExporter,
-                                LessonOverviewsExporter):
-                    exporter = factory()
-                    exporter.export(course, export_filer, backup=False, salt=1111)
-
-            with mock_dataserver.mock_db_trans(self.ds, site_name=self.default_origin):
-                course = ICourseInstance(self.course_entry())
-                for factory in (UserAssetsImporter,
-                                LessonOverviewsImporter):
-                    importer = factory()
-                    importer.process(course, export_filer)
-        finally:
-            shutil.rmtree(tmp_dir)
-        self._validate_lti_asset(course)
-
     def _validate_target_data(self, source_course, target_course, copied=True):
         ntiid_copy_check = is_ if copied else is_not
         source_tool_container = ICourseConfiguredToolContainer(source_course)
@@ -152,12 +125,10 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
                                           target_tool_container.values()):
             assert_that(target_key, ntiid_copy_check(source_key))
 
-    def _validate_lti_asset(self, course):
-        pass
-
-    @fudge.patch('nti.app.products.courseware_ims.internalization.find_object_with_ntiid')
+    @fudge.patch('nti.app.products.courseware_ims.internalization.find_object_with_ntiid',
+                 'nti.app.products.courseware_ims.exporter.find_object_with_ntiid')
     @WithMockDSTrans
-    def test_import_export(self, mock_find_object):
+    def test_import_export(self, mock_internal_find_object, mock_exporter_find_object):
         tmp_dir = tempfile.mkdtemp(dir="/tmp")
         export_filer = DirectoryFiler(tmp_dir)
         source_course = ContentCourseInstance()
@@ -186,6 +157,8 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
             shutil.rmtree(tmp_dir)
         self._validate_target_data(source_course, target_course, copied=False)
 
+        from IPython.core.debugger import Tracer;Tracer()()
+
         # Backup with Data
         tool1 = create_configured_tool()
         tool2 = create_configured_tool()
@@ -193,32 +166,32 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
         tool_container.add_tool(tool1)  # This method is inherited from ConfiguredToolContainer
         tool_container.add_tool(tool2)
 
-        fake_find = mock_find_object.is_callable()
-        fake_find.returns(tool1)
-        fake_find.next_call().returns(tool2)
+        fake_internal_find = mock_internal_find_object.is_callable()
+        fake_internal_find.returns(tool1)
+        fake_internal_find.next_call().returns(tool2)
 
         tmp_dir = tempfile.mkdtemp(dir="/tmp")
         try:
-            exporter.export(source_course, export_filer, backup=True, salt=1111)
+            exporter.export(source_course, export_filer, backup=True, salt='1111')
             importer.process(target_course, export_filer)
         finally:
             shutil.rmtree(tmp_dir)
         self._validate_target_data(source_course, target_course, copied=True)
 
-        # # No backup with data
-        # # These are for when the ntiid is looked up to be hashed
-        # fake_find.next_call().returns(tool1)
-        # fake_find.next_call().returns(tool2)
-        # # These are for when the ntiid is looked up to add back to the target container
-        # fake_find.next_call().returns(tool1)
-        # fake_find.next_call().returns(tool2)
-        #
-        # target_course = ContentCourseInstance()
-        # conn.add(target_course)
-        # tmp_dir = tempfile.mkdtemp(dir="/tmp")
-        # try:
-        #     exporter.export(source_course, export_filer, backup=False, salt=1111)
-        #     importer.process(target_course, export_filer)
-        # finally:
-        #     shutil.rmtree(tmp_dir)
-        # self._validate_target_data(source_course, target_course, copied=False)
+        # No backup with data
+        fake_internal_find.next_call().returns(None)
+        fake_internal_find.next_call().returns(None)
+
+        fake_exporter_find = mock_exporter_find_object.is_callable()
+        fake_exporter_find.returns(tool1)
+        fake_exporter_find.next_call().returns(tool2)
+
+        target_course = ContentCourseInstance()
+        conn.add(target_course)
+        tmp_dir = tempfile.mkdtemp(dir="/tmp")
+        try:
+            exporter.export(source_course, export_filer, backup=False, salt='1111')
+            importer.process(target_course, export_filer)
+        finally:
+            shutil.rmtree(tmp_dir)
+        self._validate_target_data(source_course, target_course, copied=False)
