@@ -9,6 +9,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import six
+from nti.wref import IWeakRef
 
 from zope import component
 from zope import interface
@@ -54,7 +55,6 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     Creator = alias('creator')
     desc = alias('description')
-    configured_tool = alias('ConfiguredTool')
 
     nttype = u'NTIExternalToolAsset'
 
@@ -76,17 +76,28 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     @readproperty
     def launch_url(self):
-        return self.configured_tool.launch_url
+        return self.ConfiguredTool.launch_url
 
     @readproperty
     def title(self):
         # This must be unicode to work with SchemaConfigured
-        return six.text_type(self.configured_tool.title)
+        return six.text_type(self.ConfiguredTool.title)
 
     @readproperty
     def description(self):
         # This must be unicode to work with SchemaConfigured
-        return six.text_type(self.configured_tool.description)
+        return six.text_type(self.ConfiguredTool.description)
+
+    @property
+    def ConfiguredTool(self):
+        result = None
+        if getattr(self, '_ConfiguredTool', None) is not None:
+            result = self._ConfiguredTool()
+        return result
+
+    @ConfiguredTool.setter
+    def ConfiguredTool(self, value):
+        self._ConfiguredTool = IWeakRef(value)
 
 
 @interface.implementer(IInternalObjectUpdater)
