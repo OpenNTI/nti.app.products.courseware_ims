@@ -9,6 +9,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import six
+from nti.app.contenttypes.presentation.interfaces import IPresentationAssetProcessor
+from nti.app.contenttypes.presentation.processors.mixins import BaseAssetProcessor
 
 from zope import component
 from zope import interface

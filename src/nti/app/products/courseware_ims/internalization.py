@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+
 from zope import component
 from zope import interface
 
@@ -14,6 +15,9 @@ from nti.externalization.datastructures import InterfaceObjectIO
 
 from nti.externalization.interfaces import IInternalObjectUpdater
 from nti.externalization.interfaces import StandardExternalFields
+
+from nti.externalization.internalization import find_factory_for
+from nti.externalization.internalization import update_from_external_object
 
 from nti.ntiids.ntiids import find_object_with_ntiid
 
@@ -32,11 +36,15 @@ class _CourseConfiguredToolContainerUpdater(InterfaceObjectIO):
 
     def updateFromExternalObject(self, parsed, *args, **kwargs):
         result = super(_CourseConfiguredToolContainerUpdater, self).updateFromExternalObject(parsed, *args, **kwargs)
-        tools = parsed.get('tools') or ()
-        for ntiid in tools:
-            obj = find_object_with_ntiid(ntiid)
-            if obj is None:
+        container = parsed.get(ITEMS) or {}
+        for oid, tool in container.iteritems():
+            tool_obj = find_object_with_ntiid(oid)
+            # If we can't find it, we have hashed the ntiid and need to recreate the obj
+            if tool_obj is None:
                 logger.warning('Cannot find tool (%s)',
-                               ntiid)
-            self._ext_self.add_tool(obj)
+                               oid)
+                factory = find_factory_for(tool)
+                tool_obj = factory()
+                update_from_external_object(tool_obj, tool)
+            self._ext_self.add_tool(tool_obj)
         return result

@@ -10,6 +10,7 @@ from zope import interface
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
+from nti.externalization.externalization import to_external_object
 from nti.externalization.externalization import to_standard_external_dictionary
 
 from nti.externalization.interfaces import IExternalObject
@@ -31,5 +32,7 @@ class _CourseConfiguredToolContainerExternalObject(object):
 
     def toExternalObject(self, **kwargs):
         result = to_standard_external_dictionary(self.container, **kwargs)
-        result['tools'] = [tool for tool in self.container]
+        result[ITEMS] = {
+            key: to_external_object(val, name='exporter') for key, val in self.container.items()
+        }
         return result
