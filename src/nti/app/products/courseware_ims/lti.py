@@ -9,7 +9,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import six
-from nti.wref import IWeakRef
 
 from zope import component
 from zope import interface
@@ -32,6 +31,8 @@ from nti.ntiids.interfaces import INTIIDResolver
 from nti.property.property import alias
 
 from nti.schema.fieldproperty import createDirectFieldProperties
+
+from nti.wref import IWeakRef
 
 logger = __import__('logging').getLogger(__name__)
 
