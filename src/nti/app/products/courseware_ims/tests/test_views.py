@@ -59,14 +59,14 @@ from nti.ntiids.ntiids import find_object_with_ntiid
 
 
 TOOL_DATA = {
-    "consumer_key": "Test Key",
-    "secret": "Test Secret",
-    "title": "Test",
-    "description": "A test tool",
-    "launch_url": "http://www.test.com",
-    "secure_launch_url": "https://www.test.com",
+    "consumer_key": u'Test Key',
+    "secret": u'Test Secret',
+    "title": u'Test',
+    "description": u'A test tool',
+    "launch_url": u'http://www.test.com',
+    "secure_launch_url": u'https://www.test.com',
     "MimeType": ConfiguredTool.mimeType,
-    "formselector": "input"
+    "formselector": u'input'
 }
 
 
