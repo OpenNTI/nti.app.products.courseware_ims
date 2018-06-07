@@ -115,10 +115,3 @@ class NTIIDReferenceResolver(object):
     def resolve(self, key):
         result = component.queryUtility(self._ext_iface, name=key)
         return result
-
-
-@interface.implementer(IPresentationAssetProcessor)
-class LTIExternalToolAssetProcessor(BaseAssetProcessor):
-
-    def handle(self, item, context, creator=None, request=None):
-        from IPython.core.debugger import Tracer;Tracer()()
