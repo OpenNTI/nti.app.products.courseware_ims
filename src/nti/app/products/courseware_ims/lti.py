@@ -9,15 +9,15 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import six
-from nti.app.contenttypes.presentation.interfaces import IPresentationAssetProcessor
-from nti.app.contenttypes.presentation.processors.mixins import BaseAssetProcessor
+
+from persistent import Persistent
 
 from zope import component
 from zope import interface
 
 from zope.cachedescriptors.property import readproperty
 
-from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset, ILTIAssetMetadata
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
 from nti.contenttypes.presentation.mixins import PersistentPresentationAsset
@@ -30,15 +30,22 @@ from nti.ims.lti.consumer import ConfiguredToolContainer
 
 from nti.ntiids.interfaces import INTIIDResolver
 
+from nti.ntiids.oids import to_external_ntiid_oid
+
 from nti.property.property import alias
 
 from nti.schema.fieldproperty import createDirectFieldProperties
+from zope.container.contained import Contained
+
+from zope.annotation import factory as an_factory
 
 from nti.wref import IWeakRef
 
 logger = __import__('logging').getLogger(__name__)
 
 PARSE_VALS = ('title', 'description')
+
+LTI_ASSET_METADATA_KEY = 'nti.app.products.courseware_ims.lti.metadata'
 
 
 @interface.implementer(ICourseConfiguredToolContainer)
@@ -127,3 +134,19 @@ class NTIIDReferenceResolver(object):
     def resolve(self, key):
         result = component.queryUtility(self._ext_iface, name=key)
         return result
+
+
+@interface.implementer(ILTIAssetMetadata)
+@component.adapter(IExternalToolAsset)
+class LTIAssetMetadata(Persistent, Contained):
+    """
+    A metadata object for an LTI asset
+    """
+
+    @property
+    def ntiid(self):
+        return to_external_ntiid_oid(self)
+
+
+LTIAssetMetadataFactory = an_factory(LTIAssetMetadata,
+                                     LTI_ASSET_METADATA_KEY)
