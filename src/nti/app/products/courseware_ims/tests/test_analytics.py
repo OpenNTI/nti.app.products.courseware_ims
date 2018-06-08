@@ -6,22 +6,35 @@ from __future__ import absolute_import
 from __future__ import division
 
 import datetime
-from hamcrest import is_, assert_that
+
+from hamcrest import assert_that
+from hamcrest import has_length
+from hamcrest import is_
+
+from nti.analytics.database.lti import get_launch_records_for_ntiid
+
 from nti.analytics.lti import _lti_asset_launched
+
 from nti.analytics_database.tests import AnalyticsDatabaseTest
-from nti.app.contenttypes.presentation import VIEW_CONTENTS
+
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
-from nti.app.products.courseware_ims.adapters import TOOLS_ANNOTATION_KEY
-from nti.app.products.courseware_ims.interfaces import LTILaunchEvent, ILTIAssetMetadata
-from nti.app.products.courseware_ims.lti import LTIAssetMetadata, LTIExternalToolAsset
+
+from nti.app.products.courseware_ims.interfaces import LTILaunchEvent
+from nti.app.products.courseware_ims.interfaces import ILTIAssetMetadata
+
+from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
+
 from nti.app.products.courseware_ims.tests import create_configured_tool
-from nti.app.products.courseware_ims.tests.test_views import TOOL_DATA
+
 from nti.app.testing.application_webtest import ApplicationLayerTest
+
 from nti.app.testing.decorators import WithSharedApplicationMockDS
+
 from nti.contenttypes.courses.courses import ContentCourseInstance
+
 from nti.dataserver.tests import mock_dataserver
+
 from nti.dataserver.users import User
-from nti.ims.lti.consumer import ConfiguredTool
 
 __docformat__ = "restructuredtext en"
 
@@ -35,19 +48,36 @@ class TestLTIAnalytics(ApplicationLayerTest, AnalyticsDatabaseTest):
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_asset_analytics(self):
 
-        from IPython.core.debugger import Tracer;Tracer()()
-
-        tool = create_configured_tool()
-        asset = LTIExternalToolAsset(ConfiguredTool=tool)
-        metadata = ILTIAssetMetadata(asset)
-
         with mock_dataserver.mock_db_trans(self.ds):
+            tool = create_configured_tool()
+            asset = LTIExternalToolAsset(ConfiguredTool=tool)
+            metadata = ILTIAssetMetadata(asset)
+            course = ContentCourseInstance()
+
+            connection = mock_dataserver.current_transaction
+            connection.add(metadata)
+            connection.add(course)
+
+            metadata_ntiid = metadata.ntiid
+            course_ntiid = course.ntiid
+            timestamp = datetime.datetime.now()
+
             ds = mock_dataserver.current_mock_ds
             user = User.create_user(ds, username=u'foonextthought1',
                                     password=u'TestPass')
             event = LTILaunchEvent(user=user,
-                                   course=ContentCourseInstance(),
+                                   course=course,
                                    metadata=metadata,
-                                   timestamp=datetime.datetime.now())
+                                   timestamp=timestamp)
 
             _lti_asset_launched(event)
+
+            launch_records = get_launch_records_for_ntiid(metadata_ntiid)
+
+            assert_that(launch_records, has_length(1))
+            record = launch_records[0]
+
+            assert_that(record.context_path, is_(course_ntiid))
+            assert_that(record.lti_asset_launches_id, is_(1))
+            assert_that(record.user, is_(user))
+            assert_that(record.timestamp, is_(timestamp))
