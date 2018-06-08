@@ -8,7 +8,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from nti.contenttypes.courses.interfaces import ICourseInstance
+from nti.coremetadata.interfaces import IContained
 from zope import interface
+from zope.annotation import IAttributeAnnotatable
 
 from zope.lifecycleevent import ObjectCreatedEvent
 
@@ -29,7 +32,7 @@ from nti.ims.sis.interfaces import IPerson
 
 from nti.property.property import alias
 
-from nti.schema.field import Object
+from nti.schema.field import Object, DateTime
 from nti.schema.field import ValidTextLine
 
 
@@ -119,3 +122,43 @@ class ILTILaunchParamBuilder(interface.Interface):
         """
         Mutates an instance of LaunchParams with context specific values
         """
+
+
+class ILTIAssetMetadata(IContained, IAttributeAnnotatable):
+    """
+    Metadata for an LTI asset.
+    """
+
+    asset_id = ValidTextLine(title=u'The LTI asset id.',
+                             required=False)
+
+
+class ILTILaunchEvent(interface.Interface):
+    """
+    An event that is sent when an LTI asset is launched
+    """
+
+    user = Object(IUser,
+                  title=u'The user who launched the LTI asset.',
+                  required=True)
+
+    course = Object(ICourseInstance,
+                    title=u'The course in which the LTI asset was launched.',
+                    required=True)
+
+    metadata = Object(ILTIAssetMetadata,
+                      title=u'The metadata object of the LTI asset that was launched.',
+                      required=True)
+
+    timestamp = DateTime(title=u'The time at which the LTI asset was launched.',
+                         required=True)
+
+
+@interface.implementer(ILTILaunchEvent)
+class LTILaunchEvent(object):
+
+    def __init__(self, user, course, metadata, timestamp):
+        self.user = user
+        self.course = course
+        self.metadata = metadata
+        self.timestamp = timestamp
