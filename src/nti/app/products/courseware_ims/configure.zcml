@@ -101,13 +101,11 @@
 				for="pyramid.interfaces.IRequest nti.ims.lti.interfaces.IConfiguredTool" />
 
 	<!-- Decorators -->
-    <configure zcml:condition="have alpha_env">
         <subscriber factory=".decorators._CourseInstanceLinkDecorator"
                     provides="nti.externalization.interfaces.IExternalMappingDecorator" />
 
         <subscriber factory=".decorators._ExternalToolAssetInstanceLinkDecorator"
                     provides="nti.externalization.interfaces.IExternalMappingDecorator" />
-    </configure>
 
 	<adapter factory=".datastructures.ConfiguredToolFactory"
 		 for="nti.base.interfaces.IDict"

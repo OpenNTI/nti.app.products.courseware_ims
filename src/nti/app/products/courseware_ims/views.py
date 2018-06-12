@@ -10,6 +10,7 @@ from __future__ import absolute_import
 
 import os
 import six
+import transaction
 
 from requests.structures import CaseInsensitiveDict
 
@@ -275,12 +276,12 @@ class BaseExternalToolAssetView(AbstractAuthenticatedView):
                 'auto_launch': 1}
 
 
-@view_defaults(route_name='objects.generic.traversal',
-               renderer='templates/launch_external_tool.pt',
-               request_method='GET',
-               context=IExternalToolAsset,
-               name='launch',
-               permission=nauth.ACT_READ)
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/launch_external_tool.pt',
+             request_method='GET',
+             context=IExternalToolAsset,
+             name='launch',
+             permission=nauth.ACT_READ)
 class LaunchExternalToolAssetView(BaseExternalToolAssetView):
 
     def __call__(self, tool=None):
@@ -321,7 +322,6 @@ class ExternalToolLinkSelectionAssetView(BaseExternalToolAssetView):
 class ExternalToolLinkSelectionResponseView(AbstractAuthenticatedView):
 
     def __call__(self, *args, **kwargs):
-        from IPython.core.debugger import Tracer;Tracer()()
         params = self.request.params
         tool = self.context
         try:
@@ -329,6 +329,7 @@ class ExternalToolLinkSelectionResponseView(AbstractAuthenticatedView):
             tool.title = params.get('title', tool.title)
             tool.description = params['text']
             tool.launch_url = params['url']
+            transaction.commit()
         except KeyError:
             return hexc.HTTPError(u'Invalid External Tool Link Selection configuration.')
         return hexc.HTTPOk(u'Tool successfully reconfigured for External Link')
