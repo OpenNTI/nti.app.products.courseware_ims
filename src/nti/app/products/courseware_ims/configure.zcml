@@ -80,6 +80,26 @@
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
 
+	<subscriber factory=".subscribers.LTIResourceParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest nti.ims.lti.interfaces.IConfiguredTool" />
+
+	<subscriber factory=".subscribers.LTIUserParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest nti.ims.lti.interfaces.IConfiguredTool" />
+
+	<subscriber factory=".subscribers.LTIInstanceParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest nti.ims.lti.interfaces.IConfiguredTool" />
+
+	<subscriber factory=".subscribers.LTIPresentationParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest nti.ims.lti.interfaces.IConfiguredTool" />
+
+	<subscriber factory=".subscribers.LTIExternalToolLinkSelectorParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="pyramid.interfaces.IRequest nti.ims.lti.interfaces.IConfiguredTool" />
+
 	<!-- Decorators -->
     <configure zcml:condition="have alpha_env">
         <subscriber factory=".decorators._CourseInstanceLinkDecorator"

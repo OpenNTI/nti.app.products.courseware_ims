@@ -31,11 +31,11 @@ from pyramid.view import view_defaults
 from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
-from nti.app.externalization.internalization import read_body_as_external_object
-
 from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
+
+from nti.app.products.courseware_ims import _create_link
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
@@ -59,13 +59,10 @@ from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
 
 from nti.dataserver import authorization as nauth
 
-from nti.dataserver.interfaces import ILinkExternalHrefOnly
-
 from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
-from nti.links import Link
-from nti.links import render_link
+from nti.ims.lti.interfaces import IConfiguredTool
 
 from nti.ntiids.oids import to_external_ntiid_oid
 
@@ -127,11 +124,11 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
         ims_file = get_source(values, self.request)
         # parse options
         create_persons = values.get('create_users') \
-                      or values.get('create_persons')
+                         or values.get('create_persons')
         create_persons = is_true(create_persons)
         send_email = values.get('email') \
-                  or values.get('sendEmail') \
-                  or values.get('send_email')
+                     or values.get('sendEmail') \
+                     or values.get('send_email')
         send_email = is_true(send_email)
         drop_missing = is_true(values.get('drop_missing'))
         if not send_email:
@@ -246,37 +243,21 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
 
     def __call__(self):
         course = ICourseInstance(self.context)
-        tools_link = self._create_link(course,
-                                       method="GET",
-                                       elements=("lti_configured_tools",))
-        post_link = self._create_link(self.context,
-                                      method="POST",
-                                      elements=("contents",))
+        tools_link = _create_link(course,
+                                  method="GET",
+                                  elements=("lti_configured_tools",))
+        post_link = _create_link(self.context,
+                                 method="POST",
+                                 elements=("contents",))
 
         return {'tool_url': tools_link,
                 'MimeType': LTIExternalToolAsset.mimeType,
                 'post_url': post_link}
 
-    @staticmethod
-    def _create_link(context, method, elements):
-        link = Link(context,
-                    method=method,
-                    elements=elements)
-        interface.alsoProvides(link, ILinkExternalHrefOnly)
-        return render_link(link)
 
+class BaseExternalToolAssetView(AbstractAuthenticatedView):
 
-@view_config(route_name='objects.generic.traversal',
-             renderer='templates/launch_external_tool.pt',
-             request_method='GET',
-             context=IExternalToolAsset,
-             name='launch',
-             permission=nauth.ACT_READ)
-class LaunchExternalToolAssetView(AbstractAuthenticatedView):
-
-    def __call__(self):
-        tool = self.context.ConfiguredTool
-
+    def __call__(self, tool=None):
         launch_params = LaunchParams(lti_version='LTI-1p0')
         # Add instance specific launch params
         for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
@@ -292,3 +273,40 @@ class LaunchExternalToolAssetView(AbstractAuthenticatedView):
         # Auto launch is always set to true, but is there for future development if needed
         return {'consumer': tool_consumer,
                 'auto_launch': 1}
+
+
+@view_defaults(route_name='objects.generic.traversal',
+               renderer='templates/launch_external_tool.pt',
+               request_method='GET',
+               context=IExternalToolAsset,
+               name='launch',
+               permission=nauth.ACT_READ)
+class LaunchExternalToolAssetView(BaseExternalToolAssetView):
+
+    def __call__(self, tool=None):
+        tool = self.context.ConfiguredTool
+        return super(LaunchExternalToolAssetView, self).__call__(tool)
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/launch_external_tool.pt',
+             request_method='GET',  #TODO This should be a POST in the final version
+             context=IConfiguredTool,
+             name='deep_linking',
+             permission=nauth.ACT_CREATE)
+class DeepLinkingAssetView(BaseExternalToolAssetView):
+
+    def __call__(self, tool=None):
+        return super(DeepLinkingAssetView, self).__call__(self.context)
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='templates/launch_external_tool.pt',
+             request_method='GET',  #TODO This should be a POST in the final version
+             context=IConfiguredTool,
+             name='external_tool_link_selection',
+             permission=nauth.ACT_CREATE)
+class ExternalToolLinkSelectionAssetView(BaseExternalToolAssetView):
+
+    def __call__(self, tool=None):
+        return super(ExternalToolLinkSelectionAssetView, self).__call__(self.context)

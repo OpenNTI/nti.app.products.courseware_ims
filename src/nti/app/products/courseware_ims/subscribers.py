@@ -15,6 +15,9 @@ from lti.tool_base import ROLES_STUDENT
 
 from nti.app.authentication import get_remote_user
 
+from nti.app.products.courseware_ims import _create_link
+
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 
 from nti.appserver.policies.site_policies import guess_site_display_name
@@ -30,6 +33,8 @@ from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
 
+from nti.links import Link
+
 from nti.mailer.interfaces import IEmailAddressable
 
 LTI_LEARNER = u"Learner"
@@ -39,7 +44,8 @@ NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
 NTI_CONTEXT_TYPE = u"CourseSection"
 
-TARGET = u"window"
+IFRAME = u"iframe"
+WINDOW = u"window"
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -131,5 +137,14 @@ class LTIPresentationParams(LTIParams):
 
     def build_params(self, params):
         params['launch_presentation_locale'] = self.request.locale_name
-        params['launch_presentation_document_target'] = TARGET
+        params['launch_presentation_document_target'] = WINDOW
         params['launch_presentation_return_url'] = self.request.current_route_url()
+
+
+@interface.implementer(ILTILaunchParamBuilder)
+class LTIExternalToolLinkSelectorParams(LTIParams):
+
+    def build_params(self, params):
+        params['launch_presentation_return_url'] = _create_link(self.context,
+                                                                method='GET',
+                                                                elements='external_tool_link_selection_response')
