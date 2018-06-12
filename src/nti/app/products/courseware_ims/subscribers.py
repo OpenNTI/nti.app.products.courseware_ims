@@ -145,6 +145,9 @@ class LTIPresentationParams(LTIParams):
 class LTIExternalToolLinkSelectorParams(LTIParams):
 
     def build_params(self, params):
-        params['launch_presentation_return_url'] = _create_link(self.context,
-                                                                method='GET',
-                                                                elements='external_tool_link_selection_response')
+        response_url = self.request.resource_url(self.context,
+                                                 '@@external_tool_link_selection_response')
+        params['launch_presentation_return_url'] = response_url
+        params['ext_content_return_types'] = 'lti_launch_url'
+        params['selection_directive'] = 'select_link'
+        params['ext_content_return_url'] = response_url

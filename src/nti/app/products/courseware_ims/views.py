@@ -290,7 +290,7 @@ class LaunchExternalToolAssetView(BaseExternalToolAssetView):
 
 @view_config(route_name='objects.generic.traversal',
              renderer='templates/launch_external_tool.pt',
-             request_method='GET',  #TODO This should be a POST in the final version
+             request_method='GET',
              context=IConfiguredTool,
              name='deep_linking',
              permission=nauth.ACT_CREATE)
@@ -302,7 +302,7 @@ class DeepLinkingAssetView(BaseExternalToolAssetView):
 
 @view_config(route_name='objects.generic.traversal',
              renderer='templates/launch_external_tool.pt',
-             request_method='GET',  #TODO This should be a POST in the final version
+             request_method='GET',
              context=IConfiguredTool,
              name='external_tool_link_selection',
              permission=nauth.ACT_CREATE)
@@ -310,3 +310,15 @@ class ExternalToolLinkSelectionAssetView(BaseExternalToolAssetView):
 
     def __call__(self, tool=None):
         return super(ExternalToolLinkSelectionAssetView, self).__call__(self.context)
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='GET',
+             context=IConfiguredTool,
+             name='external_tool_link_selection_response')
+             #permission=nauth.ACT_CREATE)
+class ExternalToolLinkSelectionResponseView(AbstractAuthenticatedView):
+
+    def __call__(self, *args, **kwargs):
+        from IPython.core.debugger import Tracer;Tracer()()
