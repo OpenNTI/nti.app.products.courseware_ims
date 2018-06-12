@@ -14,7 +14,7 @@ import six
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
-from zope.component import interface
+
 from zope.component import subscribers
 
 from zope.security.management import endInteraction
@@ -316,9 +316,22 @@ class ExternalToolLinkSelectionAssetView(BaseExternalToolAssetView):
              renderer='rest',
              request_method='GET',
              context=IConfiguredTool,
-             name='external_tool_link_selection_response')
-             #permission=nauth.ACT_CREATE)
+             name='external_tool_link_selection_response',
+             permission=nauth.ACT_CREATE)
 class ExternalToolLinkSelectionResponseView(AbstractAuthenticatedView):
 
     def __call__(self, *args, **kwargs):
         from IPython.core.debugger import Tracer;Tracer()()
+        params = self.request.params
+        tool = self.context
+        try:
+            assert params['return_type'] == 'lti_launch_url'
+            tool.title = params.get('title', tool.title)
+            tool.description = params['text']
+            tool.launch_url = params['url']
+        except KeyError:
+            return hexc.HTTPError(u'Invalid External Tool Link Selection configuration.')
+        return hexc.HTTPOk(u'Tool successfully reconfigured for External Link')
+
+
+
