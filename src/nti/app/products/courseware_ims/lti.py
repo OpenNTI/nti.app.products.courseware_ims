@@ -47,6 +47,8 @@ PARSE_VALS = ('title', 'description')
 
 LTI_ASSET_METADATA_KEY = 'nti.app.products.courseware_ims.lti.metadata'
 
+LTI_EXTERNAL_TOOL_ASSET_MIMETYPE = 'application/vnd.nextthought.ltiexternaltoolasset'
+
 
 @interface.implementer(ICourseConfiguredToolContainer)
 class CourseConfiguredToolContainer(ConfiguredToolContainer):
@@ -57,7 +59,7 @@ class CourseConfiguredToolContainer(ConfiguredToolContainer):
 class LTIExternalToolAsset(PersistentPresentationAsset):
     createDirectFieldProperties(IExternalToolAsset)
 
-    mimeType = mime_type = 'application/vnd.nextthought.ltiexternaltoolasset'
+    mimeType = mime_type = LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
 
     __external_class_name__ = "ExternalToolAsset"
 
