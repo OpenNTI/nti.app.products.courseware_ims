@@ -155,6 +155,8 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
         # Backup with Data
         tool1 = create_configured_tool()
         tool2 = create_configured_tool()
+        tool1.ntiid = 'tool1'
+        tool2.ntiid = 'tool2'
         tool_container = ICourseConfiguredToolContainer(source_course)
         tool_container.add_tool(tool1)  # This method is inherited from ConfiguredToolContainer
         tool_container.add_tool(tool2)
