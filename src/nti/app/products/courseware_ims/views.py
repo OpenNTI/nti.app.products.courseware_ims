@@ -10,7 +10,7 @@ from __future__ import absolute_import
 
 import os
 import six
-import transaction
+
 
 from requests.structures import CaseInsensitiveDict
 
@@ -32,6 +32,8 @@ from pyramid.view import view_defaults
 from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
+from nti.app.contenttypes.presentation.views.asset_views import CourseOverviewGroupInsertView
+
 from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
@@ -39,12 +41,15 @@ from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtils
 from nti.app.products.courseware_ims import _create_link
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
+from nti.app.products.courseware_ims.lti import LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
 
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
+
+from nti.app.products.ims.interfaces import ILTIRequest
 
 from nti.app.products.ims.views import IMSPathAdapter
 
@@ -256,18 +261,42 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
                 'post_url': post_link}
 
 
-class BaseExternalToolAssetView(AbstractAuthenticatedView):
+@view_defaults(route_name='object.generic.traversal',
+               renderer='templates/launch_external_tool.pt',
+               request_method='GET')
+class ExternalToolAssetView(AbstractAuthenticatedView):
 
-    def __call__(self, tool=None):
+    @view_config(context=IExternalToolAsset,
+                 name='launch',
+                 permission=nauth.ACT_READ)
+    def launch(self):
+        return self._do_request(self.context.ConfiguredTool, self.context.launch_url)
+
+    @view_config(context=IConfiguredTool,
+                 name='external_tool_link_selection',
+                 permission=nauth.ACT_CONTENT_EDIT)
+    def external_tool_link_selection(self):
+        overview_group = self.request.params['overview_group']
+        return self._do_request(self.context, self.context.launch_url, overview_group=overview_group)
+
+    @view_config(context=IConfiguredTool,
+                 name='deep_linking',
+                 permission=nauth.ACT_CONTENT_EDIT)
+    def external_tool_link_selection(self):
+        return self._do_request(self.context, self.context.launch_url)
+
+
+    def _do_request(self, tool=None, launch_url=None, **kwargs):
+        request = ILTIRequest(self.request)
         launch_params = LaunchParams(lti_version='LTI-1p0')
         # Add instance specific launch params
-        for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
-            subscriber.build_params(launch_params)
+        for subscriber in subscribers((request, self.context), ILTILaunchParamBuilder):
+            subscriber.build_params(launch_params, **kwargs)
 
         tool_consumer = ToolConsumer(tool.consumer_key,
                                      tool.secret,
                                      params=launch_params,
-                                     launch_url=tool.launch_url)
+                                     launch_url=launch_url)
 
         tool_consumer.set_config(tool.config)
 
@@ -277,62 +306,40 @@ class BaseExternalToolAssetView(AbstractAuthenticatedView):
 
 
 @view_config(route_name='objects.generic.traversal',
-             renderer='templates/launch_external_tool.pt',
-             request_method='GET',
-             context=IExternalToolAsset,
-             name='launch',
-             permission=nauth.ACT_READ)
-class LaunchExternalToolAssetView(BaseExternalToolAssetView):
-
-    def __call__(self, tool=None):
-        tool = self.context.ConfiguredTool
-        return super(LaunchExternalToolAssetView, self).__call__(tool)
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='templates/launch_external_tool.pt',
-             request_method='GET',
-             context=IConfiguredTool,
-             name='deep_linking',
-             permission=nauth.ACT_CREATE)
-class DeepLinkingAssetView(BaseExternalToolAssetView):
-
-    def __call__(self, tool=None):
-        return super(DeepLinkingAssetView, self).__call__(self.context)
-
-
-@view_config(route_name='objects.generic.traversal',
-             renderer='templates/launch_external_tool.pt',
-             request_method='GET',
-             context=IConfiguredTool,
-             name='external_tool_link_selection',
-             permission=nauth.ACT_CREATE)
-class ExternalToolLinkSelectionAssetView(BaseExternalToolAssetView):
-
-    def __call__(self, tool=None):
-        return super(ExternalToolLinkSelectionAssetView, self).__call__(self.context)
-
-
-@view_config(route_name='objects.generic.traversal',
              renderer='rest',
              request_method='GET',
-             context=IConfiguredTool,
+             context=INTICourseOverviewGroup,
              name='external_tool_link_selection_response',
-             permission=nauth.ACT_CREATE)
-class ExternalToolLinkSelectionResponseView(AbstractAuthenticatedView):
+             permission=nauth.ACT_CONTENT_EDIT)
+class ExternalToolLinkSelectionResponseView(CourseOverviewGroupInsertView):
 
-    def __call__(self, *args, **kwargs):
-        params = self.request.params
-        tool = self.context
-        try:
-            assert params['return_type'] == 'lti_launch_url'
-            tool.title = params.get('title', tool.title)
-            tool.description = params['text']
-            tool.launch_url = params['url']
-            transaction.commit()
-        except KeyError:
-            return hexc.HTTPError(u'Invalid External Tool Link Selection configuration.')
-        return hexc.HTTPOk(u'Tool successfully reconfigured for External Link')
+    def readInput(self, value=None):
+        result = dict(self.request.params)
+        return_type = result.get('return_type')
+        embed_type = result.get('embed_type')
+        if return_type == 'lti_launch_url' or embed_type == 'basic_lti':
+            self._external_tool_asset(result)
+        elif return_type == 'url':
+            self._external_link(result)
+        return result
 
+    def _do_call(self):
+        self.request.environ['nti.request_had_transaction_side_effects'] = True
+        super(ExternalToolLinkSelectionResponseView, self)._do_call()
 
+    def _external_tool_asset(self, result):
+        tool_oid = self.request.subpath[0]
+        result['ConfiguredTool'] = tool_oid
+        result['launch_url'] = result['url']
+        if result.get('text') and result.get('text') != 'undefined':
+            result['description'] = result['text']
+        result['MimeType'] = LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
 
+    def _external_link(self, result):
+        result['MimeType'] = "application/vnd.nextthought.relatedworkref"
+        result['byline'] = self.request.remote_user
+        result['label'] = result.get('title', "")
+        if result.get('text') and result.get('text') != 'undefined':
+            result['description'] = result['text']
+        result['href'] = result['url']
+        result['targetMimeType'] = 'application/vnd.nextthought.externallink'
