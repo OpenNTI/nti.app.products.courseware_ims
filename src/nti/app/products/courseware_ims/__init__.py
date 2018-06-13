@@ -46,9 +46,8 @@ def set_course_sourcedid(context, sourceid=None):
     return result
 
 
-def _create_link(context, method, elements):
+def _create_link(context, **kwargs):
     link = Link(context,
-                method=method,
-                elements=elements)
+                **kwargs)
     interface.alsoProvides(link, ILinkExternalHrefOnly)
     return render_link(link)
