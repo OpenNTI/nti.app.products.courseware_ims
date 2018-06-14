@@ -38,6 +38,8 @@ from nti.mailer.interfaces import IEmailAddressable
 
 from nti.ntiids.ntiids import find_object_with_ntiid
 
+from nti.ntiids.oids import to_external_ntiid_oid
+
 
 LTI_LEARNER = u"Learner"
 LTI_INSTRUCTOR = u"Instructor"
@@ -154,7 +156,7 @@ class LTIExternalToolLinkSelectionParams(LTIParams):
         link = _create_link(overview_group,
                             method='GET',
                             elements=(('@@external_tool_link_selection_response',
-                                       self.context.ntiid)))
+                                       to_external_ntiid_oid(self.context))))
         response_url = urljoin(self.request.application_url,
                                link)
         params['launch_presentation_return_url'] = response_url

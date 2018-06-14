@@ -11,10 +11,10 @@ from __future__ import absolute_import
 import os
 import six
 
-
 from requests.structures import CaseInsensitiveDict
 
 from zope import component
+from zope import interface
 
 from zope.component import subscribers
 
@@ -261,7 +261,7 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
                 'post_url': post_link}
 
 
-@view_defaults(route_name='object.generic.traversal',
+@view_defaults(route_name='objects.generic.traversal',
                renderer='templates/launch_external_tool.pt',
                request_method='GET')
 class ExternalToolAssetView(AbstractAuthenticatedView):
@@ -282,15 +282,14 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
     @view_config(context=IConfiguredTool,
                  name='deep_linking',
                  permission=nauth.ACT_CONTENT_EDIT)
-    def external_tool_link_selection(self):
+    def deep_linking(self):
         return self._do_request(self.context, self.context.launch_url)
 
-
     def _do_request(self, tool=None, launch_url=None, **kwargs):
-        request = ILTIRequest(self.request)
+        interface.alsoProvides(self.request, ILTIRequest)
         launch_params = LaunchParams(lti_version='LTI-1p0')
         # Add instance specific launch params
-        for subscriber in subscribers((request, self.context), ILTILaunchParamBuilder):
+        for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
             subscriber.build_params(launch_params, **kwargs)
 
         tool_consumer = ToolConsumer(tool.consumer_key,
@@ -325,7 +324,7 @@ class ExternalToolLinkSelectionResponseView(CourseOverviewGroupInsertView):
 
     def _do_call(self):
         self.request.environ['nti.request_had_transaction_side_effects'] = True
-        super(ExternalToolLinkSelectionResponseView, self)._do_call()
+        return super(ExternalToolLinkSelectionResponseView, self)._do_call()
 
     def _external_tool_asset(self, result):
         tool_oid = self.request.subpath[0]
@@ -334,6 +333,7 @@ class ExternalToolLinkSelectionResponseView(CourseOverviewGroupInsertView):
         if result.get('text') and result.get('text') != 'undefined':
             result['description'] = result['text']
         result['MimeType'] = LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
+        return result
 
     def _external_link(self, result):
         result['MimeType'] = "application/vnd.nextthought.relatedworkref"
@@ -343,3 +343,4 @@ class ExternalToolLinkSelectionResponseView(CourseOverviewGroupInsertView):
             result['description'] = result['text']
         result['href'] = result['url']
         result['targetMimeType'] = 'application/vnd.nextthought.externallink'
+        return result
