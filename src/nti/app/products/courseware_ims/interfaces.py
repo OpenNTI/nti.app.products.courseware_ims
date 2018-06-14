@@ -171,3 +171,9 @@ class LTILaunchEvent(object):
         self.course = course
         self.metadata = metadata
         self.timestamp = timestamp
+
+
+class IExternalToolLinkSelectionResponse(interface.Interface):
+    """
+    Marker interface for External Tool Link Selection responses
+    """

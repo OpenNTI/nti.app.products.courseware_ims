@@ -250,3 +250,7 @@ class TestWorkflow(ApplicationLayerTest):
                           extra_environ=environ,
                           status=200)
         assert_that(res.json_body, has_entry('Total', 1))
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    def test_external_tool_link_selection(self):
+        pass

@@ -149,6 +149,8 @@ class LTIPresentationParams(LTIParams):
 class LTIExternalToolLinkSelectionParams(LTIParams):
 
     def build_params(self, params, **kwargs):
+        from IPython.core.debugger import Tracer;Tracer()()
+
         # Responses will be directed to INTICourseOverviewGroup
         # with the ConfiguredTool as a subpath
         overview_group = kwargs['overview_group']

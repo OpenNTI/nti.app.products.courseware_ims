@@ -41,10 +41,11 @@ from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtils
 from nti.app.products.courseware_ims import _create_link
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
-from nti.app.products.courseware_ims.lti import LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
 
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
+from nti.app.products.courseware_ims.interfaces import IExternalToolLinkSelectionResponse
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
+
 from nti.app.products.courseware_ims.workflow import process
 from nti.app.products.courseware_ims.workflow import create_users
 from nti.app.products.courseware_ims.workflow import find_ims_courses
@@ -313,34 +314,11 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
 class ExternalToolLinkSelectionResponseView(CourseOverviewGroupInsertView):
 
     def readInput(self, value=None):
-        result = dict(self.request.params)
-        return_type = result.get('return_type')
-        embed_type = result.get('embed_type')
-        if return_type == 'lti_launch_url' or embed_type == 'basic_lti':
-            self._external_tool_asset(result)
-        elif return_type == 'url':
-            self._external_link(result)
+        return_type = self.request.params['return_type']
+        # In the cases where the return type is undefined we default to an lti_launch
+        result = component.queryAdapter(self.request, IExternalToolLinkSelectionResponse, return_type)
         return result
 
     def _do_call(self):
         self.request.environ['nti.request_had_transaction_side_effects'] = True
         return super(ExternalToolLinkSelectionResponseView, self)._do_call()
-
-    def _external_tool_asset(self, result):
-        tool_oid = self.request.subpath[0]
-        result['ConfiguredTool'] = tool_oid
-        result['launch_url'] = result['url']
-        if result.get('text') and result.get('text') != 'undefined':
-            result['description'] = result['text']
-        result['MimeType'] = LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
-        return result
-
-    def _external_link(self, result):
-        result['MimeType'] = "application/vnd.nextthought.relatedworkref"
-        result['byline'] = self.request.remote_user
-        result['label'] = result.get('title', "")
-        if result.get('text') and result.get('text') != 'undefined':
-            result['description'] = result['text']
-        result['href'] = result['url']
-        result['targetMimeType'] = 'application/vnd.nextthought.externallink'
-        return result

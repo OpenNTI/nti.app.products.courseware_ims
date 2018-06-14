@@ -29,6 +29,21 @@
 			 provides="nti.externalization.interfaces.IInternalObjectUpdater"
 			 for=".interfaces.ICourseConfiguredToolContainer" />
 
+	<adapter factory=".adapters.ETLS_external_tool_asset"
+			 provides=".interfaces.IExternalToolLinkSelectionResponse"
+			 for="pyramid.interfaces.IRequest" />
+
+	<adapter factory=".adapters.ETLS_external_tool_asset"
+			 provides=".interfaces.IExternalToolLinkSelectionResponse"
+			 for="pyramid.interfaces.IRequest"
+			 name="lti_launch_url" />
+
+	<adapter factory=".adapters.ETLS_external_link"
+			 provides=".interfaces.IExternalToolLinkSelectionResponse"
+			 for="pyramid.interfaces.IRequest"
+			 name="url" />
+
+
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"
 			 provides=".interfaces.ICourseConfiguredToolContainer"
