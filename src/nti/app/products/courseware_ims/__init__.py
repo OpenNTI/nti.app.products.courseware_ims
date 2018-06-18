@@ -8,11 +8,17 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from nti.app.products.ims import MessageFactory
+from zope import interface
 
 from zope.annotation.interfaces import IAnnotations
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
+
+from nti.dataserver.interfaces import ILinkExternalHrefOnly
+
+from nti.links import Link
+from nti.links import render_link
+
 
 #: Annotation key to store the IMS course SourcedID
 COURSE_SOURCEDID_KEY = 'nti.app.products.courseware_ims.COURSE_SOURCEDID_KEY'
@@ -38,3 +44,10 @@ def set_course_sourcedid(context, sourceid=None):
     annotations = IAnnotations(course, {})
     result = annotations[COURSE_SOURCEDID_KEY] = sourceid
     return result
+
+
+def _create_link(context, **kwargs):
+    link = Link(context,
+                **kwargs)
+    interface.alsoProvides(link, ILinkExternalHrefOnly)
+    return render_link(link)

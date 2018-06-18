@@ -8,12 +8,16 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from urlparse import urljoin
+
 from zope import interface
 
 from lti.tool_base import ROLES_INSTRUCTOR
 from lti.tool_base import ROLES_STUDENT
 
 from nti.app.authentication import get_remote_user
+
+from nti.app.products.courseware_ims import _create_link
 
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 
@@ -32,6 +36,11 @@ from nti.externalization.oids import toExternalOID
 
 from nti.mailer.interfaces import IEmailAddressable
 
+from nti.ntiids.ntiids import find_object_with_ntiid
+
+from nti.ntiids.oids import to_external_ntiid_oid
+
+
 LTI_LEARNER = u"Learner"
 LTI_INSTRUCTOR = u"Instructor"
 
@@ -39,7 +48,8 @@ NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
 NTI_CONTEXT_TYPE = u"CourseSection"
 
-TARGET = u"window"
+IFRAME = u"iframe"
+WINDOW = u"window"
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -63,7 +73,7 @@ class LTIUserMixin(object):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIResourceParams(LTIParams):
 
-    def build_params(self, params):
+    def build_params(self, params, **kwargs):
         asset = self.context
         asset_oid = toExternalOID(asset)
         params['resource_link_id'] = asset_oid
@@ -74,7 +84,7 @@ class LTIResourceParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIUserParams(LTIParams, LTIUserMixin):
 
-    def build_params(self, params):
+    def build_params(self, params, **kwargs):
         user_obj = self._get_remote_user()
         params['user_id'] = toExternalOID(user_obj)
 
@@ -94,7 +104,7 @@ class LTIUserParams(LTIParams, LTIUserMixin):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIRoleParams(LTIParams, LTIUserMixin):
 
-    def build_params(self, params):
+    def build_params(self, params, **kwargs):
         user_obj = self._get_remote_user()
         course = ICourseInstance(self.context)
         if is_course_instructor(course, user_obj):
@@ -106,7 +116,7 @@ class LTIRoleParams(LTIParams, LTIUserMixin):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIInstanceParams(LTIParams):
 
-    def build_params(self, params):
+    def build_params(self, params, **kwargs):
         params['tool_consumer_instance_guid'] = self.request.domain
         params['tool_consumer_instance_name'] = guess_site_display_name(self.request)
         params['tool_consumer_instance_url'] = self.request.host_url
@@ -117,7 +127,7 @@ class LTIInstanceParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIContextParams(LTIParams):
 
-    def build_params(self, params):
+    def build_params(self, params, **kwargs):
         course = ICourseInstance(self.context)
         catalog_entry = ICourseCatalogEntry(course)
         params['context_type'] = NTI_CONTEXT_TYPE
@@ -129,7 +139,31 @@ class LTIContextParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIPresentationParams(LTIParams):
 
-    def build_params(self, params):
+    def build_params(self, params, **kwargs):
         params['launch_presentation_locale'] = self.request.locale_name
-        params['launch_presentation_document_target'] = TARGET
+        params['launch_presentation_document_target'] = WINDOW
         params['launch_presentation_return_url'] = self.request.current_route_url()
+
+
+@interface.implementer(ILTILaunchParamBuilder)
+class LTIExternalToolLinkSelectionParams(LTIParams):
+
+    def build_params(self, params, **kwargs):
+        from IPython.core.debugger import Tracer;Tracer()()
+
+        # Responses will be directed to INTICourseOverviewGroup
+        # with the ConfiguredTool as a subpath
+        overview_group = kwargs['overview_group']
+        overview_group = find_object_with_ntiid(overview_group)
+        link = _create_link(overview_group,
+                            method='GET',
+                            elements=(('@@external_tool_link_selection_response',
+                                       to_external_ntiid_oid(self.context))))
+        response_url = urljoin(self.request.application_url,
+                               link)
+        params['launch_presentation_return_url'] = response_url
+
+        # ext_content_* params are part of the edu apps lti specification
+        # https://www.eduappcenter.com/docs/extensions/content
+        params['ext_content_return_types'] = 'lti_launch_url'
+        params['ext_content_return_url'] = response_url

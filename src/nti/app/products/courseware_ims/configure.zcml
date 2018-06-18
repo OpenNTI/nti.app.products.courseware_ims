@@ -29,6 +29,21 @@
 			 provides="nti.externalization.interfaces.IInternalObjectUpdater"
 			 for=".interfaces.ICourseConfiguredToolContainer" />
 
+	<adapter factory=".adapters.ETLS_external_tool_asset"
+			 provides=".interfaces.IExternalToolLinkSelectionResponse"
+			 for="pyramid.interfaces.IRequest" />
+
+	<adapter factory=".adapters.ETLS_external_tool_asset"
+			 provides=".interfaces.IExternalToolLinkSelectionResponse"
+			 for="pyramid.interfaces.IRequest"
+			 name="lti_launch_url" />
+
+	<adapter factory=".adapters.ETLS_external_link"
+			 provides=".interfaces.IExternalToolLinkSelectionResponse"
+			 for="pyramid.interfaces.IRequest"
+			 name="url" />
+
+
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"
 			 provides=".interfaces.ICourseConfiguredToolContainer"
@@ -58,27 +73,31 @@
 	<!-- Subscribers -->
 	<subscriber factory=".subscribers.LTIResourceParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+				for="nti.app.products.ims.interfaces.ILTIRequest *" />
 
 	<subscriber factory=".subscribers.LTIUserParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+				for="nti.app.products.ims.interfaces.ILTIRequest *" />
 
 	<subscriber factory=".subscribers.LTIInstanceParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
-
-	<subscriber factory=".subscribers.LTIContextParams"
-				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+				for="nti.app.products.ims.interfaces.ILTIRequest *" />
 
 	<subscriber factory=".subscribers.LTIPresentationParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+				for="nti.app.products.ims.interfaces.ILTIRequest *" />
+
+	<subscriber factory=".subscribers.LTIContextParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="nti.app.products.ims.interfaces.ILTIRequest .interfaces.IExternalToolAsset" />
 
 	<subscriber factory=".subscribers.LTIRoleParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="pyramid.interfaces.IRequest .interfaces.IExternalToolAsset" />
+				for="nti.app.products.ims.interfaces.ILTIRequest .interfaces.IExternalToolAsset" />
+
+	<subscriber factory=".subscribers.LTIExternalToolLinkSelectionParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="nti.app.products.ims.interfaces.ILTIRequest nti.ims.lti.interfaces.IExternalToolLinkSelection" />
 
 	<!-- Decorators -->
     <configure zcml:condition="have alpha_env">
