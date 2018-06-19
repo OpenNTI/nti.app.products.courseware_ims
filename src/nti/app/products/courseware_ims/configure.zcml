@@ -100,7 +100,7 @@
 				for="nti.app.products.ims.interfaces.ILTIRequest nti.ims.lti.interfaces.IExternalToolLinkSelection" />
 
 	<!-- Decorators -->
-    <configure zcml:condition="have alpha_env">
+    <configure zcml:condition="not-have production_env">
         <subscriber factory=".decorators._CourseInstanceLinkDecorator"
                     provides="nti.externalization.interfaces.IExternalMappingDecorator" />
 
