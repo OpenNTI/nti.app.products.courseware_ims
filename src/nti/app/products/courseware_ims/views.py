@@ -286,6 +286,7 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
                                metadata,
                                datetime.utcnow())
         notify(event)
+        self.request.environ['nti.request_had_transaction_side_effects'] = True
         return self._do_request(self.context.ConfiguredTool, self.context.launch_url)
 
     @view_config(context=IConfiguredTool,
