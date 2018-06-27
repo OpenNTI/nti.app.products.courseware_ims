@@ -40,6 +40,7 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+# FIXME: this should be moved to nti.analytics to get dependency tree clean
 
 class TestLTIAnalytics(ApplicationLayerTest, AnalyticsDatabaseTest):
 
