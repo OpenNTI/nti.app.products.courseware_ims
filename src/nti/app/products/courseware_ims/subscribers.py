@@ -149,14 +149,9 @@ class LTIPresentationParams(LTIParams):
 class LTIExternalToolLinkSelectionParams(LTIParams):
 
     def build_params(self, params, **kwargs):
-        # Responses will be directed to INTICourseOverviewGroup
-        # with the ConfiguredTool as a subpath
-        overview_group = kwargs['overview_group']
-        overview_group = find_object_with_ntiid(overview_group)
-        link = _create_link(overview_group,
+        link = _create_link(self.context,
                             method='GET',
-                            elements=(('@@external_tool_link_selection_response',
-                                       to_external_ntiid_oid(self.context))))
+                            elements=(('@@external_tool_link_selection_response',)))
         response_url = urljoin(self.request.application_url,
                                link)
         params['launch_presentation_return_url'] = response_url

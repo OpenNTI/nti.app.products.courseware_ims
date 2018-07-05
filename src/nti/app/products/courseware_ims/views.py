@@ -11,6 +11,8 @@ from __future__ import absolute_import
 import os
 import six
 
+import simplejson as json
+
 from datetime import datetime
 
 from requests.structures import CaseInsensitiveDict
@@ -293,8 +295,7 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
                  name='external_tool_link_selection',
                  permission=nauth.ACT_CONTENT_EDIT)
     def external_tool_link_selection(self):
-        overview_group = self.request.params['overview_group']
-        return self._do_request(self.context, self.context.launch_url, overview_group=overview_group)
+        return self._do_request(self.context, self.context.launch_url)
 
     @view_config(context=IConfiguredTool,
                  name='deep_linking',
@@ -322,19 +323,17 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
 
 
 @view_config(route_name='objects.generic.traversal',
-             renderer='rest',
+             renderer='templates/content_selection_finished.pt',
              request_method='GET',
-             context=INTICourseOverviewGroup,
-             name='external_tool_link_selection_response',
-             permission=nauth.ACT_CONTENT_EDIT)
-class ExternalToolLinkSelectionResponseView(CourseOverviewGroupInsertView):
-
-    def readInput(self, value=None):
-        return_type = self.request.params['return_type']
-        # In the cases where the return type is undefined we default to an lti_launch
-        result = component.queryAdapter(self.request, IExternalToolLinkSelectionResponse, return_type)
-        return result
-
-    def _do_call(self):
-        self.request.environ['nti.request_had_transaction_side_effects'] = True
-        return super(ExternalToolLinkSelectionResponseView, self)._do_call()
+             context=IConfiguredTool,
+             name='external_tool_link_selection_response')
+def tool_selection_return(tool, request):
+    """
+    In theory we should try and get this somewhere more general (nti.app.products.ims)
+    now that we aren't dealing with anyting course specific
+    """
+    return_type = request.params.get('return_type', None)
+    if return_type is None:
+        raise hexc.HTTPBadRequest('Missing return_type')
+    result = component.queryMultiAdapter((tool, request), IExternalToolLinkSelectionResponse, return_type)
+    return {'tool_data': json.dumps(result)}
