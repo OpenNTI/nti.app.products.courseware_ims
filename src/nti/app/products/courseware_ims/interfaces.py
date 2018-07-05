@@ -133,15 +133,6 @@ class ILTILaunchParamBuilder(interface.Interface):
         """
 
 
-class ILTIAssetMetadata(IContained, IAttributeAnnotatable):
-    """
-    Metadata for an LTI asset.
-    """
-
-    asset_id = ValidTextLine(title=u'The LTI asset id.',
-                             required=False)
-
-
 class ILTILaunchEvent(interface.Interface):
     """
     An event that is sent when an LTI asset is launched
@@ -155,9 +146,9 @@ class ILTILaunchEvent(interface.Interface):
                     title=u'The course in which the LTI asset was launched.',
                     required=True)
 
-    metadata = Object(ILTIAssetMetadata,
-                      title=u'The metadata object of the LTI asset that was launched.',
-                      required=True)
+    asset = Object(IExternalToolAsset,
+                   title=u'The asset that was launched.',
+                   required=True)
 
     timestamp = DateTime(title=u'The time at which the LTI asset was launched.',
                          required=True)
@@ -166,10 +157,10 @@ class ILTILaunchEvent(interface.Interface):
 @interface.implementer(ILTILaunchEvent)
 class LTILaunchEvent(object):
 
-    def __init__(self, user, course, metadata, timestamp):
+    def __init__(self, user, course, asset, timestamp):
         self.user = user
         self.course = course
-        self.metadata = metadata
+        self.asset = asset
         self.timestamp = timestamp
 
 

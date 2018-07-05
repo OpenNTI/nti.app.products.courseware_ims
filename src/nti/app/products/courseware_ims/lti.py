@@ -17,8 +17,10 @@ from zope import interface
 
 from zope.cachedescriptors.property import readproperty
 
-from nti.app.products.courseware_ims.interfaces import IExternalToolAsset, ILTIAssetMetadata
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
+
+from nti.base.deprecation import deprecated
 
 from nti.contenttypes.presentation.mixins import PersistentPresentationAsset
 
@@ -43,7 +45,7 @@ from nti.wref import IWeakRef
 
 logger = __import__('logging').getLogger(__name__)
 
-PARSE_VALS = ('title', 'description')
+PARSE_VALS = ('title', 'description', 'launch_url')
 
 LTI_ASSET_METADATA_KEY = 'nti.app.products.courseware_ims.lti.metadata'
 
@@ -138,8 +140,9 @@ class NTIIDReferenceResolver(object):
         return result
 
 
-@interface.implementer(ILTIAssetMetadata)
-@component.adapter(IExternalToolAsset)
+# This used to be stored as a persistent annotation so we leave it around for now
+# so the bad data can be unpickled if needed
+@deprecated()
 class LTIAssetMetadata(Persistent, Contained):
     """
     A metadata object for an LTI asset
@@ -148,7 +151,3 @@ class LTIAssetMetadata(Persistent, Contained):
     @property
     def ntiid(self):
         return to_external_ntiid_oid(self)
-
-
-LTIAssetMetadataFactory = an_factory(LTIAssetMetadata,
-                                     LTI_ASSET_METADATA_KEY)

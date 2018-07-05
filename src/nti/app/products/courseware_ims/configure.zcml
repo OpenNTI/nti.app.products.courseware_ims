@@ -15,11 +15,8 @@
 	<ext:registerAutoPackageIO
 		root_interfaces=".interfaces.IIMSEnrollmentOption
 						 .interfaces.IExternalToolAsset
-						 .interfaces.ICourseConfiguredToolContainer
-						 .interfaces.ILTIAssetMetadata"
+						 .interfaces.ICourseConfiguredToolContainer"
 		modules=".model .lti" />
-
-	<adapter factory=".lti.LTIAssetMetadataFactory" />
 
 	<adapter factory=".externalization._CourseConfiguredToolContainerExternalObject"
 			 provides="nti.externalization.interfaces.IExternalObject"

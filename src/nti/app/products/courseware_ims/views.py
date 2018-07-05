@@ -49,7 +49,6 @@ from nti.app.products.courseware_ims import _create_link
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
 from nti.app.products.courseware_ims.interfaces import LTILaunchEvent
-from nti.app.products.courseware_ims.interfaces import ILTIAssetMetadata
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 from nti.app.products.courseware_ims.interfaces import IExternalToolLinkSelectionResponse
@@ -281,11 +280,10 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
                  name='launch',
                  permission=nauth.ACT_READ)
     def launch(self):
-        metadata = ILTIAssetMetadata(self.context)
         course = find_interface(self.context, ICourseInstance)
         event = LTILaunchEvent(self.remoteUser,
                                course,
-                               metadata,
+                               self.context,
                                datetime.utcnow())
         notify(event)
         self.request.environ['nti.request_had_transaction_side_effects'] = True

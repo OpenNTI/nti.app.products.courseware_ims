@@ -20,7 +20,6 @@ from nti.analytics_database.tests import AnalyticsDatabaseTest
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
 
 from nti.app.products.courseware_ims.interfaces import LTILaunchEvent
-from nti.app.products.courseware_ims.interfaces import ILTIAssetMetadata
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
@@ -52,14 +51,12 @@ class TestLTIAnalytics(ApplicationLayerTest, AnalyticsDatabaseTest):
         with mock_dataserver.mock_db_trans(self.ds):
             tool = create_configured_tool()
             asset = LTIExternalToolAsset(ConfiguredTool=tool)
-            metadata = ILTIAssetMetadata(asset)
             course = ContentCourseInstance()
 
             connection = mock_dataserver.current_transaction
-            connection.add(metadata)
             connection.add(course)
 
-            metadata_ntiid = metadata.ntiid
+            asset_ntiid = asset.ntiid
             course_ntiid = course.ntiid
             timestamp = datetime.datetime.today()
 
@@ -68,12 +65,12 @@ class TestLTIAnalytics(ApplicationLayerTest, AnalyticsDatabaseTest):
                                     password=u'TestPass')
             event = LTILaunchEvent(user=user,
                                    course=course,
-                                   metadata=metadata,
+                                   asset=asset,
                                    timestamp=timestamp)
 
             _lti_asset_launched(event)
 
-            launch_records = get_launch_records_for_ntiid(metadata_ntiid)
+            launch_records = get_launch_records_for_ntiid(asset_ntiid)
 
             assert_that(launch_records, has_length(1))
             record = launch_records[0]
