@@ -10,6 +10,8 @@ from __future__ import absolute_import
 
 from zope.annotation import IAnnotations
 
+from nti.ntiids.oids import to_external_ntiid_oid
+
 from nti.app.products.courseware_ims.lti import CourseConfiguredToolContainer
 from nti.app.products.courseware_ims.lti import LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
 
@@ -38,20 +40,18 @@ def _parse_description(result):
     return result
 
 
-def ETLS_external_tool_asset(request):
+def ETLS_external_tool_asset(tool, request):
     result = dict(request.params)
-    tool_oid = request.subpath[0]
-    result['ConfiguredTool'] = tool_oid
+    result['ConfiguredTool'] = to_external_ntiid_oid(tool)
     result['launch_url'] = result['url']
     _parse_description(result)
     result['MimeType'] = LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
     return result
 
 
-def ETLS_external_link(request):
+def ETLS_external_link(tool, request):
     result = dict(request.params)
     result['MimeType'] = "application/vnd.nextthought.relatedworkref"
-    result['byline'] = request.remote_user
     result['label'] = result.get('title', "")
     _parse_description(result)
     result['href'] = result['url']
