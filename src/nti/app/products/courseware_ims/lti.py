@@ -20,8 +20,6 @@ from zope.cachedescriptors.property import readproperty
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
-from nti.base.deprecation import deprecated
-
 from nti.contenttypes.presentation.mixins import PersistentPresentationAsset
 
 from nti.externalization.datastructures import InterfaceObjectIO
@@ -142,7 +140,6 @@ class NTIIDReferenceResolver(object):
 
 # This used to be stored as a persistent annotation so we leave it around for now
 # so the bad data can be unpickled if needed
-@deprecated()
 class LTIAssetMetadata(Persistent, Contained):
     """
     A metadata object for an LTI asset
