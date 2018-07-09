@@ -90,7 +90,7 @@
 
 	<subscriber factory=".subscribers.LTIRoleParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="nti.app.products.ims.interfaces.ILTIRequest .interfaces.IExternalToolAsset" />
+				for="nti.app.products.ims.interfaces.ILTIRequest *" />
 
 	<subscriber factory=".subscribers.LTIExternalToolLinkSelectionParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
