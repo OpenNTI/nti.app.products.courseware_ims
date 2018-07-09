@@ -141,12 +141,9 @@ class LTIPresentationParams(LTIParams):
     def build_params(self, params, **kwargs):
         params['launch_presentation_locale'] = self.request.locale_name
         params['launch_presentation_return_url'] = self.request.current_route_url()
-        try:
-            params['launch_presentation_document_target'] = self.request.params['target']
-            params['launch_presentation_width'] = self.request.params['width']
-            params['launch_presentation_height'] = self.request.params['height']
-        except KeyError:
-            raise hexc.HTTPBadRequest('Missing required presentation value')
+        params['launch_presentation_document_target'] = self.request.params.get('target', 'window')
+        params['launch_presentation_width'] = self.request.params.get('width')
+        params['launch_presentation_height'] = self.request.params.get('height')
 
 
 @interface.implementer(ILTILaunchParamBuilder)
