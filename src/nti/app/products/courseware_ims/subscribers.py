@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from pyramid import httpexceptions as hexc
+
 from urlparse import urljoin
 
 from zope import interface
@@ -47,9 +49,6 @@ LTI_INSTRUCTOR = u"Instructor"
 NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
 NTI_CONTEXT_TYPE = u"CourseSection"
-
-IFRAME = u"iframe"
-WINDOW = u"window"
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -142,6 +141,12 @@ class LTIPresentationParams(LTIParams):
     def build_params(self, params, **kwargs):
         params['launch_presentation_locale'] = self.request.locale_name
         params['launch_presentation_return_url'] = self.request.current_route_url()
+        try:
+            params['launch_presentation_document_target'] = self.request.params['target']
+            params['launch_presentation_width'] = self.request.params['width']
+            params['launch_presentation_height'] = self.request.params['height']
+        except KeyError:
+            raise hexc.HTTPBadRequest('Missing required presentation value')
 
 
 @interface.implementer(ILTILaunchParamBuilder)
