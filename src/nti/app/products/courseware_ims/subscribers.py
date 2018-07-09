@@ -141,7 +141,6 @@ class LTIPresentationParams(LTIParams):
 
     def build_params(self, params, **kwargs):
         params['launch_presentation_locale'] = self.request.locale_name
-        params['launch_presentation_document_target'] = WINDOW
         params['launch_presentation_return_url'] = self.request.current_route_url()
 
 

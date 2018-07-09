@@ -308,6 +308,13 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
         for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
             subscriber.build_params(launch_params, **kwargs)
 
+        # Presentation params should be a dict with lti presentation param keys
+        # These keys are launch_presentation_document_target, launch_presentation_width, launch_presentation_height
+        try:
+            launch_params.update(self.request.params['presentation_params'])
+        except KeyError:
+            return hexc.HTTPBadRequest('Missing presentation_params')
+
         tool_consumer = ToolConsumer(tool.consumer_key,
                                      tool.secret,
                                      params=launch_params,
