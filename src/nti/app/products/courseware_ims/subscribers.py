@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from pyramid import httpexceptions as hexc
+
 from urlparse import urljoin
 
 from zope import interface
@@ -36,9 +38,7 @@ from nti.externalization.oids import toExternalOID
 
 from nti.mailer.interfaces import IEmailAddressable
 
-from nti.ntiids.ntiids import find_object_with_ntiid
-
-from nti.ntiids.oids import to_external_ntiid_oid
+from nti.traversal.traversal import find_interface
 
 
 LTI_LEARNER = u"Learner"
@@ -106,7 +106,7 @@ class LTIRoleParams(LTIParams, LTIUserMixin):
 
     def build_params(self, params, **kwargs):
         user_obj = self._get_remote_user()
-        course = ICourseInstance(self.context)
+        course = find_interface(self.context, ICourseInstance)
         if is_course_instructor(course, user_obj):
             params['roles'] = ROLES_INSTRUCTOR
         else:
