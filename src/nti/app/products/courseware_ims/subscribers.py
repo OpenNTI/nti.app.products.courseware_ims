@@ -45,9 +45,6 @@ NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
 NTI_CONTEXT_TYPE = u"CourseSection"
 
-IFRAME = u"iframe"
-WINDOW = u"window"
-
 logger = __import__('logging').getLogger(__name__)
 
 
@@ -139,6 +136,9 @@ class LTIPresentationParams(LTIParams):
     def build_params(self, params, **kwargs):
         params['launch_presentation_locale'] = self.request.locale_name
         params['launch_presentation_return_url'] = self.request.current_route_url()
+        params['launch_presentation_document_target'] = self.request.params.get('target', 'window')
+        params['launch_presentation_width'] = self.request.params.get('width')
+        params['launch_presentation_height'] = self.request.params.get('height')
 
 
 @interface.implementer(ILTILaunchParamBuilder)
