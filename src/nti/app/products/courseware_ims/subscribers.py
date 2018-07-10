@@ -8,9 +8,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from pyramid import httpexceptions as hexc
-
-from urlparse import urljoin
+from six.moves.urllib.parse import urljoin
 
 from zope import interface
 
@@ -39,7 +37,6 @@ from nti.externalization.oids import toExternalOID
 from nti.mailer.interfaces import IEmailAddressable
 
 from nti.traversal.traversal import find_interface
-
 
 LTI_LEARNER = u"Learner"
 LTI_INSTRUCTOR = u"Instructor"
