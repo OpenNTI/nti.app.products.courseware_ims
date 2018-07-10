@@ -35,6 +35,6 @@ class _CourseConfiguredToolContainerExternalObject(object):
     def toExternalObject(self, **kwargs):
         result = to_standard_external_dictionary(self.container, **kwargs)
         result[ITEMS] = {
-            to_external_ntiid_oid(val): to_external_object(val, name='exporter') for val in self.container.values()
+            to_external_ntiid_oid(val): to_external_object(val, name='exporter', decorate=False) for val in self.container.values()
         }
         return result
