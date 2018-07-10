@@ -110,4 +110,14 @@
 		 provides="nti.externalization.interfaces.IMimeObjectFactory"
 		 name="application/vnd.nextthought.ims.consumer.configuredtool" />
 
+	<!-- Importer -->
+	<utility factory=".importer.IMSCourseSectionImporter"
+			 provides="nti.contenttypes.courses.interfaces.ICourseSectionImporter"
+			 name="045:Configured Tools" />
+
+	<!-- Exporter -->
+	<utility factory=".exporter.IMSCourseSectionExporter"
+			 provides="nti.contenttypes.courses.interfaces.ICourseSectionExporter"
+			 name="045:Configured Tools" />
+
 </configure>

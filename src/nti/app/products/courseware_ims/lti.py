@@ -37,8 +37,6 @@ from nti.property.property import alias
 from nti.schema.fieldproperty import createDirectFieldProperties
 from zope.container.contained import Contained
 
-from zope.annotation import factory as an_factory
-
 from nti.wref import IWeakRef
 
 logger = __import__('logging').getLogger(__name__)
