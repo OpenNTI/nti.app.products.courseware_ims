@@ -12,7 +12,7 @@ import os
 
 import simplejson
 
-from sympy.core.compatibility import cStringIO
+from six.moves import cStringIO
 
 from zope import interface
 
@@ -59,7 +59,11 @@ def _dump(ext_obj):
 @interface.implementer(ICourseConfiguredToolContainer)
 class IMSCourseSectionImporter(BaseSectionImporter):
     """
-    Store the configured tools for this course
+    We import all Configured Tools from the ims json file and add them
+    back into the CourseConfiguredToolContainer. We then post process the lesson
+    overview json to look for any External Tool Assets. Assets' Configured Tools
+    json representation is then updated to the oid of these newly created
+    Configured Tools by looking up the tool in the container using its id
     """
 
     def _update_assets_in_overview_group(self, items, course):

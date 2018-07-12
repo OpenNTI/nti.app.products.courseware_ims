@@ -14,7 +14,7 @@ import shutil
 
 import simplejson
 
-from sympy.core.compatibility import cStringIO
+from six.moves import cStringIO
 
 import tempfile
 
