@@ -14,6 +14,7 @@ import six
 import simplejson as json
 
 from datetime import datetime
+from nti.contenttypes.completion.interfaces import UserProgressUpdatedEvent
 
 from requests.structures import CaseInsensitiveDict
 
@@ -285,6 +286,10 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
                                course,
                                self.context,
                                datetime.utcnow())
+        notify(event)
+        event = UserProgressUpdatedEvent(obj=self.context,
+                                         user=self.getRemoteUser(),
+                                         context=course)
         notify(event)
         self.request.environ['nti.request_had_transaction_side_effects'] = True
         return self._do_request(self.context.ConfiguredTool, self.context.launch_url)

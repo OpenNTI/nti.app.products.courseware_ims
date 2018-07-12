@@ -11,13 +11,13 @@ from __future__ import absolute_import
 
 from zope import interface
 
-from zope.annotation import IAttributeAnnotatable
-
 from zope.lifecycleevent import ObjectCreatedEvent
 
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
 from nti.app.products.courseware.interfaces import IEnrollmentOption
+
+from nti.contenttypes.completion.interfaces import ICompletableItem
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
@@ -25,8 +25,6 @@ from nti.contenttypes.presentation.interfaces import href_schema_field
 from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
 from nti.contenttypes.presentation.interfaces import IGroupOverViewable
 from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
-
-from nti.coremetadata.interfaces import IContained
 
 from nti.dataserver.interfaces import IUser
 
@@ -104,7 +102,8 @@ class ICourseConfiguredToolContainer(IConfiguredToolContainer):
 
 class IExternalToolAsset(ICoursePresentationAsset,
                          IUserCreatedAsset,
-                         IGroupOverViewable):
+                         IGroupOverViewable,
+                         ICompletableItem):
     """
     The NTI representation of an LTI defined Tool
     """

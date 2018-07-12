@@ -120,4 +120,11 @@
 			 provides="nti.contenttypes.courses.interfaces.ICourseSectionExporter"
 			 name="045:Configured Tools" />
 
+	<!-- Completion -->
+	<adapter factory=".completion.ExternalToolAssetCompletionPolicy"
+			 for=".interfaces.IExternalToolAsset nti.contenttypes.courses.interfaces.ICourseInstance"
+			 provides="nti.contenttypes.completion.interfaces.ICompletableItemCompletionPolicy" />
+
+	<subscriber handler=".completion._on_user_progress_updated" />
+
 </configure>
