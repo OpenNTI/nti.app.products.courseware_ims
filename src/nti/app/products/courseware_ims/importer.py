@@ -3,17 +3,24 @@
 
 from __future__ import print_function, absolute_import, division
 
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
 import os
 
+import simplejson
+
+from sympy.core.compatibility import cStringIO
+
 from zope import interface
 
 from nti.app.products.courseware_ims import IMS_CONFIGURED_TOOLS_FILE_NAME
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
+
+from nti.app.products.courseware_ims.lti import LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
 
 from nti.cabinet.filer import transfer_to_native_file
 
@@ -23,7 +30,30 @@ from nti.contenttypes.courses.importer import BaseSectionImporter
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
+from nti.contenttypes.presentation.group import NTICourseOverViewGroup
+
+from nti.externalization.interfaces import StandardExternalFields
+
 from nti.externalization.internalization import update_from_external_object
+
+from nti.ntiids.oids import to_external_ntiid_oid
+
+
+ITEMS = StandardExternalFields.ITEMS
+GROUP_MIMETYPE = NTICourseOverViewGroup.mimeType
+MIMETYPE = StandardExternalFields.MIMETYPE
+
+__LESSONS__ = 'Lessons'
+
+
+def _dump(ext_obj):
+    source = cStringIO()
+    simplejson.dump(ext_obj,
+                    source,
+                    indent='\t',
+                    sort_keys=True)
+    source.seek(0)
+    return source
 
 
 @interface.implementer(ICourseConfiguredToolContainer)
@@ -31,6 +61,39 @@ class IMSCourseSectionImporter(BaseSectionImporter):
     """
     Store the configured tools for this course
     """
+
+    def _update_assets_in_overview_group(self, items, course):
+        modified = False
+        for item in items:
+            if item.get(MIMETYPE) == LTI_EXTERNAL_TOOL_ASSET_MIMETYPE:
+                tool_id_container = item[u'ConfiguredTool'][u'ID']
+                tool_container = ICourseConfiguredToolContainer(course)
+                tool = tool_container.get(tool_id_container)
+                item[u'ConfiguredTool'] = to_external_ntiid_oid(tool)
+                modified = True
+        return modified
+
+    def _post_process(self, context, filer, course):
+        course_path = self.course_bucket_path(course)
+        lesson_bucket = os.path.join(course_path, __LESSONS__)
+        # check there is a 'Lessons' folder
+        if filer.is_bucket(lesson_bucket):
+            lessons = filer.get(lesson_bucket)
+            for lesson in lessons.enumerateChildren():
+                source = self.safe_get(filer, lesson)
+                if source is not None:
+                    modified = False
+                    ext_obj = self.load(source)
+                    for item in ext_obj.get(ITEMS, []):
+                        if item.get(MIMETYPE) == GROUP_MIMETYPE:
+                            modified = self._update_assets_in_overview_group(item[ITEMS], course)
+                    if modified:
+                        source = _dump(ext_obj)
+                        name = lessons.getChildNamed(lesson).name
+                        filer.save(name, source,
+                                   overwrite=True,
+                                   bucket=lesson_bucket,
+                                   contentType="application/x-json")
 
     def process(self, context, filer, writeout=True):
         course = ICourseInstance(context)
@@ -43,6 +106,7 @@ class IMSCourseSectionImporter(BaseSectionImporter):
                 update_from_external_object(ims_impl,
                                             ext_obj,
                                             notify=False)
+                self._post_process(context, filer, course)
                 # save source
                 if writeout and IFilesystemBucket.providedBy(course.root):
                     path = self.course_bucket_path(course) + key

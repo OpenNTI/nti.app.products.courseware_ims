@@ -10,6 +10,7 @@ from zope import component
 from zope import interface
 
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.externalization.datastructures import InterfaceObjectIO
 
@@ -21,11 +22,13 @@ from nti.externalization.internalization import update_from_external_object
 
 from nti.ntiids.ntiids import find_object_with_ntiid
 
-ITEMS = StandardExternalFields.ITEMS
-
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
+
+
+ITEMS = StandardExternalFields.ITEMS
+PARSE_VALS = ('title', 'description', 'launch_url')
 
 
 @component.adapter(ICourseConfiguredToolContainer)
@@ -48,3 +51,19 @@ class _CourseConfiguredToolContainerUpdater(InterfaceObjectIO):
                 update_from_external_object(tool_obj, tool)
             self._ext_self.add_tool(tool_obj)
         return result
+
+
+@interface.implementer(IInternalObjectUpdater)
+class ExternalToolAssetUpdater(InterfaceObjectIO):
+
+    _ext_iface_upper_bound = IExternalToolAsset
+
+    __external_oids__ = ('ConfiguredTool',)
+
+    def updateFromExternalObject(self, parsed, *args, **kwargs):
+        # This checks to see if title and/or description have no value. If they do not, we delete
+        # them so that this information is instead gleaned off the ConfiguredTool
+        for attr in PARSE_VALS:
+            if attr in parsed and not parsed[attr]:
+                del parsed[attr]
+        return super(ExternalToolAssetUpdater, self).updateFromExternalObject(parsed, *args, **kwargs)
