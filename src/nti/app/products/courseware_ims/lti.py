@@ -17,14 +17,12 @@ from zope import interface
 
 from zope.cachedescriptors.property import readproperty
 
+from zope.container.contained import Contained
+
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
 from nti.contenttypes.presentation.mixins import PersistentPresentationAsset
-
-from nti.externalization.datastructures import InterfaceObjectIO
-
-from nti.externalization.interfaces import IInternalObjectUpdater
 
 from nti.ims.lti.consumer import ConfiguredToolContainer
 
@@ -35,17 +33,17 @@ from nti.ntiids.oids import to_external_ntiid_oid
 from nti.property.property import alias
 
 from nti.schema.fieldproperty import createDirectFieldProperties
-from zope.container.contained import Contained
 
 from nti.wref import IWeakRef
 
 logger = __import__('logging').getLogger(__name__)
 
-PARSE_VALS = ('title', 'description', 'launch_url')
 
 LTI_ASSET_METADATA_KEY = 'nti.app.products.courseware_ims.lti.metadata'
 
 LTI_EXTERNAL_TOOL_ASSET_MIMETYPE = 'application/vnd.nextthought.ltiexternaltoolasset'
+
+PARSE_VALS = ('title', 'description', 'launch_url')
 
 
 @interface.implementer(ICourseConfiguredToolContainer)
@@ -108,22 +106,6 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
     @ConfiguredTool.setter
     def ConfiguredTool(self, value):
         self._ConfiguredTool = IWeakRef(value)
-
-
-@interface.implementer(IInternalObjectUpdater)
-class ExternalToolAssetUpdater(InterfaceObjectIO):
-
-    _ext_iface_upper_bound = IExternalToolAsset
-
-    __external_oids__ = ('ConfiguredTool',)
-
-    def updateFromExternalObject(self, parsed, *args, **kwargs):
-        # This checks to see if title and/or description have no value. If they do not, we delete
-        # them so that this information is instead gleaned off the ConfiguredTool
-        for attr in PARSE_VALS:
-            if attr in parsed and not parsed[attr]:
-                del parsed[attr]
-        super(ExternalToolAssetUpdater, self).updateFromExternalObject(parsed, *args, **kwargs)
 
 
 @interface.implementer(INTIIDResolver)

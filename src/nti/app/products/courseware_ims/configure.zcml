@@ -52,7 +52,7 @@
 			 name="NTIExternalToolAsset" />
 
 	<!-- Internalization -->
-	<adapter factory=".lti.ExternalToolAssetUpdater"
+	<adapter factory=".internalization.ExternalToolAssetUpdater"
 			 provides="nti.externalization.interfaces.IInternalObjectUpdater"
 			 for=".interfaces.IExternalToolAsset" />
 
@@ -113,7 +113,7 @@
 	<!-- Importer -->
 	<utility factory=".importer.IMSCourseSectionImporter"
 			 provides="nti.contenttypes.courses.interfaces.ICourseSectionImporter"
-			 name="045:Configured Tools" />
+			 name="015:Configured Tools" />
 
 	<!-- Exporter -->
 	<utility factory=".exporter.IMSCourseSectionExporter"
