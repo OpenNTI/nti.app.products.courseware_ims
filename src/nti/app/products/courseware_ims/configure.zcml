@@ -45,6 +45,10 @@
 			 for="nti.ims.lti.interfaces.IConfiguredTool pyramid.interfaces.IRequest"
 			 name="url" />
 
+	<adapter factory=".adapters.asset_to_configured_tool"
+			 provides="nti.ims.lti.interfaces.IConfiguredTool"
+			 for=".interfaces.IExternalToolAsset" />
+
 
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"

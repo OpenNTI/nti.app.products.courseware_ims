@@ -57,3 +57,6 @@ def ETLS_external_link(tool, request):
     result['href'] = result['url']
     result['targetMimeType'] = 'application/vnd.nextthought.externallink'
     return result
+
+def asset_to_configured_tool(asset):
+    return asset.ConfiguredTool
