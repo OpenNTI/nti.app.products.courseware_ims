@@ -140,8 +140,8 @@ class LTIPresentationParams(LTIParams):
         # Get the tool if we are an asset, otherwise the context is tool
         tool = IConfiguredTool(self.context)
         params['launch_presentation_document_target'] = self.request.params.get('target', 'iframe')
-        params['launch_presentation_width'] = tool.selection_width if tool.selection_width is not None else self.request.get('width')
-        params['launch_presentation_height'] = tool.selection_height if tool.selection_height is not None else self.request.get('height')
+        params['launch_presentation_width'] = tool.selection_width if tool.selection_width is not None else self.request.params.get('width')
+        params['launch_presentation_height'] = tool.selection_height if tool.selection_height is not None else self.request.params.get('height')
 
 
 @interface.implementer(ILTILaunchParamBuilder)
