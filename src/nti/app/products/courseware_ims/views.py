@@ -337,6 +337,10 @@ def tool_selection_return(tool, request):
     """
     return_type = request.params.get('return_type', None)
     if return_type is None:
+        return_type = request.params.get('embed_type', None)
+    if return_type is None:
         raise hexc.HTTPBadRequest('Missing return_type')
     result = component.queryMultiAdapter((tool, request), IExternalToolLinkSelectionResponse, return_type)
+    if result is None:
+        raise hexc.HTTPBadRequest('Unsupported return type')
     return {'tool_data': json.dumps(result)}

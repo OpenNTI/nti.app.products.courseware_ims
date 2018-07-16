@@ -156,3 +156,5 @@ class LTIExternalToolLinkSelectionParams(LTIParams):
         # https://www.eduappcenter.com/docs/extensions/content
         params['ext_content_return_types'] = 'lti_launch_url'
         params['ext_content_return_url'] = response_url
+        params['ext_content_intended_use'] = 'embed'
+        params['selection_directive'] = 'select_link'

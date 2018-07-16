@@ -35,6 +35,11 @@
 			 for="nti.ims.lti.interfaces.IConfiguredTool pyramid.interfaces.IRequest"
 			 name="lti_launch_url" />
 
+	<adapter factory=".adapters.ETLS_external_tool_asset"
+			 provides=".interfaces.IExternalToolLinkSelectionResponse"
+			 for="nti.ims.lti.interfaces.IConfiguredTool pyramid.interfaces.IRequest"
+			 name="basic_lti" />
+
 	<adapter factory=".adapters.ETLS_external_link"
 			 provides=".interfaces.IExternalToolLinkSelectionResponse"
 			 for="nti.ims.lti.interfaces.IConfiguredTool pyramid.interfaces.IRequest"
