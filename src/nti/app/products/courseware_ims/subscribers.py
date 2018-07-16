@@ -136,9 +136,11 @@ class LTIPresentationParams(LTIParams):
     def build_params(self, params, **kwargs):
         params['launch_presentation_locale'] = self.request.locale_name
         params['launch_presentation_return_url'] = self.request.current_route_url()
-        params['launch_presentation_document_target'] = self.request.params.get('target', 'window')
-        params['launch_presentation_width'] = self.request.params.get('width')
-        params['launch_presentation_height'] = self.request.params.get('height')
+        # Get the tool if we are an asset, otherwise the context is tool
+        tool = getattr(self.context, 'ConfiguredTool', self.context)
+        params['launch_presentation_document_target'] = self.request.params.get('target', 'iframe')
+        params['launch_presentation_width'] = tool.selection_width if tool.selection_width is not None else self.request.get('width')
+        params['launch_presentation_height'] = tool.selection_height if tool.selection_height is not None else self.request.get('height')
 
 
 @interface.implementer(ILTILaunchParamBuilder)
