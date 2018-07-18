@@ -8,9 +8,10 @@
 	<include package="zope.security" file="meta.zcml" />
 	<include package="zope.component" />
 	<include package="zope.security" />
-    <include package="nti.solr" />
 
-    <subscriber handler=".subscribers._asset_added"
+	<include package="nti.solr" />
+
+	<subscriber handler=".subscribers._asset_added"
 				for="nti.app.products.courseware_ims.interfaces.IExternalToolAsset
 					 zc.intid.interfaces.IAfterIdAddedEvent"/>
 
@@ -33,7 +34,5 @@
 	<subscriber handler=".subscribers._unindex_asset"
 				for="nti.app.products.courseware_ims.interfaces.IExternalToolAsset
 					 nti.solr.interfaces.IUnindexObjectEvent"/>
-
-
 
 </configure>
