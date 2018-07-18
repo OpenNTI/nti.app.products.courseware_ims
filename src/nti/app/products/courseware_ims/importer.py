@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
-from __future__ import print_function, absolute_import, division
-
-
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 
@@ -38,12 +38,14 @@ from nti.externalization.internalization import update_from_external_object
 
 from nti.ntiids.oids import to_external_ntiid_oid
 
-
 ITEMS = StandardExternalFields.ITEMS
-GROUP_MIMETYPE = NTICourseOverViewGroup.mimeType
 MIMETYPE = StandardExternalFields.MIMETYPE
 
+GROUP_MIMETYPE = NTICourseOverViewGroup.mimeType
+
 __LESSONS__ = 'Lessons'
+
+logger = __import__('logging').getLogger(__name__)
 
 
 def _dump(ext_obj):
@@ -77,7 +79,7 @@ class IMSCourseSectionImporter(BaseSectionImporter):
                 modified = True
         return modified
 
-    def _post_process(self, context, filer, course):
+    def _post_process(self, unused_context, filer, course):
         course_path = self.course_bucket_path(course)
         lesson_bucket = os.path.join(course_path, __LESSONS__)
         # check there is a 'Lessons' folder
