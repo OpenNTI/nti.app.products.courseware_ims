@@ -8,6 +8,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+# pylint: disable=inherit-non-class,expression-not-assigned
 
 from zope import interface
 
@@ -35,10 +36,10 @@ from nti.ims.sis.interfaces import IPerson
 
 from nti.property.property import alias
 
-from nti.schema.field import DateTime
-from nti.schema.field import HTTPURL
-from nti.schema.field import Object
 from nti.schema.field import Text
+from nti.schema.field import Object
+from nti.schema.field import HTTPURL
+from nti.schema.field import DateTime
 from nti.schema.field import ValidTextLine
 
 
@@ -113,11 +114,14 @@ class IExternalToolAsset(ICoursePresentationAsset,
 
     title = ValidTextLine(title=u"Title of an external tool", required=False)
 
-    description = Text(title=u"Description of an external tool", required=False)
+    description = Text(title=u"Description of an external tool",
+                       required=False)
 
-    icon = href_schema_field(title=u"External tool asset icon href", required=False)
+    icon = href_schema_field(title=u"External tool asset icon href",
+                             required=False)
 
-    launch_url = HTTPURL(title=u"Launch url of an external tool", required=False)
+    launch_url = HTTPURL(title=u"Launch url of an external tool",
+                         required=False)
 
 
 class ILTILaunchParamBuilder(interface.Interface):
