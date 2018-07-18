@@ -19,6 +19,8 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 
 TOOLS_ANNOTATION_KEY = 'lti_configured_tools'
 
+logger = __import__('logging').getLogger(__name__)
+
 
 def course_to_configured_tool_container(context, create=True):
     course = ICourseInstance(context)
@@ -49,7 +51,7 @@ def ETLS_external_tool_asset(tool, request):
     return result
 
 
-def ETLS_external_link(tool, request):
+def ETLS_external_link(unused_tool, request):
     result = dict(request.params)
     result['MimeType'] = "application/vnd.nextthought.relatedworkref"
     result['label'] = result.get('title', "")
@@ -57,6 +59,7 @@ def ETLS_external_link(tool, request):
     result['href'] = result['url']
     result['targetMimeType'] = 'application/vnd.nextthought.externallink'
     return result
+
 
 def asset_to_configured_tool(asset):
     return asset.ConfiguredTool
