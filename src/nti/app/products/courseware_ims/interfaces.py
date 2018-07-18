@@ -38,6 +38,7 @@ from nti.property.property import alias
 from nti.schema.field import DateTime
 from nti.schema.field import HTTPURL
 from nti.schema.field import Object
+from nti.schema.field import Text
 from nti.schema.field import ValidTextLine
 
 
@@ -112,7 +113,7 @@ class IExternalToolAsset(ICoursePresentationAsset,
 
     title = ValidTextLine(title=u"Title of an external tool", required=False)
 
-    description = ValidTextLine(title=u"Description of an external tool", required=False)
+    description = Text(title=u"Description of an external tool", required=False)
 
     icon = href_schema_field(title=u"External tool asset icon href", required=False)
 
