@@ -10,12 +10,12 @@ from __future__ import absolute_import
 
 from zope.annotation import IAnnotations
 
-from nti.ntiids.oids import to_external_ntiid_oid
-
 from nti.app.products.courseware_ims.lti import CourseConfiguredToolContainer
 from nti.app.products.courseware_ims.lti import LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
+
+from nti.ntiids.oids import to_external_ntiid_oid
 
 TOOLS_ANNOTATION_KEY = 'lti_configured_tools'
 
