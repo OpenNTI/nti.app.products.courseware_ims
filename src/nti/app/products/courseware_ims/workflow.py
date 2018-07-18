@@ -163,8 +163,8 @@ def find_ims_courses():
 
 def has_assigments_submitted(course, user):
     try:
-        from nti.app.assessment.common import has_assigments_submitted
-        result = has_assigments_submitted(course, user)
+        from nti.app.assessment.common import has_assigments_submitted as has_assigments
+        result = has_assigments(course, user)
     except ImportError:
         result = False
     return result
@@ -189,7 +189,7 @@ def update_member_enrollment_status(course_instance, person, role,
 
     user = find_user(person)
     if user is None:
-        logger.warn("User %s was not found", person)
+        logger.warning("User %s was not found", person)
         return
 
     username = user.username
@@ -199,6 +199,7 @@ def update_member_enrollment_status(course_instance, person, role,
     drop_info = {} if drop_info is None else drop_info
     enrrollment_info = {} if enrrollment_info is None else enrrollment_info
 
+    # pylint: disable=too-many-function-args
     enrollments = ICourseEnrollments(course_instance)
     enrollment_manager = ICourseEnrollmentManager(course_instance)
     enrollment = enrollments.get_enrollment_for_principal(user)
@@ -217,8 +218,7 @@ def update_member_enrollment_status(course_instance, person, role,
             # Never before been enrolled
             logger.info('User %s enrolled in %s',
                         user, instance_entry.ProviderUniqueID)
-            enrollment = enrollment_manager.enroll(user,
-                                                   scope=ES_CREDIT_DEGREE)
+            enrollment = enrollment_manager.enroll(user, ES_CREDIT_DEGREE)
         elif enrollment.Scope != ES_CREDIT_DEGREE:
             logger.info('User %s upgraded to ForCredit in %s',
                         user, instance_entry.ProviderUniqueID)
@@ -276,8 +276,7 @@ def update_member_enrollment_status(course_instance, person, role,
                 enrollment = enrollments.get_enrollment_for_principal(user)
                 if enrollment is None:
                     enrollment_manager = ICourseEnrollmentManager(open_course)
-                    enrollment = enrollment_manager.enroll(
-                        user, scope=ES_PUBLIC)
+                    enrollment = enrollment_manager.enroll(user, ES_PUBLIC)
 
                     # log public enrollment
                     entry = ICourseCatalogEntry(open_course)
@@ -288,8 +287,8 @@ def update_member_enrollment_status(course_instance, person, role,
                     enrrollment_info.setdefault(entry.ProviderUniqueID, {})
                     enrrollment_info[entry.ProviderUniqueID][username] = person_userid
             else:
-                logger.warn('User %s was not enolled to any PUBLIC version of course',
-                            user)
+                logger.warning('User %s was not enolled to any PUBLIC version of course',
+                               user)
     else:
         raise NotImplementedError("Unknown status", role.status)
 
@@ -309,7 +308,7 @@ def cmp_proxy(x, y):
 def get_person(ims, member):
     person = ims.get_person(member.id)
     if person is None:
-        logger.warn("Person definition for %s was not found", member.id)
+        logger.warning("Person definition for %s was not found", member.id)
         person = create_proxy_person(member)
     return person
 
@@ -321,8 +320,8 @@ def get_course(member, ims_courses, warns=()):
     if course_instance is None:
         if course_id not in warns:
             warns.add(course_id)
-            logger.warn("Course definition for %s was not found",
-                        course_id)
+            logger.warning("Course definition for %s was not found",
+                           course_id)
     return course_instance
 
 
@@ -339,6 +338,7 @@ def skip_record(member, cache):
 
 def drop_missing_credit_students(course, enrollments=()):
     result = set()
+    # pylint: disable=no-member
     # transform list of enrollments
     master = set()
     for record in enrollments or ():
@@ -348,6 +348,7 @@ def drop_missing_credit_students(course, enrollments=()):
     # drop enrollments for credit students not in master
     course_enrollments = ICourseEnrollments(course)
     enrollment_manager = ICourseEnrollmentManager(course)
+    # pylint: disable=too-many-function-args
     for record in list(course_enrollments.iter_enrollments()):
         drop = False
         principal = IPrincipal(record, None)
