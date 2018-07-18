@@ -18,6 +18,8 @@ from six.moves import cStringIO
 
 import tempfile
 
+from zope import interface
+
 from nti.app.products.courseware.tests import InstructedCourseApplicationTestLayer
 
 from nti.app.products.courseware_ims.exporter import IMSCourseSectionExporter
@@ -38,6 +40,8 @@ from nti.cabinet.filer import read_source
 from nti.contenttypes.courses.courses import ContentCourseInstance
 
 from nti.contenttypes.presentation.group import NTICourseOverViewGroup
+
+from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 
 from nti.dataserver.tests import mock_dataserver
 
@@ -157,6 +161,7 @@ class TestIMSCourseSectionImportExport(ApplicationLayerTest):
         # Backup with Data
         tool1 = create_configured_tool()
         tool2 = create_configured_tool()
+        interface.alsoProvides(tool1, IDeletedObjectPlaceholder)
         conn.add(tool1)
         conn.add(tool2)
         tool_container = ICourseConfiguredToolContainer(source_course)
