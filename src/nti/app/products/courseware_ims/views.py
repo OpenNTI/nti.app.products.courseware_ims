@@ -14,7 +14,6 @@ import six
 import simplejson as json
 
 from datetime import datetime
-from nti.contenttypes.completion.interfaces import UserProgressUpdatedEvent
 
 from requests.structures import CaseInsensitiveDict
 
@@ -39,8 +38,6 @@ from pyramid.view import view_defaults
 from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
 
-from nti.app.contenttypes.presentation.views.asset_views import CourseOverviewGroupInsertView
-
 from nti.app.externalization.error import raise_json_error
 
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
@@ -63,6 +60,8 @@ from nti.app.products.ims.interfaces import ILTIRequest
 from nti.app.products.ims.views import IMSPathAdapter
 
 from nti.common.string import is_true
+
+from nti.contenttypes.completion.interfaces import UserProgressUpdatedEvent
 
 from nti.contenttypes.courses.interfaces import ICourseCatalog
 from nti.contenttypes.courses.interfaces import ICourseInstance
@@ -141,11 +140,11 @@ class IMSEnrollmentView(AbstractAuthenticatedView,
         ims_file = get_source(values, self.request)
         # parse options
         create_persons = values.get('create_users') \
-                         or values.get('create_persons')
+            or values.get('create_persons')
         create_persons = is_true(create_persons)
         send_email = values.get('email') \
-                     or values.get('sendEmail') \
-                     or values.get('send_email')
+                  or values.get('sendEmail') \
+                  or values.get('send_email')
         send_email = is_true(send_email)
         drop_missing = is_true(values.get('drop_missing'))
         if not send_email:
@@ -320,7 +319,8 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
 
         tool_consumer.set_config(tool.config)
 
-        # Auto launch is always set to true, but is there for future development if needed
+        # Auto launch is always set to true, but is there for future
+        # development if needed
         return {'consumer': tool_consumer,
                 'auto_launch': 1}
 
@@ -340,7 +340,9 @@ def tool_selection_return(tool, request):
         return_type = request.params.get('embed_type', None)
     if return_type is None:
         raise hexc.HTTPBadRequest('Missing return_type')
-    result = component.queryMultiAdapter((tool, request), IExternalToolLinkSelectionResponse, return_type)
+    result = component.queryMultiAdapter((tool, request),
+                                         IExternalToolLinkSelectionResponse,
+                                         return_type)
     if result is None:
         raise hexc.HTTPBadRequest('Unsupported return type')
     return {'tool_data': json.dumps(result)}
