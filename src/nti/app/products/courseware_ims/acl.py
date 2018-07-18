@@ -28,6 +28,8 @@ CRUD = (nauth.ACT_CREATE.id,
         nauth.ACT_UPDATE.id,
         nauth.ACT_DELETE.id)
 
+logger = __import__('logging').getLogger(__name__)
+
 
 @interface.implementer(IACLProvider)
 @component.adapter(ICourseConfiguredToolContainer)

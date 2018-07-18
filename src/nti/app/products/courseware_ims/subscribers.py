@@ -8,7 +8,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-from nti.ims.lti.interfaces import IConfiguredTool
 from six.moves.urllib.parse import urljoin
 
 from zope import interface
@@ -34,6 +33,8 @@ from nti.contenttypes.courses.utils import is_course_instructor
 from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
+
+from nti.ims.lti.interfaces import IConfiguredTool
 
 from nti.mailer.interfaces import IEmailAddressable
 
@@ -68,7 +69,7 @@ class LTIUserMixin(object):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIResourceParams(LTIParams):
 
-    def build_params(self, params, **kwargs):
+    def build_params(self, params, **unused_kwargs):
         asset = self.context
         asset_oid = toExternalOID(asset)
         params['resource_link_id'] = asset_oid
@@ -79,7 +80,7 @@ class LTIResourceParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIUserParams(LTIParams, LTIUserMixin):
 
-    def build_params(self, params, **kwargs):
+    def build_params(self, params, **unused_kwargs):
         user_obj = self._get_remote_user()
         params['user_id'] = toExternalOID(user_obj)
 
@@ -99,7 +100,7 @@ class LTIUserParams(LTIParams, LTIUserMixin):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIRoleParams(LTIParams, LTIUserMixin):
 
-    def build_params(self, params, **kwargs):
+    def build_params(self, params, **unused_kwargs):
         user_obj = self._get_remote_user()
         course = find_interface(self.context, ICourseInstance)
         if is_course_instructor(course, user_obj):
@@ -111,7 +112,7 @@ class LTIRoleParams(LTIParams, LTIUserMixin):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIInstanceParams(LTIParams):
 
-    def build_params(self, params, **kwargs):
+    def build_params(self, params, **unused_kwargs):
         params['tool_consumer_instance_guid'] = self.request.domain
         params['tool_consumer_instance_name'] = guess_site_display_name(self.request)
         params['tool_consumer_instance_url'] = self.request.host_url
@@ -122,7 +123,7 @@ class LTIInstanceParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIContextParams(LTIParams):
 
-    def build_params(self, params, **kwargs):
+    def build_params(self, params, **unused_kwargs):
         course = ICourseInstance(self.context)
         catalog_entry = ICourseCatalogEntry(course)
         params['context_type'] = NTI_CONTEXT_TYPE
@@ -134,7 +135,7 @@ class LTIContextParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIPresentationParams(LTIParams):
 
-    def build_params(self, params, **kwargs):
+    def build_params(self, params, **unused_kwargs):
         params['launch_presentation_locale'] = self.request.locale_name
         params['launch_presentation_return_url'] = self.request.current_route_url()
         # Get the tool if we are an asset, otherwise the context is tool
@@ -147,7 +148,7 @@ class LTIPresentationParams(LTIParams):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIExternalToolLinkSelectionParams(LTIParams):
 
-    def build_params(self, params, **kwargs):
+    def build_params(self, params, **unused_kwargs):
         link = _create_link(self.context,
                             method='GET',
                             elements=(('@@external_tool_link_selection_response',)))

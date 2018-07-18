@@ -8,9 +8,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import six
-
 from persistent import Persistent
+
+import six
 
 from zope import component
 from zope import interface
@@ -36,14 +36,13 @@ from nti.schema.fieldproperty import createDirectFieldProperties
 
 from nti.wref import IWeakRef
 
-logger = __import__('logging').getLogger(__name__)
-
-
 LTI_ASSET_METADATA_KEY = 'nti.app.products.courseware_ims.lti.metadata'
 
 LTI_EXTERNAL_TOOL_ASSET_MIMETYPE = 'application/vnd.nextthought.ltiexternaltoolasset'
 
 PARSE_VALS = ('title', 'description', 'launch_url')
+
+logger = __import__('logging').getLogger(__name__)
 
 
 @interface.implementer(ICourseConfiguredToolContainer)
@@ -78,7 +77,7 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
                 delattr(self, attr)
 
     @readproperty
-    def ntiid(self):
+    def ntiid(self):  # pylint: disable=method-hidden
         self.ntiid = self.generate_ntiid(self.nttype)
         return self.ntiid
 
@@ -105,6 +104,7 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     @ConfiguredTool.setter
     def ConfiguredTool(self, value):
+        # pylint: disable=attribute-defined-outside-init
         self._ConfiguredTool = IWeakRef(value)
 
 

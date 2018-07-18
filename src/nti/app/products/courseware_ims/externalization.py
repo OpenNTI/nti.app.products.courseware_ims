@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+.. $Id$
+"""
 
+from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
-from __future__ import division
 
 from zope import component
 from zope import interface
@@ -20,8 +23,6 @@ from nti.ntiids.oids import to_external_ntiid_oid
 
 ITEMS = StandardExternalFields.ITEMS
 
-__docformat__ = "restructuredtext en"
-
 logger = __import__('logging').getLogger(__name__)
 
 
@@ -35,6 +36,7 @@ class _CourseConfiguredToolContainerExternalObject(object):
     def toExternalObject(self, **kwargs):
         result = to_standard_external_dictionary(self.container, **kwargs)
         result[ITEMS] = {
-            to_external_ntiid_oid(val): to_external_object(val, name='exporter', decorate=False) for val in self.container.values()
+            to_external_ntiid_oid(val): to_external_object(val, name='exporter', decorate=False)
+            for val in self.container.values()
         }
         return result
