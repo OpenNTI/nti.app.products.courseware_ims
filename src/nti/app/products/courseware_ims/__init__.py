@@ -19,7 +19,6 @@ from nti.dataserver.interfaces import ILinkExternalHrefOnly
 from nti.links import Link
 from nti.links import render_link
 
-
 #: Annotation key to store the IMS course SourcedID
 COURSE_SOURCEDID_KEY = 'nti.app.products.courseware_ims.COURSE_SOURCEDID_KEY'
 
@@ -31,6 +30,8 @@ EXTERNAL_TOOL_ASSET_LAUNCH = 'Launch'
 
 #: IMS Course import/export filenames
 IMS_CONFIGURED_TOOLS_FILE_NAME = u'ims_configured_tools.json'
+
+logger = __import__('logging').getLogger(__name__)
 
 
 def get_course_sourcedid(context):
