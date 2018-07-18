@@ -291,18 +291,21 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
                                          context=course)
         notify(event)
         self.request.environ['nti.request_had_transaction_side_effects'] = True
+        # pylint: disable=no-member
         return self._do_request(self.context.ConfiguredTool, self.context.launch_url)
 
     @view_config(context=IConfiguredTool,
                  name='external_tool_link_selection',
                  permission=nauth.ACT_CONTENT_EDIT)
     def external_tool_link_selection(self):
+        # pylint: disable=no-member
         return self._do_request(self.context, self.context.launch_url)
 
     @view_config(context=IConfiguredTool,
                  name='deep_linking',
                  permission=nauth.ACT_CONTENT_EDIT)
     def deep_linking(self):
+        # pylint: disable=no-member
         return self._do_request(self.context, self.context.launch_url)
 
     def _do_request(self, tool=None, launch_url=None, **kwargs):
