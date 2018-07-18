@@ -18,5 +18,5 @@ logger = __import__('logging').getLogger(__name__)
 
 
 @interface.implementer(IPathAdapter)
-def _course_to_configured_tool_container_path_adapter(context, unused):
+def _course_to_configured_tool_container_path_adapter(context, unused_req):
     return ICourseConfiguredToolContainer(context)
