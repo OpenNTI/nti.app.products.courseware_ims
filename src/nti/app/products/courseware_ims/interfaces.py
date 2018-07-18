@@ -40,7 +40,7 @@ from nti.schema.field import Text
 from nti.schema.field import Object
 from nti.schema.field import HTTPURL
 from nti.schema.field import DateTime
-from nti.schema.field import ValidTextLine
+from nti.schema.field import DecodingValidTextLine as ValidTextLine
 
 
 class IIMSCourseCatalog(interface.Interface):
