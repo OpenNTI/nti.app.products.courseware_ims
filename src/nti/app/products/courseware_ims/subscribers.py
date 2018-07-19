@@ -12,9 +12,6 @@ from six.moves.urllib.parse import urljoin
 
 from zope import interface
 
-from lti.tool_base import ROLES_INSTRUCTOR
-from lti.tool_base import ROLES_STUDENT
-
 from nti.app.authentication import get_remote_user
 
 from nti.app.products.courseware_ims import _create_link
@@ -30,6 +27,9 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.contenttypes.courses.utils import is_course_instructor
 
+from nti.dataserver.authorization import is_admin_or_site_admin
+from nti.dataserver.authorization import is_content_admin
+
 from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
@@ -40,8 +40,6 @@ from nti.mailer.interfaces import IEmailAddressable
 
 from nti.traversal.traversal import find_interface
 
-LTI_LEARNER = u"Learner"
-LTI_INSTRUCTOR = u"Instructor"
 
 NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
@@ -103,10 +101,14 @@ class LTIRoleParams(LTIParams, LTIUserMixin):
     def build_params(self, params, **unused_kwargs):
         user_obj = self._get_remote_user()
         course = find_interface(self.context, ICourseInstance)
-        if is_course_instructor(course, user_obj):
-            params['roles'] = ROLES_INSTRUCTOR
+        if is_admin_or_site_admin(user_obj):
+            params['roles'] = u'Administrator'
+        elif is_course_instructor(course, user_obj):
+            params['roles'] = u'Instructor'
+        elif is_content_admin(user_obj):
+            params['roles'] = u'ContentDeveloper'
         else:
-            params['roles'] = ROLES_STUDENT
+            params['roles'] = u'Learner'
 
 
 @interface.implementer(ILTILaunchParamBuilder)
