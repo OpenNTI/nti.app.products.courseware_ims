@@ -60,6 +60,8 @@ class LTIExternalToolAsset(PersistentPresentationAsset):
 
     target = None
 
+    byline = None
+
     Creator = alias('creator')
     desc = alias('description')
 
