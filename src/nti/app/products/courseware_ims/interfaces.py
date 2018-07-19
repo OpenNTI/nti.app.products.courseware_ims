@@ -22,7 +22,8 @@ from nti.contenttypes.completion.interfaces import ICompletableItem
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
-from nti.contenttypes.presentation.interfaces import href_schema_field, byline_schema_field
+from nti.contenttypes.presentation.interfaces import byline_schema_field
+from nti.contenttypes.presentation.interfaces import href_schema_field
 from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
 from nti.contenttypes.presentation.interfaces import IGroupOverViewable
 from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
