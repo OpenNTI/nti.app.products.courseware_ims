@@ -9,10 +9,11 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script type="text/javascript">
 	 $(document).ready(function () {
+	     var allows_relaunch = window != window.top
 	     function relaunch(){
 		 $(".launch-failed").show()
 		 $(".launching").hide()
-		 if( window != window.top ){
+		 if( allows_relaunch ){
 		     $(".relaunch").show()
 		 }
 	     }
@@ -21,8 +22,9 @@
 		 console.log('Form submit called')
 		 $("form").hide()
 		 $(".launching").show()
-		 setTimeout(relaunch, 3000)
-		 
+		 if( allows_relaunch ){
+		     setTimeout(relaunch, 3000)
+		 }
 	     }
 	     
 	     form = $("form")
