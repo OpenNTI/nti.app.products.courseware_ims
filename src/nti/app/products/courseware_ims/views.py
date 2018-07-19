@@ -292,7 +292,9 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
         notify(event)
         self.request.environ['nti.request_had_transaction_side_effects'] = True
         # pylint: disable=no-member
-        return self._do_request(self.context.ConfiguredTool, self.context.launch_url)
+        launch_options = self._do_request(self.context.ConfiguredTool, self.context.launch_url)
+        launch_options['relaunch_url'] = self.request.path
+        return launch_options
 
     @view_config(context=IConfiguredTool,
                  name='external_tool_link_selection',

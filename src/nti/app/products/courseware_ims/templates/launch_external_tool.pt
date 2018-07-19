@@ -1,26 +1,81 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	  xmlns:tal="http://xml.zope.org/namespaces/tal">
+      xmlns:tal="http://xml.zope.org/namespaces/tal">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<title>Launch an External Tool</title>
+	<title>Launch an External Tool</title>
         <script tal:content="string:var auto_launch=${options/auto_launch};"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function () {
-               if(auto_launch) {
-                   $("#form").submit()
-               }
-            });
+	 $(document).ready(function () {
+	     var allows_relaunch = window != window.top
+	     function relaunch(){
+		 $(".launch-failed").show()
+		 $(".launching").hide()
+		 if( allows_relaunch ){
+		     $(".relaunch").show()
+		 }
+	     }
+	     
+	     function onSubmit(event){
+		 console.log('Form submit called')
+		 $("form").hide()
+		 $(".launching").show()
+		 if( allows_relaunch ){
+		     setTimeout(relaunch, 3000)
+		 }
+	     }
+	     
+	     form = $("form")
+	     form.submit(onSubmit)
+	     if(auto_launch) {
+		 form.submit()
+	     }
+	 });
         </script>
+	<style type="text/css">
+	 body {
+	     font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+	 }
+	 
+	 .launch-failed {
+	     display: none;
+	 }
+
+	 .launching {
+	     display: none;
+	 }
+
+	 div.launch-failed {
+	     text-align: center;
+	 }
+
+	 .relaunch {
+	     display: none;
+	 }
+	</style>
     </head>
     <body>
-        <form id="form" method="POST" tal:attributes="action options/consumer/launch_url" tal:define="launch_data options/consumer/generate_launch_data">
+        <form id="form"
+	      method="POST"
+	      tal:attributes="action options/consumer/launch_url"
+	      tal:define="launch_data options/consumer/generate_launch_data">
             <tal:loop tal:repeat="key launch_data">
                 <input type="hidden" tal:attributes="name key; value launch_data/?key" />
             </tal:loop>
             <input type="submit" value="Launch">
         </form>
+	<div  class="launching">
+	    <h3>Loading...</h3>
+	</div>
+	<div class="launch-failed" tal:condition="options/relaunch_url | nothing">
+	    <h1>Uh Oh!</h1>
+	    <h2>It looks like your content may not have been shown.</h2>
+	    <h3 class="relaunch">
+		<a target="blank" tal:attributes="href options/relaunch_url">Click here</a> 
+		to try opening your content in a new window.
+	    </h3>
+	</div>
     </body>
 </html>
