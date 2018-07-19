@@ -14,6 +14,8 @@ from zope import interface
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 
+from nti.dataserver.interfaces import IDeletedObjectPlaceholder
+
 from nti.externalization.datastructures import InterfaceObjectIO
 
 from nti.externalization.interfaces import IInternalObjectUpdater
@@ -49,7 +51,9 @@ class _CourseConfiguredToolContainerUpdater(InterfaceObjectIO):
                 factory = find_factory_for(tool)
                 tool_obj = factory()
                 update_from_external_object(tool_obj, tool)
-            self._ext_self.add_tool(tool_obj)
+                if tool['deleted']:
+                    interface.alsoProvides(tool_obj, IDeletedObjectPlaceholder)
+            self._ext_self[tool_obj.id] = tool_obj  # We are updating the tool id from external and want to preserve
         return result
 
 
