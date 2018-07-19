@@ -11,8 +11,11 @@
 	 $(document).ready(function () {
 	     const allows_relaunch = window != window.top;
 
-	     const launchURL = document.querySelector('.relaunch-button').href;
-	     document.querySelector('.relaunch-button').href = launchURL + '?target=window&width=' + window.parent.innerWidth + '&height=' + window.parent.innerHeight;
+	     const relaunchButton = document.querySelector('.relaunch-button'); 
+	     const launchURL = relaunchButton && relaunchButton.href; 
+	     if (launchURL && relaunchButton) { 
+		 relaunchButton.href = launchURL + '?target=window&width=' + window.parent.innerWidth + '&height=' + window.parent.innerHeight; 
+	     }
 
 	     function relaunch(){
 		 $(".launch-failed").show()
