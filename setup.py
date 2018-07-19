@@ -63,6 +63,7 @@ setup(
         'nti.ntiids',
         'nti.property',
         'nti.schema',
+        'nti.solr',
         'pyramid',
         'requests',
         'six',
