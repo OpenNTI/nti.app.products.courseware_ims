@@ -108,13 +108,11 @@
 				for="nti.app.products.ims.interfaces.ILTIRequest nti.ims.lti.interfaces.IExternalToolLinkSelection" />
 
 	<!-- Decorators -->
-    <configure zcml:condition="not-have production_env">
-        <subscriber factory=".decorators._CourseInstanceLinkDecorator"
-                    provides="nti.externalization.interfaces.IExternalMappingDecorator" />
+	<subscriber factory=".decorators._CourseInstanceLinkDecorator"
+				provides="nti.externalization.interfaces.IExternalMappingDecorator" />
 
-        <subscriber factory=".decorators._ExternalToolAssetInstanceLinkDecorator"
-                    provides="nti.externalization.interfaces.IExternalMappingDecorator" />
-    </configure>
+	<subscriber factory=".decorators._ExternalToolAssetInstanceLinkDecorator"
+				provides="nti.externalization.interfaces.IExternalMappingDecorator" />
 
 	<adapter factory=".datastructures.ConfiguredToolFactory"
 		 for="nti.base.interfaces.IDict"
