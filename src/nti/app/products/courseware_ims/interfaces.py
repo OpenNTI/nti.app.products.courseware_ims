@@ -24,9 +24,10 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.contenttypes.presentation.interfaces import byline_schema_field
 from nti.contenttypes.presentation.interfaces import href_schema_field
-from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
-from nti.contenttypes.presentation.interfaces import IGroupOverViewable
 from nti.contenttypes.presentation.interfaces import ICoursePresentationAsset
+from nti.contenttypes.presentation.interfaces import IGroupOverViewable
+from nti.contenttypes.presentation.interfaces import INTIIDIdentifiable
+from nti.contenttypes.presentation.interfaces import IUserCreatedAsset
 
 from nti.dataserver.interfaces import IUser
 
@@ -106,6 +107,7 @@ class ICourseConfiguredToolContainer(IConfiguredToolContainer):
 class IExternalToolAsset(ICoursePresentationAsset,
                          IUserCreatedAsset,
                          IGroupOverViewable,
+                         INTIIDIdentifiable,
                          ICompletableItem):
     """
     The NTI representation of an LTI defined Tool
