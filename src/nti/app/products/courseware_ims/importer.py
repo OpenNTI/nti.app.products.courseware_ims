@@ -69,15 +69,12 @@ class IMSCourseSectionImporter(BaseSectionImporter):
     """
 
     def _update_assets_in_overview_group(self, items, course):
-        modified = False
         for item in items:
             if item.get(MIMETYPE) == LTI_EXTERNAL_TOOL_ASSET_MIMETYPE:
                 tool_id_container = item[u'ConfiguredTool'][u'ID']
                 tool_container = ICourseConfiguredToolContainer(course)
                 tool = tool_container.get(tool_id_container)
                 item[u'ConfiguredTool'] = to_external_ntiid_oid(tool)
-                modified = True
-        return modified
 
     def _post_process(self, unused_context, filer, course):
         course_path = self.course_bucket_path(course)
@@ -88,18 +85,16 @@ class IMSCourseSectionImporter(BaseSectionImporter):
             for lesson in lessons.enumerateChildren():
                 source = self.safe_get(filer, lesson)
                 if source is not None:
-                    modified = False
                     ext_obj = self.load(source)
                     for item in ext_obj.get(ITEMS, []):
                         if item.get(MIMETYPE) == GROUP_MIMETYPE:
-                            modified = self._update_assets_in_overview_group(item[ITEMS], course)
-                    if modified:
-                        source = _dump(ext_obj)
-                        name = lessons.getChildNamed(lesson).name
-                        filer.save(name, source,
-                                   overwrite=True,
-                                   bucket=lesson_bucket,
-                                   contentType="application/x-json")
+                            self._update_assets_in_overview_group(item[ITEMS], course)
+                            source = _dump(ext_obj)
+                            name = lessons.getChildNamed(lesson).name
+                            filer.save(name, source,
+                                       overwrite=True,
+                                       bucket=lesson_bucket,
+                                       contentType="application/x-json")
 
     def process(self, context, filer, writeout=True):
         course = ICourseInstance(context)
