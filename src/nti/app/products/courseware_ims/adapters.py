@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from ZODB.interfaces import IConnection
+
 from zope.annotation import IAnnotations
 
 from nti.app.products.courseware_ims.lti import CourseConfiguredToolContainer
@@ -31,6 +33,7 @@ def course_to_configured_tool_container(context, create=True):
         tools.__parent__ = course
         tools.__name__ = TOOLS_ANNOTATION_KEY
         annotations[TOOLS_ANNOTATION_KEY] = tools
+        IConnection(course).add(tools)
     return tools
 
 
