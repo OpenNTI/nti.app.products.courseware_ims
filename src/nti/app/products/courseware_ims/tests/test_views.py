@@ -21,8 +21,6 @@ from zope import component
 
 from lti import LaunchParams
 
-from lti.tool_base import ROLES_STUDENT
-
 from pyramid.testing import DummyRequest
 
 from nti.contenttypes.courses.interfaces import ICourseCatalog
@@ -130,7 +128,14 @@ class TestLTIAsset(ApplicationLayerTest):
             subscriber = subscribers.LTIRoleParams(request, asset)
             subscriber._user = user
             subscriber.build_params(params)
-            assert_that(params['roles'], is_(ROLES_STUDENT))
+            assert_that(params['roles'], is_([u'Administrator']))
+
+            user = self._create_user(u'pgreazy', **{u'external_value':
+                                                        {u'realname': u'pgreazy',
+                                                         u'email': u'pgreazy@test.com'}})
+            subscriber._user = user
+            subscriber.build_params(params)
+            assert_that(params['roles'], is_([u'Learner']))
 
             # Instance params
             subscriber = subscribers.LTIInstanceParams(request, asset)
@@ -155,7 +160,7 @@ class TestLTIAsset(ApplicationLayerTest):
             subscriber = subscribers.LTIPresentationParams(request, asset)
             subscriber.build_params(params)
             assert_that(params['launch_presentation_locale'], is_(request.locale_name))
-            assert_that(params['launch_presentation_document_target'], is_(u"window"))
+            assert_that(params['launch_presentation_document_target'], is_(u"iframe"))
             assert_that(params['launch_presentation_return_url'], is_(request.current_route_url()))
 
     def _create_asset(self):
