@@ -9,6 +9,7 @@ from __future__ import absolute_import
 # pylint: disable=W0212,R0904,E1121
 
 from hamcrest import is_
+from hamcrest import contains
 from hamcrest import not_none
 from hamcrest import has_entry
 from hamcrest import has_length
@@ -20,8 +21,6 @@ import fudge
 from zope import component
 
 from lti import LaunchParams
-
-from lti.tool_base import ROLES_STUDENT
 
 from pyramid.testing import DummyRequest
 
@@ -130,7 +129,7 @@ class TestLTIAsset(ApplicationLayerTest):
             subscriber = subscribers.LTIRoleParams(request, asset)
             subscriber._user = user
             subscriber.build_params(params)
-            assert_that(params['roles'], is_(ROLES_STUDENT))
+            assert_that(params['roles'], contains('Administrator'))
 
             # Instance params
             subscriber = subscribers.LTIInstanceParams(request, asset)
@@ -155,7 +154,7 @@ class TestLTIAsset(ApplicationLayerTest):
             subscriber = subscribers.LTIPresentationParams(request, asset)
             subscriber.build_params(params)
             assert_that(params['launch_presentation_locale'], is_(request.locale_name))
-            assert_that(params['launch_presentation_document_target'], is_(u"window"))
+            assert_that(params['launch_presentation_document_target'], is_(u"iframe"))
             assert_that(params['launch_presentation_return_url'], is_(request.current_route_url()))
 
     def _create_asset(self):
