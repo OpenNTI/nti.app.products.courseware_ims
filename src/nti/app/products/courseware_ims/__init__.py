@@ -62,7 +62,7 @@ def _register():
         from nti.solr.utils import mimeTypeRegistry
         mimeTypeRegistry.register(LTI_EXTERNAL_TOOL_ASSET_MIMETYPE, ASSETS_CATALOG)
     except ImportError:
-        pass
+        logger.warning("Solr registry is not available")
 
 _register()
 del _register
