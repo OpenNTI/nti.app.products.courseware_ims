@@ -33,6 +33,7 @@ def course_to_configured_tool_container(context, create=True):
         tools.__parent__ = course
         tools.__name__ = TOOLS_ANNOTATION_KEY
         annotations[TOOLS_ANNOTATION_KEY] = tools
+        # pylint: disable=too-many-function-args
         IConnection(course).add(tools)
     return tools
 
