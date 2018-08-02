@@ -40,7 +40,6 @@ from nti.mailer.interfaces import IEmailAddressable
 
 from nti.traversal.traversal import find_interface
 
-
 NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
 NTI_CONTEXT_TYPE = u"CourseSection"
