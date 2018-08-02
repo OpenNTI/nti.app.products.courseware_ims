@@ -12,6 +12,8 @@ from zope import interface
 
 from zope.annotation.interfaces import IAnnotations
 
+from nti.app.products.courseware_ims.lti import LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
+        
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.dataserver.interfaces import ILinkExternalHrefOnly
@@ -52,3 +54,15 @@ def _create_link(context, **kwargs):
                 **kwargs)
     interface.alsoProvides(link, ILinkExternalHrefOnly)
     return render_link(link)
+
+
+def _register():
+    try:
+        from nti.solr.presentation import ASSETS_CATALOG
+        from nti.solr.utils import mimeTypeRegistry
+        mimeTypeRegistry.register(LTI_EXTERNAL_TOOL_ASSET_MIMETYPE, ASSETS_CATALOG)
+    except ImportError:
+        pass
+
+_register()
+del _register
