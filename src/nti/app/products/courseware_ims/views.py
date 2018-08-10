@@ -47,6 +47,7 @@ from nti.app.products.courseware_ims import _create_link
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
 from nti.app.products.courseware_ims.interfaces import LTILaunchEvent
+from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 from nti.app.products.courseware_ims.interfaces import IExternalToolLinkSelectionResponse
@@ -57,6 +58,7 @@ from nti.app.products.courseware_ims.workflow import find_ims_courses
 
 from nti.app.products.ims.interfaces import ILTIRequest
 
+from nti.app.products.ims.views import ConfiguredToolsGetView
 from nti.app.products.ims.views import IMSPathAdapter
 
 from nti.common.string import is_true
@@ -68,8 +70,11 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 
 from nti.contenttypes.courses.utils import get_course_vendor_info
+from nti.contenttypes.courses.utils import get_parent_course
 
 from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
+
+from nti.coremetadata.interfaces import IDeletedObjectPlaceholder
 
 from nti.dataserver import authorization as nauth
 
@@ -269,6 +274,35 @@ class CreateExternalToolAssetView(AbstractAuthenticatedView):
         return {'tool_url': tools_link,
                 'MimeType': LTIExternalToolAsset.mimeType,
                 'post_url': post_link}
+
+
+@view_config(route_name='objects.generic.traversal',
+             renderer='rest',
+             request_method='GET',
+             context=ICourseConfiguredToolContainer,
+             permission=nauth.ACT_CONTENT_EDIT)
+class CourseConfiguredToolsGetView(ConfiguredToolsGetView):
+    """
+    We need a special view here to bring in parent course tools in course sections
+    """
+
+    def __call__(self):
+        result = super(CourseConfiguredToolsGetView, self).__call__()
+        course = self.context.__parent__
+        parent_course = get_parent_course(course)
+
+        # If we are not in a course section return as normal
+        if course is parent_course:
+            return result
+
+        # We are in a course section
+        parent_tools = ICourseConfiguredToolContainer(parent_course)
+        for tool in parent_tools.values():
+            if IDeletedObjectPlaceholder.providedBy(tool):
+                continue
+            result[ITEMS].append(tool)
+        result[TOTAL] = result[ITEM_COUNT] = len(result[ITEMS])
+        return result
 
 
 @view_defaults(route_name='objects.generic.traversal',
