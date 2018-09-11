@@ -26,6 +26,7 @@
 			 provides="nti.externalization.interfaces.IInternalObjectUpdater"
 			 for=".interfaces.ICourseConfiguredToolContainer" />
 
+	<!--  Adapters -->
 	<adapter factory=".adapters.ETLS_external_tool_asset"
 			 provides=".interfaces.IExternalToolLinkSelectionResponse"
 			 for="nti.ims.lti.interfaces.IConfiguredTool pyramid.interfaces.IRequest" />
@@ -49,6 +50,10 @@
 			 provides="nti.ims.lti.interfaces.IConfiguredTool"
 			 for=".interfaces.IExternalToolAsset" />
 
+	<adapter factory=".adapters.content_selection_launch_url"
+			 provides=".interfaces.ILTILaunchURL"
+			 for="nti.ims.lti.interfaces.IConfiguredTool"
+			 name="content_selection" />
 
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"
@@ -79,7 +84,7 @@
 	<!-- Subscribers -->
 	<subscriber factory=".subscribers.LTIResourceParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="nti.app.products.ims.interfaces.ILTIRequest *" />
+				for="nti.app.products.ims.interfaces.ILTIRequest .interfaces.IExternalToolAsset" />
 
 	<subscriber factory=".subscribers.LTIUserParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
@@ -95,7 +100,7 @@
 
 	<subscriber factory=".subscribers.LTIContextParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
-				for="nti.app.products.ims.interfaces.ILTIRequest .interfaces.IExternalToolAsset" />
+				for="nti.app.products.ims.interfaces.ILTIRequest *" />
 
 	<subscriber factory=".subscribers.LTIRoleParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
@@ -105,6 +110,9 @@
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="nti.app.products.ims.interfaces.ILTIRequest nti.ims.lti.interfaces.IExternalToolLinkSelection" />
 
+	<subscriber factory=".subscribers.LTIDeepLinkingParams"
+				provides=".interfaces.ILTILaunchParamBuilder"
+				for="nti.app.products.ims.interfaces.ILTIRequest nti.ims.lti.interfaces.ILinkSelection" />
 	<!-- Decorators -->
 	<subscriber factory=".decorators._CourseInstanceLinkDecorator"
 				provides="nti.externalization.interfaces.IExternalMappingDecorator" />

@@ -10,13 +10,17 @@ from __future__ import absolute_import
 
 from six.moves.urllib.parse import urljoin
 
-from zope import interface
+from zope import interface, component
 
 from nti.app.authentication import get_remote_user
 
 from nti.app.products.courseware_ims import _create_link
 
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
+
+from nti.app.products.ims import SUPPORTED_LTI_EXTENSIONS
+from nti.app.products.ims.interfaces import ILTIRequest
 
 from nti.appserver.policies.site_policies import guess_site_display_name
 
@@ -35,6 +39,8 @@ from nti.dataserver.users.interfaces import IFriendlyNamed
 from nti.externalization.oids import toExternalOID
 
 from nti.ims.lti.interfaces import IConfiguredTool
+from nti.ims.lti.interfaces import IDeepLinking
+from nti.ims.lti.interfaces import IExternalToolLinkSelection
 
 from nti.mailer.interfaces import IEmailAddressable
 
@@ -54,31 +60,12 @@ class LTIParams(object):
         self.context = context
 
 
-class LTIUserMixin(object):
-
-    def _get_remote_user(self):
-        try:
-            return self._user
-        except AttributeError:  # Expected behavior if not in a test
-            return get_remote_user(request=self.request)
-
-
+@component.adapter(ILTIRequest, interface.Interface)
 @interface.implementer(ILTILaunchParamBuilder)
-class LTIResourceParams(LTIParams):
+class LTIUserParams(LTIParams):
 
-    def build_params(self, params, **unused_kwargs):
-        asset = self.context
-        asset_oid = toExternalOID(asset)
-        params['resource_link_id'] = asset_oid
-        params['resource_link_title'] = asset.title
-        params['resource_link_description'] = asset.description
-
-
-@interface.implementer(ILTILaunchParamBuilder)
-class LTIUserParams(LTIParams, LTIUserMixin):
-
-    def build_params(self, params, **unused_kwargs):
-        user_obj = self._get_remote_user()
+    def build_params(self, params):
+        user_obj = get_remote_user(request=self.request)
         params['user_id'] = toExternalOID(user_obj)
 
         named_user = IFriendlyNamed(user_obj)
@@ -94,26 +81,39 @@ class LTIUserParams(LTIParams, LTIUserMixin):
         params['lis_person_contact_email_primary'] = user_email.email
 
 
+@component.adapter(ILTIRequest, interface.Interface)
 @interface.implementer(ILTILaunchParamBuilder)
-class LTIRoleParams(LTIParams, LTIUserMixin):
+class LTIRoleParams(LTIParams):
 
-    def build_params(self, params, **unused_kwargs):
-        user_obj = self._get_remote_user()
+    def build_params(self, params):
+        user_obj = get_remote_user(request=self.request)
         course = find_interface(self.context, ICourseInstance)
+        ext_roles = [u'urn:lti:sysrole:ims/lis/User']
+        roles = []
         if is_admin_or_site_admin(user_obj):
-            params['roles'] = u'Administrator'
-        elif is_course_instructor(course, user_obj):
-            params['roles'] = u'Instructor'
-        elif is_content_admin(user_obj):
-            params['roles'] = u'ContentDeveloper'
+            roles.append(u'Administrator')
+            ext_roles += [u'urn:lti:sysrole:ims/lis/Administrator',
+                          u'urn:lti:instrole:ims/lis/Administrator',
+                          u'urn:lti:role:ims/lis/Administrator']
+        if is_course_instructor(course, user_obj):
+            roles.append(u'Instructor')
+            ext_roles += [u'urn:lti:instrole:ims/lis/Instructor',
+                          u'urn:lti:role:ims/lis/Instructor']
         else:
             params['roles'] = u'Learner'
+        if is_content_admin(user_obj):
+            roles.append(u'ContentDeveloper')
+            ext_roles += [u'urn:lti:role:ims/lis/ContentDeveloper']
+
+        params['roles'] = u''.join(roles)
+        params['ext_roles'] = u''.join(ext_roles)
 
 
+@component.adapter(ILTIRequest, interface.Interface)
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIInstanceParams(LTIParams):
 
-    def build_params(self, params, **unused_kwargs):
+    def build_params(self, params):
         params['tool_consumer_instance_guid'] = self.request.domain
         params['tool_consumer_instance_name'] = guess_site_display_name(self.request)
         params['tool_consumer_instance_url'] = self.request.host_url
@@ -121,11 +121,12 @@ class LTIInstanceParams(LTIParams):
         params['tool_consumer_instance_contact_email'] = NTI_EMAIL
 
 
+@component.adapter(ILTIRequest, interface.Interface)
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIContextParams(LTIParams):
 
-    def build_params(self, params, **unused_kwargs):
-        course = ICourseInstance(self.context)
+    def build_params(self, params):
+        course = find_interface(self.context, ICourseInstance)
         catalog_entry = ICourseCatalogEntry(course)
         params['context_type'] = NTI_CONTEXT_TYPE
         params['context_id'] = toExternalOID(course)
@@ -133,26 +134,38 @@ class LTIContextParams(LTIParams):
         params['context_label'] = catalog_entry.ProviderUniqueID
 
 
+@component.adapter(ILTIRequest, interface.Interface)
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIPresentationParams(LTIParams):
 
-    def build_params(self, params, **unused_kwargs):
+    def build_params(self, params):
         params['launch_presentation_locale'] = self.request.locale_name
         params['launch_presentation_return_url'] = self.request.current_route_url()
-        # Get the tool if we are an asset, otherwise the context is tool
-        tool = IConfiguredTool(self.context)
         params['launch_presentation_document_target'] = self.request.params.get('target', 'iframe')
-        params['launch_presentation_width'] = tool.selection_width if tool.selection_width is not None else self.request.params.get('width')
-        params['launch_presentation_height'] = tool.selection_height if tool.selection_height is not None else self.request.params.get('height')
+        params['launch_presentation_width'] = self.request.params.get('width')
+        params['launch_presentation_height'] = self.request.params.get('height')
 
 
+@component.adapter(ILTIRequest, IExternalToolAsset)
+@interface.implementer(ILTILaunchParamBuilder)
+class LTIResourceParams(LTIParams):
+
+    def build_params(self, params):
+        asset = self.context
+        asset_oid = toExternalOID(asset)
+        params['resource_link_id'] = asset_oid
+        params['resource_link_title'] = asset.title
+        params['resource_link_description'] = asset.description
+
+
+@component.adapter(ILTIRequest, IExternalToolLinkSelection)
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIExternalToolLinkSelectionParams(LTIParams):
 
-    def build_params(self, params, **unused_kwargs):
+    def build_params(self, params):
         link = _create_link(self.context,
                             method='GET',
-                            elements=(('@@external_tool_link_selection_response',)))
+                            elements=('@@external_tool_link_selection_response',))
         response_url = urljoin(self.request.application_url,
                                link)
         params['launch_presentation_return_url'] = response_url
@@ -163,3 +176,23 @@ class LTIExternalToolLinkSelectionParams(LTIParams):
         params['ext_content_return_url'] = response_url
         params['ext_content_intended_use'] = 'embed'
         params['selection_directive'] = 'select_link'
+
+
+@component.adapter(ILTIRequest, IDeepLinking)
+@interface.implementer(ILTILaunchParamBuilder)
+class LTIDeepLinkingParams(LTIParams):
+
+    def build_params(self, params):
+        link = _create_link(self.context,
+                            method='GET',
+                            elements=('@@deep_linking_response',))
+        response_url = urljoin(self.request.application_url,
+                               link)
+        params['content_item_return_url'] = response_url
+        params['accept_presentation_document_targets'] = 'frame,iframe'
+        # XXX: There are various other types we could potentially support here
+        params['accept_media_types'] = 'application/vnd.ims.lti.v1.ltilink'
+        params['lti_message_type'] = 'ContentItemSelectionRequest'
+        params['accept_multiple'] = 'false'
+        params['accept_unsigned'] = 'true'
+        params['auto_create'] = 'false'

@@ -180,3 +180,9 @@ class IExternalToolLinkSelectionResponse(interface.Interface):
     """
     Marker interface for External Tool Link Selection responses
     """
+
+
+class ILTILaunchURL(interface.Interface):
+    """
+    An adapter for IConfiguredTool that returns the appropriate launch url
+    """
