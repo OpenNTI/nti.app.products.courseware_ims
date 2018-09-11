@@ -67,3 +67,10 @@ def ETLS_external_link(unused_tool, request):
 
 def asset_to_configured_tool(asset):
     return asset.ConfiguredTool
+
+
+def content_selection_launch_url(tool):
+    ext_params = tool.config.get_ext_params('canvas.instructure.com',
+                                            'link_selection')
+    url = ext_params.get('url')
+    return url

@@ -27,6 +27,7 @@ from zope.event import notify
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
 
+from lti import ContentItemResponse
 from lti import LaunchParams
 from lti import ToolConsumer
 
@@ -50,6 +51,7 @@ from nti.app.products.courseware_ims.interfaces import LTILaunchEvent
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
+from nti.app.products.courseware_ims.interfaces import ILTILaunchURL
 from nti.app.products.courseware_ims.interfaces import IExternalToolLinkSelectionResponse
 
 from nti.app.products.courseware_ims.workflow import process
@@ -310,6 +312,29 @@ class CourseConfiguredToolsGetView(ConfiguredToolsGetView):
                request_method='GET')
 class ExternalToolAssetView(AbstractAuthenticatedView):
 
+    def _build_params(self):
+        interface.alsoProvides(self.request, ILTIRequest)
+        launch_params = LaunchParams(lti_version='LTI-1p0')
+        # Add instance specific launch params
+        for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
+            subscriber.build_params(launch_params)
+        return launch_params
+
+    def _do_request(self, consumer):
+        # Auto launch is always set to true, but is there for future
+        # development if needed
+        return {'consumer': consumer,
+                'auto_launch': 1}
+
+    def _do_launch_request(self, tool):
+        launch_params = self._build_params()
+        tool_consumer = ToolConsumer(tool.consumer_key,
+                                     tool.secret,
+                                     params=launch_params,
+                                     launch_url=self.context.launch_url)
+        tool_consumer.set_config(tool.config)
+        return self._do_request(tool_consumer)
+
     @view_config(context=IExternalToolAsset,
                  name='launch',
                  permission=nauth.ACT_READ)
@@ -326,42 +351,26 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
         notify(event)
         self.request.environ['nti.request_had_transaction_side_effects'] = True
         # pylint: disable=no-member
-        launch_options = self._do_request(self.context.ConfiguredTool, self.context.launch_url)
+        launch_options = self._do_launch_request(self.context.ConfiguredTool)
         launch_options['relaunch_url'] = self.request.path
         return launch_options
 
-    @view_config(context=IConfiguredTool,
-                 name='external_tool_link_selection',
-                 permission=nauth.ACT_CONTENT_EDIT)
-    def external_tool_link_selection(self):
-        # pylint: disable=no-member
-        return self._do_request(self.context, self.context.launch_url)
-
-    @view_config(context=IConfiguredTool,
-                 name='deep_linking',
-                 permission=nauth.ACT_CONTENT_EDIT)
-    def deep_linking(self):
-        # pylint: disable=no-member
-        return self._do_request(self.context, self.context.launch_url)
-
-    def _do_request(self, tool=None, launch_url=None, **kwargs):
-        interface.alsoProvides(self.request, ILTIRequest)
-        launch_params = LaunchParams(lti_version='LTI-1p0')
-        # Add instance specific launch params
-        for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
-            subscriber.build_params(launch_params, **kwargs)
-
-        tool_consumer = ToolConsumer(tool.consumer_key,
-                                     tool.secret,
-                                     params=launch_params,
-                                     launch_url=launch_url)
-
-        tool_consumer.set_config(tool.config)
-
-        # Auto launch is always set to true, but is there for future
-        # development if needed
-        return {'consumer': tool_consumer,
-                'auto_launch': 1}
+    @view_config(name='assignment_selection')
+    @view_config(name='content_selection')
+    @view_config(name='link_selection')
+    @view_config(name='homework_submission')
+    @view_config(name='editor_button')
+    @view_config(name='migration_selection')
+    @view_defaults(context=IConfiguredTool,
+                   permission=nauth.ACT_CONTENT_EDIT)
+    def content_selection(self):
+        launch_url = component.queryAdapter(self.context, ILTILaunchURL, name=self.request.view_name)
+        launch_params = self._build_params()
+        content_item_consumer = ContentItemResponse(self.context.consumer_key,
+                                                    self.context.secret,
+                                                    params=launch_params,
+                                                    launch_url=launch_url)
+        return self._do_request(content_item_consumer)
 
 
 @view_config(route_name='objects.generic.traversal',
