@@ -9,16 +9,15 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from zope import component
-
 from zope import interface
 
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
 from nti.contenttypes.completion.completion import CompletedItem
 
-from nti.contenttypes.completion.interfaces import ICompletableItemCompletionPolicy
-from nti.contenttypes.completion.interfaces import IUserProgressUpdatedEvent
 from nti.contenttypes.completion.interfaces import IProgress
+from nti.contenttypes.completion.interfaces import IUserProgressUpdatedEvent
+from nti.contenttypes.completion.interfaces import ICompletableItemCompletionPolicy
 
 from nti.contenttypes.completion.utils import update_completion
 

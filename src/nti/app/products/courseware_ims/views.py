@@ -9,13 +9,22 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-import six
-
-import simplejson as json
 
 from datetime import datetime
 
+from lti import LaunchParams
+from lti import ToolConsumer
+
+from pyramid import httpexceptions as hexc
+
+from pyramid.view import view_config
+from pyramid.view import view_defaults
+
 from requests.structures import CaseInsensitiveDict
+
+import simplejson as json
+
+import six
 
 from zope import component
 from zope import interface
@@ -26,14 +35,6 @@ from zope.event import notify
 
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
-
-from lti import LaunchParams
-from lti import ToolConsumer
-
-from pyramid import httpexceptions as hexc
-
-from pyramid.view import view_config
-from pyramid.view import view_defaults
 
 from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
@@ -288,6 +289,7 @@ class CourseConfiguredToolsGetView(ConfiguredToolsGetView):
 
     def __call__(self):
         result = super(CourseConfiguredToolsGetView, self).__call__()
+        # pylint: disable=no-member
         course = self.context.__parent__
         parent_course = get_parent_course(course)
 
@@ -296,6 +298,7 @@ class CourseConfiguredToolsGetView(ConfiguredToolsGetView):
             return result
 
         # We are in a course section
+        # pylint: disable=too-many-function-args
         parent_tools = ICourseConfiguredToolContainer(parent_course)
         for tool in parent_tools.values():
             if IDeletedObjectPlaceholder.providedBy(tool):
