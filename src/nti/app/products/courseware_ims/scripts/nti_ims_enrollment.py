@@ -10,10 +10,12 @@ from __future__ import absolute_import
 
 import os
 import csv
-import six
 import sys
 import argparse
+
 import simplejson as json
+
+import six
 
 from nti.app.products.courseware_ims import workflow
 

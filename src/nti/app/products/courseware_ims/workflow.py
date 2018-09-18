@@ -79,8 +79,8 @@ def get_person_email(person):
         result = person.email
     else:
         result = username + u'@example.com'
-        logger.warn('%s does not have an email. Defaulting to %s',
-                    username, result)
+        logger.warning('%s does not have an email. Defaulting to %s',
+                       username, result)
 
     result = result.lower()
     if result.endswith('@nextthought.com'):
