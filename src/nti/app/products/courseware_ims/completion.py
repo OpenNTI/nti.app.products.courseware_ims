@@ -19,16 +19,21 @@ from nti.contenttypes.completion.interfaces import IProgress
 from nti.contenttypes.completion.interfaces import IUserProgressUpdatedEvent
 from nti.contenttypes.completion.interfaces import ICompletableItemCompletionPolicy
 
+from nti.contenttypes.completion.policies import AbstractCompletableItemCompletionPolicy
+
 from nti.contenttypes.completion.utils import update_completion
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
+from nti.externalization.persistence import NoPickle
+
 logger = __import__('logging').getLogger(__name__)
 
 
+@NoPickle
 @component.adapter(IExternalToolAsset, ICourseInstance)
 @interface.implementer(ICompletableItemCompletionPolicy)
-class ExternalToolAssetCompletionPolicy(object):
+class ExternalToolAssetCompletionPolicy(AbstractCompletableItemCompletionPolicy):
 
     def __init__(self, asset, course):
         self.asset = asset
