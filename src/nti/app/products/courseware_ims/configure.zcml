@@ -117,6 +117,12 @@
 		 provides="nti.externalization.interfaces.IMimeObjectFactory"
 		 name="application/vnd.nextthought.ims.consumer.configuredtool" />
 
+    <!--  Path Adapters -->
+    <adapter name="LTIExternalToolAssets"
+             factory=".views.LTIExternalToolAssetsPathAdapter"
+             provides="zope.traversing.interfaces.IPathAdapter"
+             for="nti.contenttypes.courses.interfaces.ICourseInstance pyramid.interfaces.IRequest" />
+
 	<!-- Importer -->
 	<utility factory=".importer.IMSCourseSectionImporter"
 			 provides="nti.contenttypes.courses.interfaces.ICourseSectionImporter"
