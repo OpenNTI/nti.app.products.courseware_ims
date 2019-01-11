@@ -33,8 +33,14 @@ from zope.component import subscribers
 
 from zope.event import notify
 
+from zope.location import LocationProxy
+
+from zope.location.interfaces import LocationError
+
 from zope.security.management import endInteraction
 from zope.security.management import restoreInteraction
+
+from zope.traversing.interfaces import ITraversable
 
 from nti.app.base.abstract_views import get_all_sources
 from nti.app.base.abstract_views import AbstractAuthenticatedView
@@ -44,6 +50,7 @@ from nti.app.externalization.error import raise_json_error
 from nti.app.externalization.view_mixins import ModeledContentUploadRequestUtilsMixin
 
 from nti.app.products.courseware_ims import _create_link
+from nti.app.products.courseware_ims import LTI_EXTERNAL_TOOL_ASSETS
 
 from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
@@ -75,6 +82,7 @@ from nti.contenttypes.courses.utils import get_parent_course
 
 from nti.contenttypes.presentation.interfaces import INTICourseOverviewGroup
 
+from nti.coremetadata.interfaces import IContained
 from nti.coremetadata.interfaces import IDeletedObjectPlaceholder
 
 from nti.dataserver import authorization as nauth
@@ -83,6 +91,8 @@ from nti.externalization.interfaces import LocatedExternalDict
 from nti.externalization.interfaces import StandardExternalFields
 
 from nti.ims.lti.interfaces import IConfiguredTool
+
+from nti.ntiids.ntiids import find_object_with_ntiid
 
 from nti.ntiids.oids import to_external_ntiid_oid
 
@@ -122,6 +132,22 @@ def get_source(values, request):
                          },
                          None)
     return ims_file
+
+
+@interface.implementer(ITraversable, IContained)
+class LTIExternalToolAssetsPathAdapter(object):
+
+    __name__ = LTI_EXTERNAL_TOOL_ASSETS
+
+    def __init__(self, parent, request):
+        self.request = request
+        self.__parent__ = parent
+
+    def traverse(self, key, _):
+        asset = find_object_with_ntiid(key)
+        if not asset:
+            raise LocationError(key)
+        return LocationProxy(asset, self, key)
 
 
 @view_config(name='enrollment')
@@ -317,7 +343,10 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
                  name='launch',
                  permission=nauth.ACT_READ)
     def launch(self):
-        course = find_interface(self.context, ICourseInstance)
+        course = ICourseInstance(self.request, None)
+        if course is None:
+            logger.info(u'Unable to find course instance for External Tool Asset via traversal')
+            course = find_interface(self.context, ICourseInstance)
         event = LTILaunchEvent(self.remoteUser,
                                course,
                                self.context,

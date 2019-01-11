@@ -30,6 +30,9 @@ LTI_CONFIGURED_TOOLS = 'lti-configured-tools'
 #: Launch an external tool asset rel
 EXTERNAL_TOOL_ASSET_LAUNCH = 'Launch'
 
+#: Traversable path to External Tool Assets
+LTI_EXTERNAL_TOOL_ASSETS = 'LTIExternalToolAssets'
+
 #: IMS Course import/export filenames
 IMS_CONFIGURED_TOOLS_FILE_NAME = u'ims_configured_tools.json'
 

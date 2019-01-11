@@ -83,6 +83,7 @@ class TestLTIAsset(ApplicationLayerTest):
 
     tool_url = course_url + '/' + TOOLS_ANNOTATION_KEY
 
+
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_asset(self):
         self._create_asset()
@@ -98,6 +99,16 @@ class TestLTIAsset(ApplicationLayerTest):
             # These properties should not be None
             assert_that(asset.title, is_(TOOL_DATA.get('title')))
             assert_that(asset.description, is_(TOOL_DATA.get('description')))
+
+    @WithSharedApplicationMockDS(testapp=True, users=True)
+    def test_asset_traversal_resolution(self):
+        self._create_asset()
+        res = self.testapp.get(self.course_url + '/LTIExternalToolAssets/%s' % self.asset_ntiid)
+        app_asset_ntiid = res.json_body['ntiid']
+        assert_that(app_asset_ntiid, is_(not_none()))
+        assert_that(app_asset_ntiid, is_(self.asset_ntiid))
+        launch_url = self.link_href_with_rel(res.json_body, 'Launch')
+        self.testapp.get(launch_url, status=200)
 
     @WithSharedApplicationMockDS(testapp=True, users=True)
     def test_subscribers(self):
