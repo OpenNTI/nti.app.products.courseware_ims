@@ -20,7 +20,11 @@ from nti.app.products.courseware_ims import EXTERNAL_TOOL_ASSET_LAUNCH
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
+from nti.appserver.pyramid_authorization import has_permission
+
 from nti.contenttypes.courses.interfaces import ICourseInstance
+
+from nti.dataserver.authorization import ACT_CONTENT_EDIT
 
 from nti.externalization.interfaces import IExternalMappingDecorator
 from nti.externalization.interfaces import StandardExternalFields
@@ -43,8 +47,9 @@ logger = __import__('logging').getLogger(__name__)
 class _CourseInstanceLinkDecorator(Singleton):
 
     def decorateExternalMapping(self, context, result):
+        request = get_current_request()
         tools = ICourseConfiguredToolContainer(context)
-        if tools is not None:
+        if tools is not None and has_permission(ACT_CONTENT_EDIT, tools, request):
             _links = result.setdefault(LINKS, [])
             _links.append(Link(tools, rel=LTI_CONFIGURED_TOOLS))
 
