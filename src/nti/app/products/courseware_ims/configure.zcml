@@ -105,6 +105,11 @@
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="nti.app.products.ims.interfaces.ILTIRequest nti.ims.lti.interfaces.IExternalToolLinkSelection" />
 
+    <subscriber factory=".subscribers._CourseContentLibraryProvider"
+                provides="nti.contenttypes.courses.interfaces.ICourseContentLibraryProvider"
+                for="nti.coremetadata.interfaces.IUser
+                     nti.contenttypes.courses.interfaces.ICourseInstance" />
+
 	<!-- Decorators -->
 	<subscriber factory=".decorators._CourseInstanceLinkDecorator"
 				provides="nti.externalization.interfaces.IExternalMappingDecorator" />

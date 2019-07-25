@@ -10,6 +10,7 @@ from __future__ import absolute_import
 
 from six.moves.urllib.parse import urljoin
 
+from zope import component
 from zope import interface
 
 from nti.app.authentication import get_remote_user
@@ -22,10 +23,13 @@ from nti.appserver.policies.site_policies import guess_site_display_name
 
 from nti.common.nameparser import human_name
 
-from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
 from nti.contenttypes.courses.interfaces import ICourseInstance
+from nti.contenttypes.courses.interfaces import ICourseCatalogEntry
+from nti.contenttypes.courses.interfaces import ICourseContentLibraryProvider
 
 from nti.contenttypes.courses.utils import is_course_instructor
+
+from nti.coremetadata.interfaces import IUser
 
 from nti.dataserver.authorization import is_admin_or_site_admin
 from nti.dataserver.authorization import is_content_admin
@@ -33,6 +37,8 @@ from nti.dataserver.authorization import is_content_admin
 from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
+
+from nti.ims.lti.consumer import ConfiguredTool
 
 from nti.ims.lti.interfaces import IConfiguredTool
 
@@ -163,3 +169,23 @@ class LTIExternalToolLinkSelectionParams(LTIParams):
         params['ext_content_return_url'] = response_url
         params['ext_content_intended_use'] = 'embed'
         params['selection_directive'] = 'select_link'
+
+
+@component.adapter(IUser, ICourseInstance)
+@interface.implementer(ICourseContentLibraryProvider)
+class _CourseContentLibraryProvider(object):
+    """
+    Return the mimetypes of objects of course content that could be
+    added to this course by this user.
+    """
+
+    def __init__(self, user, course):
+        self.user = user
+        self.course = course
+
+    def get_item_mime_types(self):
+        """
+        Returns the collection of mimetypes that may be available (either
+        they exist or can exist) in this course.
+        """
+        return (ConfiguredTool.mime_type,)
