@@ -13,10 +13,14 @@ from six.moves.urllib.parse import urljoin
 from zope import component
 from zope import interface
 
+from zope.lifecycleevent.interfaces import IObjectAddedEvent
+
 from nti.app.authentication import get_remote_user
 
 from nti.app.products.courseware_ims import _create_link
+from nti.app.products.courseware_ims import raise_error
 
+from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 
 from nti.appserver.policies.site_policies import guess_site_display_name
@@ -31,8 +35,8 @@ from nti.contenttypes.courses.utils import is_course_instructor
 
 from nti.coremetadata.interfaces import IUser
 
-from nti.dataserver.authorization import is_admin_or_site_admin
 from nti.dataserver.authorization import is_content_admin
+from nti.dataserver.authorization import is_admin_or_site_admin
 
 from nti.dataserver.users.interfaces import IFriendlyNamed
 
@@ -45,6 +49,7 @@ from nti.ims.lti.interfaces import IConfiguredTool
 from nti.mailer.interfaces import IEmailAddressable
 
 from nti.traversal.traversal import find_interface
+from nti.app.products.courseware_ims.license_utils import can_add_lti_asset
 
 NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
@@ -189,3 +194,13 @@ class _CourseContentLibraryProvider(object):
         they exist or can exist) in this course.
         """
         return (ConfiguredTool.mime_type,)
+
+
+@component.adapter(IExternalToolAsset, IObjectAddedEvent)
+def _on_lti_asset_added(unused_asset, unused_event):
+    if not can_add_lti_asset():
+        raise_error(
+            {
+                'message': _(u"Cannot add LTI object to outline."),
+                'code': 'LicenseLTIAssetRestrictedError',
+            })

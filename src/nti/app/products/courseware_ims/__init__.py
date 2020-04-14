@@ -8,12 +8,18 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from pyramid import httpexceptions as hexc
+
+from pyramid.threadlocal import get_current_request
+
 from zope import interface
 
 from zope.annotation.interfaces import IAnnotations
 
+from nti.app.externalization.error import raise_json_error
+
 from nti.app.products.courseware_ims.lti import LTI_EXTERNAL_TOOL_ASSET_MIMETYPE
-        
+
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
 from nti.dataserver.interfaces import ILinkExternalHrefOnly
@@ -37,6 +43,11 @@ LTI_EXTERNAL_TOOL_ASSETS = 'LTIExternalToolAssets'
 IMS_CONFIGURED_TOOLS_FILE_NAME = u'ims_configured_tools.json'
 
 logger = __import__('logging').getLogger(__name__)
+
+
+def raise_error(v, tb=None, factory=hexc.HTTPUnprocessableEntity, request=None):
+    request = request or get_current_request()
+    raise_json_error(request, factory, v, tb)
 
 
 def get_course_sourcedid(context):

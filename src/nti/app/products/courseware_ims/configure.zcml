@@ -49,6 +49,22 @@
 			 provides="nti.ims.lti.interfaces.IConfiguredTool"
 			 for=".interfaces.IExternalToolAsset" />
 
+	<!-- License -->
+	<adapter factory=".license.TrialSiteLicenseLTIPolicy"
+             provides=".interfaces.ISiteLicenseLTIPolicy"
+             for="nti.site_license.interfaces.ITrialSiteLicense"/>
+
+    <adapter factory=".license.StarterSiteLicenseLTIPolicy"
+             provides=".interfaces.ISiteLicenseLTIPolicy"
+             for="nti.site_license.interfaces.IStarterSiteLicense"/>
+
+    <adapter factory=".license.GrowthSiteLicenseLTIPolicy"
+             provides=".interfaces.ISiteLicenseLTIPolicy"
+             for="nti.site_license.interfaces.IGrowthSiteLicense"/>
+
+     <adapter factory=".license.EnterpriseSiteLicenseLTIPolicy"
+             provides=".interfaces.ISiteLicenseLTIPolicy"
+             for="nti.site_license.interfaces.IEnterpriseSiteLicense"/>
 
 	<!-- LTI -->
 	<adapter factory=".adapters.course_to_configured_tool_container"
@@ -77,6 +93,8 @@
 			 for=".interfaces.ICourseConfiguredToolContainer"/>
 
 	<!-- Subscribers -->
+	<subscriber handler=".subscribers._on_lti_asset_added" />
+
 	<subscriber factory=".subscribers.LTIResourceParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="nti.app.products.ims.interfaces.ILTIRequest *" />
