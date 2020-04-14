@@ -51,8 +51,6 @@ from nti.ims.lti.consumer import ConfiguredTool
 
 from nti.ntiids.oids import to_external_ntiid_oid
 
-__docformat__ = "restructuredtext en"
-
 logger = __import__('logging').getLogger(__name__)
 
 TOOL_DATA = {

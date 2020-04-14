@@ -180,3 +180,20 @@ class IExternalToolLinkSelectionResponse(interface.Interface):
     """
     Marker interface for External Tool Link Selection responses
     """
+
+
+class ISiteLicenseLTIPolicy(interface.Interface):
+    """
+    The policy determining LTI usage based on the current site license.
+    """
+
+    def can_add_lti_tools():
+        """
+        Returns a bool whether or not an LTI tool can be added.
+        """
+
+    def can_add_lti_asset():
+        """
+        Returns a bool whether or not an LTI asset can be added
+        to a course outline.
+        """
