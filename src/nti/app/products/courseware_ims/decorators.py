@@ -20,6 +20,8 @@ from nti.app.products.courseware_ims import EXTERNAL_TOOL_ASSET_LAUNCH
 from nti.app.products.courseware_ims.interfaces import ICourseConfiguredToolContainer
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
+from nti.app.products.courseware_ims.license_utils import can_add_lti_tools
+
 from nti.appserver.pyramid_authorization import has_permission
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
@@ -49,7 +51,9 @@ class _CourseInstanceLinkDecorator(Singleton):
     def decorateExternalMapping(self, context, result):
         request = get_current_request()
         tools = ICourseConfiguredToolContainer(context)
-        if tools is not None and has_permission(ACT_CONTENT_EDIT, tools, request):
+        if      tools is not None \
+            and can_add_lti_tools() \
+            and has_permission(ACT_CONTENT_EDIT, tools, request):
             _links = result.setdefault(LINKS, [])
             _links.append(Link(tools, rel=LTI_CONFIGURED_TOOLS))
 

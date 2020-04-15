@@ -23,6 +23,8 @@ from nti.app.products.courseware_ims import raise_error
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
 
+from nti.app.products.courseware_ims.license_utils import can_add_lti_asset
+
 from nti.appserver.policies.site_policies import guess_site_display_name
 
 from nti.common.nameparser import human_name
@@ -49,7 +51,6 @@ from nti.ims.lti.interfaces import IConfiguredTool
 from nti.mailer.interfaces import IEmailAddressable
 
 from nti.traversal.traversal import find_interface
-from nti.app.products.courseware_ims.license_utils import can_add_lti_asset
 
 NTI = u"NextThought"
 NTI_EMAIL = u"support@nextthought.com"
@@ -193,7 +194,10 @@ class _CourseContentLibraryProvider(object):
         Returns the collection of mimetypes that may be available (either
         they exist or can exist) in this course.
         """
-        return (ConfiguredTool.mime_type,)
+        result = []
+        if can_add_lti_asset():
+            result = (ConfiguredTool.mime_type,)
+        return result
 
 
 @component.adapter(IExternalToolAsset, IObjectAddedEvent)
