@@ -46,7 +46,7 @@ from nti.coremetadata.interfaces import IUser
 from nti.dataserver.authorization import is_content_admin
 from nti.dataserver.authorization import is_admin_or_site_admin
 
-from nti.dataserver.interfaces import IDataserverFolder
+from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import ILinkExternalHrefOnly
 
 from nti.dataserver.users.interfaces import IFriendlyNamed
@@ -75,7 +75,7 @@ logger = __import__('logging').getLogger(__name__)
 def url_for_outcomes_postback(request=None):
     if request is None:
         request = get_current_request()
-    ds_folder = component.getUtility(IDataserverFolder)
+    ds_folder = component.getUtility(IDataserver).dataserver_folder
     link = Link(ds_folder,
                 elements=(LTI,
                           '@@' + VIEW_LTI_OUTCOMES,))
@@ -118,7 +118,7 @@ class LTIResourceParams(LTIParams):
 
 
 @interface.implementer(ILTILaunchParamBuilder)
-class LTIOutcomesParams(LTIParams):
+class LTIOutcomesParams(LTIParams, LTIUserMixin):
 
     def build_params(self, params, **unused_kwargs):
         asset = self.context

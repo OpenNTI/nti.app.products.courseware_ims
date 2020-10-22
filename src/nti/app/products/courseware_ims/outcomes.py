@@ -30,11 +30,12 @@ class LTIOutcomesResultSourcedIDUtility(object):
         """
         Returns a tuple of (user, course, asset), some of which may be None.
         """
-        parts = sourcedid.spli(':')
+        parts = sourcedid.split(':')
         intids = component.getUtility(IIntIds)
+        __traceback_info__ = parts
         if len(parts) != 3:
             raise InvalidLTISourcedIdException()
-        user = intids.queryObject(intids[0])
-        course = intids.queryObject(intids[1])
-        asset = intids.queryObject(intids[2])
+        user = intids.queryObject(int(parts[0]))
+        course = intids.queryObject(int(parts[1]))
+        asset = intids.queryObject(int(parts[2]))
         return (user, course, asset)
