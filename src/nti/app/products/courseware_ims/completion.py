@@ -36,6 +36,11 @@ from nti.ims.lti.interfaces import ILTIUserLaunchStats
 logger = __import__('logging').getLogger(__name__)
 
 
+def _get_launch_stats(user, course, asset):
+    return component.queryMultiAdapter((user, course, asset),
+                                       ILTIUserLaunchStats)
+
+
 @component.adapter(IUser, IExternalToolAsset, ICourseInstance)
 @interface.implementer(IProgress)
 def lti_external_tool_asset_progress(user, asset, course):
@@ -59,8 +64,7 @@ def lti_external_tool_asset_progress(user, asset, course):
         #: TODO outcomes
         pass
     else:
-        lti_launch_stats = component.queryMultiAdapter((user, course, asset),
-                                                       ILTIUserLaunchStats)
+        lti_launch_stats = _get_launch_stats(user, course, asset)
         if      lti_launch_stats is not None \
             and lti_launch_stats.LaunchCount:
             # Progress is 1 (max) if the asset has ever been launched

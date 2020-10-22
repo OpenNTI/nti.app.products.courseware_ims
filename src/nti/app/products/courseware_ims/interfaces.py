@@ -20,6 +20,8 @@ from zope.schema import ValidationError
 
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
+from nti.app.products.courseware_ims import MessageFactory as _
+
 from nti.contenttypes.completion.interfaces import ICompletableItem
 
 from nti.contenttypes.courses.interfaces import ICourseInstance

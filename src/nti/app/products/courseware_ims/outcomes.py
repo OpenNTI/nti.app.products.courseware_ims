@@ -12,6 +12,8 @@ from zope import component
 
 from zope.intid.interfaces import IIntIds
 
+from nti.app.products.courseware_ims.interfaces import InvalidLTISourcedIdException
+
 logger = __import__('logging').getLogger(__name__)
 
 
