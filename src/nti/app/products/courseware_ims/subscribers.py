@@ -8,6 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+from pyramid.threadlocal import get_current_request
+
 from six.moves.urllib.parse import urljoin
 
 from zope import component
@@ -22,8 +24,12 @@ from nti.app.products.courseware_ims import raise_error
 
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 from nti.app.products.courseware_ims.interfaces import ILTILaunchParamBuilder
+from nti.app.products.courseware_ims.interfaces import ILTIOutcomesResultSourcedIDUtility
 
 from nti.app.products.courseware_ims.license_utils import can_add_lti_asset
+
+from nti.app.products.ims import LTI
+from nti.app.products.ims import VIEW_LTI_OUTCOMES
 
 from nti.appserver.policies.site_policies import guess_site_display_name
 
@@ -40,6 +46,9 @@ from nti.coremetadata.interfaces import IUser
 from nti.dataserver.authorization import is_content_admin
 from nti.dataserver.authorization import is_admin_or_site_admin
 
+from nti.dataserver.interfaces import IDataserverFolder
+from nti.dataserver.interfaces import ILinkExternalHrefOnly
+
 from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
@@ -47,6 +56,10 @@ from nti.externalization.oids import toExternalOID
 from nti.ims.lti.consumer import ConfiguredTool
 
 from nti.ims.lti.interfaces import IConfiguredTool
+
+from nti.links.externalization import render_link
+
+from nti.links.links import Link
 
 from nti.mailer.interfaces import IEmailAddressable
 
@@ -57,6 +70,24 @@ NTI_EMAIL = u"support@nextthought.com"
 NTI_CONTEXT_TYPE = u"CourseSection"
 
 logger = __import__('logging').getLogger(__name__)
+
+
+def url_for_outcomes_postback(request=None):
+    if request is None:
+        request = get_current_request()
+    ds_folder = component.getUtility(IDataserverFolder)
+    link = Link(ds_folder,
+                elements=(LTI,
+                          '@@' + VIEW_LTI_OUTCOMES,))
+    interface.alsoProvides(link, ILinkExternalHrefOnly)
+    url = render_link(link)
+    return request.relative_url(url)
+
+
+def build_lti_result_sourcedid(user, course, asset):
+    """
+    Build a result sourcedid of the intids of the `<user>:<course>:<asset>`.
+    """
 
 
 class LTIParams(object):
@@ -84,6 +115,21 @@ class LTIResourceParams(LTIParams):
         params['resource_link_id'] = asset_oid
         params['resource_link_title'] = asset.title
         params['resource_link_description'] = asset.description
+
+
+@interface.implementer(ILTILaunchParamBuilder)
+class LTIOutcomesParams(LTIParams):
+
+    def build_params(self, params, **unused_kwargs):
+        asset = self.context
+        if getattr(asset, 'has_outcomes', False):
+            outcomes_url = url_for_outcomes_postback(self.request)
+            params['lis_outcome_service_url'] = outcomes_url
+            user = self._get_remote_user()
+            course = find_interface(self.context, ICourseInstance)
+            outcomes_utility = component.getUtility(ILTIOutcomesResultSourcedIDUtility)
+            result_sourcedid = outcomes_utility.build_sourcedid(user, course, asset)
+            params['lis_result_sourcedid'] = result_sourcedid
 
 
 @interface.implementer(ILTILaunchParamBuilder)

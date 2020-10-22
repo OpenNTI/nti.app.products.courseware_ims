@@ -87,6 +87,10 @@
 			 factory=".traversal._course_to_configured_tool_container_path_adapter"
 			 provides="zope.traversing.interfaces.IPathAdapter" />
 
+    <!-- Outcomes -->
+    <utility factory=".outcomes.LTIOutcomesResultSourcedIDUtility"
+             provides=".interfaces.ILTIOutcomesResultSourcedIDUtility" />
+
 	<!-- ACL -->
 	<adapter factory=".acl._CourseConfiguredToolContainerACLProvider"
 			 provides="nti.dataserver.interfaces.IACLProvider"
@@ -98,6 +102,10 @@
 	<subscriber factory=".subscribers.LTIResourceParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="nti.app.products.ims.interfaces.ILTIRequest *" />
+
+	<subscriber factory=".subscribers.LTIOutcomesParams"
+                provides=".interfaces.ILTILaunchParamBuilder"
+                for="nti.app.products.ims.interfaces.ILTIRequest *" />
 
 	<subscriber factory=".subscribers.LTIUserParams"
 				provides=".interfaces.ILTILaunchParamBuilder"

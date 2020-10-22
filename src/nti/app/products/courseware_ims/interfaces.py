@@ -16,6 +16,8 @@ from zope.lifecycleevent import ObjectCreatedEvent
 
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
+from zope.schema import ValidationError
+
 from nti.app.products.courseware.interfaces import IEnrollmentOption
 
 from nti.contenttypes.completion.interfaces import ICompletableItem
@@ -40,6 +42,7 @@ from nti.ims.sis.interfaces import IPerson
 
 from nti.property.property import alias
 
+from nti.schema.field import Bool
 from nti.schema.field import Text
 from nti.schema.field import Object
 from nti.schema.field import HTTPURL
@@ -131,6 +134,10 @@ class IExternalToolAsset(ICoursePresentationAsset,
     launch_url = HTTPURL(title=u"Launch url of an external tool",
                          required=False)
 
+    has_outcomes = Bool(title=u"External tool returns outcomes",
+                        default=False,
+                        required=False)
+
 
 class ILTILaunchParamBuilder(interface.Interface):
     """
@@ -143,6 +150,32 @@ class ILTILaunchParamBuilder(interface.Interface):
         """
         Mutates an instance of LaunchParams with context specific values
         """
+
+
+class ILTIOutcomesResultSourcedIDUtility(interface.Interface):
+    """
+    Utility that can build a sourcedid paramter and decode a sourcedid parameter.
+    """
+
+    def build_sourcedid(user, course, asset):
+        pass
+
+    def decode_sourcedid(sourcedid):
+        """
+        Returns a tuple of (user, course, asset), some of which may be None.
+        """
+
+
+class IInvalidLTISourcedIdException(interface.Interface):
+    """
+    marker interface for enrollment exception"
+    """
+
+
+@interface.implementer(IInvalidLTISourcedIdException)
+class InvalidLTISourcedIdException(ValidationError):
+    __doc__ = _(u'Invalid outcomes result sourcedid.')
+    i18n_message = __doc__
 
 
 class ILTILaunchEvent(interface.Interface):
