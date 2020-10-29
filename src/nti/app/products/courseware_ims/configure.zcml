@@ -99,6 +99,10 @@
              provides="nti.ims.lti.interfaces.IOutcomeService"
              for="nti.ims.lti.interfaces.IResultSourcedId"/>
 
+    <adapter factory=".outcomes.CourseOutcomeResultContainerFactory"
+             provides="nti.app.products.ims.interfaces.IOutcomeResultContainer"
+             for="nti.contenttypes.courses.interfaces.ICourseInstance" />
+
 	<!-- ACL -->
 	<adapter factory=".acl._CourseConfiguredToolContainerACLProvider"
 			 provides="nti.dataserver.interfaces.IACLProvider"

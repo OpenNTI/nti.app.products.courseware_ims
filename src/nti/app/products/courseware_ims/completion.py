@@ -13,6 +13,8 @@ from zope import interface
 
 from nti.app.products.courseware_ims.interfaces import IExternalToolAsset
 
+from nti.app.products.courseware_ims.outcomes import get_user_outcome_result
+
 from nti.contenttypes.completion.completion import CompletedItem
 
 from nti.contenttypes.completion.interfaces import IProgress
@@ -61,8 +63,11 @@ def lti_external_tool_asset_progress(user, asset, course):
                         User=user,
                         CompletionContext=course)
     if getattr(asset, 'has_outcomes', False):
-        #: TODO outcomes
-        pass
+        outcome_result = get_user_outcome_result(user, course, asset)
+        if outcome_result is not None:
+            progress.AbsoluteProgress = outcome_result.score
+            progress.HasProgress = True
+            progress.LastModified = outcome_result.ResultDate
     else:
         lti_launch_stats = _get_launch_stats(user, course, asset)
         if      lti_launch_stats is not None \
