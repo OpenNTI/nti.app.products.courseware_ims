@@ -16,11 +16,7 @@ from zope.lifecycleevent import ObjectCreatedEvent
 
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
-from zope.schema import ValidationError
-
 from nti.app.products.courseware.interfaces import IEnrollmentOption
-
-from nti.app.products.courseware_ims import MessageFactory as _
 
 from nti.contenttypes.completion.interfaces import ICompletableItem
 
@@ -166,18 +162,6 @@ class ILTIOutcomesResultSourcedIDUtility(interface.Interface):
         """
         Returns a tuple of (user, course, asset), some of which may be None.
         """
-
-
-class IInvalidLTISourcedIdException(interface.Interface):
-    """
-    marker interface for enrollment exception"
-    """
-
-
-@interface.implementer(IInvalidLTISourcedIdException)
-class InvalidLTISourcedIdException(ValidationError):
-    __doc__ = _(u'Invalid outcomes result sourcedid.')
-    i18n_message = __doc__
 
 
 class ILTILaunchEvent(interface.Interface):

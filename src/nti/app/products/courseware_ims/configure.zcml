@@ -91,6 +91,14 @@
     <utility factory=".outcomes.LTIOutcomesResultSourcedIDUtility"
              provides=".interfaces.ILTIOutcomesResultSourcedIDUtility" />
 
+    <adapter factory=".outcomes._get_tool_from_sourcedid"
+             provides="nti.ims.lti.interfaces.IConfiguredTool"
+             for="nti.ims.lti.interfaces.IResultSourcedId"/>
+
+    <adapter factory=".outcomes._course_outcome_service_from_sourcedid"
+             provides="nti.ims.lti.interfaces.IOutcomeService"
+             for="nti.ims.lti.interfaces.IResultSourcedId"/>
+
 	<!-- ACL -->
 	<adapter factory=".acl._CourseConfiguredToolContainerACLProvider"
 			 provides="nti.dataserver.interfaces.IACLProvider"
