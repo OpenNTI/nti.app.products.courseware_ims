@@ -19,6 +19,7 @@ from nti.contenttypes.completion.completion import CompletedItem
 
 from nti.contenttypes.completion.interfaces import IProgress
 from nti.contenttypes.completion.interfaces import IUserProgressUpdatedEvent
+from nti.contenttypes.completion.interfaces import ICompletionContextCompletionPolicyContainer
 from nti.contenttypes.completion.interfaces import ICompletableItemCompletionPolicy
 
 from nti.contenttypes.completion.policies import AbstractCompletableItemCompletionPolicy
@@ -80,13 +81,12 @@ def lti_external_tool_asset_progress(user, asset, course):
 
 
 @NoPickle
-@component.adapter(IExternalToolAsset, ICourseInstance)
+@component.adapter(IExternalToolAsset)
 @interface.implementer(ICompletableItemCompletionPolicy)
 class ExternalToolAssetCompletionPolicy(AbstractCompletableItemCompletionPolicy):
 
-    def __init__(self, asset, course):
+    def __init__(self, asset):
         self.asset = asset
-        self.course = course
 
     def is_complete(self, progress):
         result = None
@@ -102,6 +102,22 @@ class ExternalToolAssetCompletionPolicy(AbstractCompletableItemCompletionPolicy)
                                    Principal=progress.User,
                                    CompletedDate=progress.LastModified)
         return result
+
+
+@component.adapter(IExternalToolAsset, ICourseInstance)
+@interface.implementer(ICompletableItemCompletionPolicy)
+def _tool_asset_completion_policy(asset, course):
+    """
+    Fetch the :class:`ICompletableItemCompletionPolicy` for this asset, course.
+    """
+    # First see if we have a specific policy set on our context.
+    context_policies = ICompletionContextCompletionPolicyContainer(course)
+    try:
+        result = context_policies[asset.ntiid]
+    except KeyError:
+        # Ok, fetch the default
+        result = ICompletableItemCompletionPolicy(asset)
+    return result
 
 
 @component.adapter(IExternalToolAsset, IUserProgressUpdatedEvent)

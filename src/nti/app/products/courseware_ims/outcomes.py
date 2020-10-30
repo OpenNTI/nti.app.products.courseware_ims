@@ -44,7 +44,7 @@ from nti.contenttypes.courses.interfaces import ICourseInstance
 logger = __import__('logging').getLogger(__name__)
 
 
-OUTCOME_RESULT_CONTAINER_ANNOTATION_KEY = 'nti.contenttypes.completion.interfaces.ICompletedItemContainer'
+OUTCOME_RESULT_CONTAINER_ANNOTATION_KEY = 'nti.app.products.ims.interfaces.CourseOutcomeResultContainer'
 
 
 def get_user_outcome_result(user, course, asset):
@@ -68,7 +68,7 @@ class LTIOutcomesResultSourcedIDUtility(object):
         user_id = intids.getId(user)
         course_id = intids.getId(course)
         asset_id = intids.getId(asset)
-        return '%s:%s:%s' % (user_id, course_id, asset_id)
+        return u'%s:%s:%s' % (user_id, course_id, asset_id)
 
     def decode_sourcedid(self, sourcedid):
         """
@@ -117,7 +117,7 @@ class CourseOutcomeService(object):
         self.asset = asset
 
     def _notify(self, factory):
-        event = factory(user=self.user, item=self.asset, context=self.course)
+        event = factory(self.asset, self.user, self.course)
         notify(event)
 
     def set_score(self, score):

@@ -184,8 +184,12 @@
              provides="nti.contenttypes.completion.interfaces.IProgress" />
 
 	<adapter factory=".completion.ExternalToolAssetCompletionPolicy"
-			 for=".interfaces.IExternalToolAsset nti.contenttypes.courses.interfaces.ICourseInstance"
+			 for=".interfaces.IExternalToolAsset"
 			 provides="nti.contenttypes.completion.interfaces.ICompletableItemCompletionPolicy" />
+
+    <adapter factory=".completion._tool_asset_completion_policy"
+             for=".interfaces.IExternalToolAsset nti.contenttypes.courses.interfaces.ICourseInstance"
+             provides="nti.contenttypes.completion.interfaces.ICompletableItemCompletionPolicy" />
 
 	<subscriber handler=".completion._on_user_progress_updated" />
 
