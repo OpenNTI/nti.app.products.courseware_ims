@@ -11,6 +11,8 @@ from hamcrest import none
 from hamcrest import not_none
 from hamcrest import has_entries
 
+import fudge
+
 from datetime import datetime
 
 from zope import component
@@ -25,6 +27,7 @@ from nti.app.products.courseware_ims.lti import LTIExternalToolAsset
 
 from nti.app.testing.application_webtest import ApplicationLayerTest
 
+from nti.contenttypes.completion.interfaces import IProgress
 from nti.contenttypes.completion.interfaces import UserProgressUpdatedEvent
 from nti.contenttypes.completion.interfaces import ICompletableItemCompletionPolicy
 
@@ -40,8 +43,6 @@ from nti.dataserver.users import User
 
 from nti.externalization.externalization import to_external_object
 
-__docformat__ = "restructuredtext en"
-
 logger = __import__('logging').getLogger(__name__)
 
 
@@ -50,7 +51,6 @@ class TestCompletion(ApplicationLayerTest):
 
     @WithMockDSTrans
     def test_asset_completion(self):
-
         asset = LTIExternalToolAsset()
         asset.ntiid = u'tag:nextthought.com,2011:test'
         user = User.create_user(username='test_user', dataserver=self.ds)
@@ -61,7 +61,6 @@ class TestCompletion(ApplicationLayerTest):
         progress_event = UserProgressUpdatedEvent(obj=asset,
                                                   user=user,
                                                   context=course)
-
         notify(progress_event)
         completed_item = get_completed_item(user, course, asset)
         assert_that(completed_item, none())
@@ -80,7 +79,41 @@ class TestCompletion(ApplicationLayerTest):
     def test_externalization(self):
         asset = LTIExternalToolAsset()
         course = CourseInstance()
-        policy = component.queryMultiAdapter((asset, course), ICompletableItemCompletionPolicy)
+        policy = component.queryMultiAdapter((asset, course),
+                                             ICompletableItemCompletionPolicy)
         assert_that(policy, not_none())
-        assert_that(to_external_object(policy), has_entries({'Class': 'ExternalToolAssetCompletionPolicy',
+        assert_that(to_external_object(policy),
+                    has_entries({'Class': 'ExternalToolAssetCompletionPolicy',
                                                              'offers_completion_certificate': False}))
+
+    @WithMockDSTrans
+    @fudge.patch('nti.ntiids.ntiids.find_object_with_ntiid',
+                 'nti.app.products.courseware_ims.completion._get_launch_stats')
+    def test_lti_progress(self, mock_find_object, mock_get_stats):
+        class MockLaunchStats(object):
+            def __init__(self):
+                self.LaunchCount = 0
+                self.LastLaunchDate = None
+        launch_stats = MockLaunchStats()
+        mock_get_stats.is_callable().returns(launch_stats)
+        user = User.create_user(username='test_lti_progress_user')
+        course = CourseInstance()
+        asset = LTIExternalToolAsset()
+        asset.ntiid = u'tag:nextthought.com,2011:test'
+        mock_find_object.is_callable().returns(asset)
+
+        def _get_progress():
+            return component.queryMultiAdapter((user, asset, course),
+                                               IProgress)
+
+        # Base case, no progress
+        progress = _get_progress()
+        assert_that(progress.AbsoluteProgress, is_(0))
+
+        launch_stats.LaunchCount = 1
+        progress = _get_progress()
+        assert_that(progress.AbsoluteProgress, is_(1))
+
+        asset.has_outcomes = True
+        progress = _get_progress()
+        assert_that(progress.AbsoluteProgress, is_(0))

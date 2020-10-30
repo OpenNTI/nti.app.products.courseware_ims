@@ -9,6 +9,7 @@ from __future__ import absolute_import
 # pylint: disable=W0212,R0904,E1121
 
 from hamcrest import is_
+from hamcrest import none
 from hamcrest import contains
 from hamcrest import not_none
 from hamcrest import has_entry
@@ -55,6 +56,7 @@ from nti.externalization.oids import toExternalOID
 from nti.ims.lti.consumer import ConfiguredTool
 
 from nti.ntiids.ntiids import find_object_with_ntiid
+from nti.app.products.courseware_ims.interfaces import ILTIOutcomesResultSourcedIDUtility
 
 
 TOOL_DATA = {
@@ -121,6 +123,7 @@ class TestLTIAsset(ApplicationLayerTest):
             asset = find_object_with_ntiid(self.asset_ntiid)
             params = LaunchParams()
             request = DummyRequest(current_route_url=self.current_route_url)
+            request.relative_url = lambda x: 'http:/host/%s' % x
 
             # Resource params
             subscriber = subscribers.LTIResourceParams(request, asset)
@@ -167,6 +170,27 @@ class TestLTIAsset(ApplicationLayerTest):
             assert_that(params['launch_presentation_locale'], is_(request.locale_name))
             assert_that(params['launch_presentation_document_target'], is_(u"iframe"))
             assert_that(params['launch_presentation_return_url'], is_(request.current_route_url()))
+
+            # Outcomes params
+            asset.has_outcomes = False
+            subscriber = subscribers.LTIOutcomesParams(request, asset)
+            subscriber.build_params(params)
+            assert_that(params.get('lis_outcome_service_url'), none())
+            assert_that(params.get('lis_result_sourcedid'), none())
+
+            asset.has_outcomes = True
+            subscriber = subscribers.LTIOutcomesParams(request, asset)
+            subscriber._user = user
+            subscriber.build_params(params)
+            assert_that(params['lis_outcome_service_url'], is_(u'http:/host//dataserver2/LTI/@@Outcomes'))
+            assert_that(params.get('lis_result_sourcedid'), not_none())
+            sourcedid = params.get('lis_result_sourcedid')
+            sourcedid_utility = component.getUtility(ILTIOutcomesResultSourcedIDUtility)
+            x_user, x_course, x_asset = sourcedid_utility.decode_sourcedid(sourcedid)
+            assert_that(x_user, is_(user))
+            assert_that(x_course, is_(course))
+            assert_that(x_asset, is_(asset))
+
 
     def _create_asset(self):
         # Create a Configured Tool in the CourseConfiguredToolContainer

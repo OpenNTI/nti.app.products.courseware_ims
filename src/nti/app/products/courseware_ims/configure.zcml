@@ -87,6 +87,22 @@
 			 factory=".traversal._course_to_configured_tool_container_path_adapter"
 			 provides="zope.traversing.interfaces.IPathAdapter" />
 
+    <!-- Outcomes -->
+    <utility factory=".outcomes.LTIOutcomesResultSourcedIDUtility"
+             provides=".interfaces.ILTIOutcomesResultSourcedIDUtility" />
+
+    <adapter factory=".outcomes._get_tool_from_sourcedid"
+             provides="nti.ims.lti.interfaces.IConfiguredTool"
+             for="nti.ims.lti.interfaces.IResultSourcedId"/>
+
+    <adapter factory=".outcomes._course_outcome_service_from_sourcedid"
+             provides="nti.ims.lti.interfaces.IOutcomeService"
+             for="nti.ims.lti.interfaces.IResultSourcedId"/>
+
+    <adapter factory=".outcomes.CourseOutcomeResultContainerFactory"
+             provides="nti.app.products.ims.interfaces.IOutcomeResultContainer"
+             for="nti.contenttypes.courses.interfaces.ICourseInstance" />
+
 	<!-- ACL -->
 	<adapter factory=".acl._CourseConfiguredToolContainerACLProvider"
 			 provides="nti.dataserver.interfaces.IACLProvider"
@@ -98,6 +114,10 @@
 	<subscriber factory=".subscribers.LTIResourceParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
 				for="nti.app.products.ims.interfaces.ILTIRequest *" />
+
+	<subscriber factory=".subscribers.LTIOutcomesParams"
+                provides=".interfaces.ILTILaunchParamBuilder"
+                for="nti.app.products.ims.interfaces.ILTIRequest *" />
 
 	<subscriber factory=".subscribers.LTIUserParams"
 				provides=".interfaces.ILTILaunchParamBuilder"
@@ -157,9 +177,19 @@
 			 name="045:Configured Tools" />
 
 	<!-- Completion -->
+	<adapter factory=".completion.lti_external_tool_asset_progress"
+             for="nti.dataserver.interfaces.IUser
+                  nti.app.products.courseware_ims.interfaces.IExternalToolAsset
+                  nti.contenttypes.courses.interfaces.ICourseInstance"
+             provides="nti.contenttypes.completion.interfaces.IProgress" />
+
 	<adapter factory=".completion.ExternalToolAssetCompletionPolicy"
-			 for=".interfaces.IExternalToolAsset nti.contenttypes.courses.interfaces.ICourseInstance"
+			 for=".interfaces.IExternalToolAsset"
 			 provides="nti.contenttypes.completion.interfaces.ICompletableItemCompletionPolicy" />
+
+    <adapter factory=".completion._tool_asset_completion_policy"
+             for=".interfaces.IExternalToolAsset nti.contenttypes.courses.interfaces.ICourseInstance"
+             provides="nti.contenttypes.completion.interfaces.ICompletableItemCompletionPolicy" />
 
 	<subscriber handler=".completion._on_user_progress_updated" />
 

@@ -40,6 +40,7 @@ from nti.ims.sis.interfaces import IPerson
 
 from nti.property.property import alias
 
+from nti.schema.field import Bool
 from nti.schema.field import Text
 from nti.schema.field import Object
 from nti.schema.field import HTTPURL
@@ -131,6 +132,10 @@ class IExternalToolAsset(ICoursePresentationAsset,
     launch_url = HTTPURL(title=u"Launch url of an external tool",
                          required=False)
 
+    has_outcomes = Bool(title=u"External tool returns outcomes",
+                        default=False,
+                        required=False)
+
 
 class ILTILaunchParamBuilder(interface.Interface):
     """
@@ -142,6 +147,20 @@ class ILTILaunchParamBuilder(interface.Interface):
     def build_params(params):
         """
         Mutates an instance of LaunchParams with context specific values
+        """
+
+
+class ILTIOutcomesResultSourcedIDUtility(interface.Interface):
+    """
+    Utility that can build a sourcedid paramter and decode a sourcedid parameter.
+    """
+
+    def build_sourcedid(user, course, asset):
+        pass
+
+    def decode_sourcedid(sourcedid):
+        """
+        Returns a tuple of (user, course, asset), some of which may be None.
         """
 
 
