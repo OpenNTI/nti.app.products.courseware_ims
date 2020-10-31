@@ -41,6 +41,8 @@ from nti.contenttypes.completion.interfaces import UserProgressUpdatedEvent
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
 
+from nti.externalization.proxy import removeAllProxies
+
 logger = __import__('logging').getLogger(__name__)
 
 
@@ -64,6 +66,9 @@ def get_user_outcome_result(user, course, asset):
 class LTIOutcomesResultSourcedIDUtility(object):
 
     def build_sourcedid(self, user, course, asset):
+        course = removeAllProxies(course)
+        user = removeAllProxies(user)
+        asset = removeAllProxies(asset)
         intids = component.getUtility(IIntIds)
         user_id = intids.getId(user)
         course_id = intids.getId(course)
