@@ -84,9 +84,16 @@ class LTIOutcomesResultSourcedIDUtility(object):
         __traceback_info__ = parts
         if len(parts) != 3:
             raise InvalidLTISourcedIdException()
-        user = intids.queryObject(int(parts[0]))
-        course = intids.queryObject(int(parts[1]))
-        asset = intids.queryObject(int(parts[2]))
+        try:
+            user_intid = int(parts[0])
+            course_intid = int(parts[1])
+            asset_intid = int(parts[2])
+        except (TypeError, ValueError):
+            raise InvalidLTISourcedIdException()
+
+        user = intids.queryObject(user_intid)
+        course = intids.queryObject(course_intid)
+        asset = intids.queryObject(asset_intid)
         return (user, course, asset)
 
 
