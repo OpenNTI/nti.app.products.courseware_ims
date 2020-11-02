@@ -395,7 +395,7 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
         # Our launch_url may have been passed in (and be different from on the config)
         # in which case we won't get the custom parameters from the config. Make sure
         # we snag those explicitly
-        tool_consumer.launch_params.update(tool.config.custom_params)
+        tool_consumer.launch_params.update({'custom_'+k: v for k,v in tool.config.custom_params.items()})
 
         # Auto launch is always set to true, but is there for future
         # development if needed
