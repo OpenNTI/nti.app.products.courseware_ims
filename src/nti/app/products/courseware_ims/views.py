@@ -379,7 +379,10 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
     def _do_request(self, tool=None, launch_url=None, **kwargs):
         interface.alsoProvides(self.request, ILTIRequest)
         launch_params = LaunchParams(lti_version='LTI-1p0')
-        # Add instance specific launch params
+        
+        # Add instance specific launch params.
+        # TODO should this happen last so that subscribers can update any launch params that
+        # come out of the config?
         for subscriber in subscribers((self.request, self.context), ILTILaunchParamBuilder):
             subscriber.build_params(launch_params, **kwargs)
 
@@ -388,7 +391,11 @@ class ExternalToolAssetView(AbstractAuthenticatedView):
                                      params=launch_params,
                                      launch_url=launch_url)
 
-        tool_consumer.set_config(tool.config)
+        # tool_consumer.set_config only does something if our launch_url hasn't been set.
+        # Our launch_url may have been passed in (and be different from on the config)
+        # in which case we won't get the custom parameters from the config. Make sure
+        # we snag those explicitly
+        tool_consumer.launch_params.update(tool.config.custom_params)
 
         # Auto launch is always set to true, but is there for future
         # development if needed
