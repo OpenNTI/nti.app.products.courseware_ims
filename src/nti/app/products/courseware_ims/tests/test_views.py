@@ -174,12 +174,6 @@ class TestLTIAsset(ApplicationLayerTest):
             # Outcomes params
             asset.has_outcomes = False
             subscriber = subscribers.LTIOutcomesParams(request, asset)
-            subscriber.build_params(params)
-            assert_that(params.get('lis_outcome_service_url'), none())
-            assert_that(params.get('lis_result_sourcedid'), none())
-
-            asset.has_outcomes = True
-            subscriber = subscribers.LTIOutcomesParams(request, asset)
             subscriber._user = user
             subscriber.build_params(params)
             assert_that(params['lis_outcome_service_url'], is_(u'http:/host//dataserver2/LTI/@@Outcomes'))

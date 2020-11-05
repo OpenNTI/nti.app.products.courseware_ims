@@ -122,14 +122,13 @@ class LTIOutcomesParams(LTIParams, LTIUserMixin):
 
     def build_params(self, params, **unused_kwargs):
         asset = self.context
-        if getattr(asset, 'has_outcomes', False):
-            outcomes_url = url_for_outcomes_postback(self.request)
-            params['lis_outcome_service_url'] = outcomes_url
-            user = self._get_remote_user()
-            course = find_interface(self.context, ICourseInstance)
-            outcomes_utility = component.getUtility(ILTIOutcomesResultSourcedIDUtility)
-            result_sourcedid = outcomes_utility.build_sourcedid(user, course, asset)
-            params['lis_result_sourcedid'] = result_sourcedid
+        outcomes_url = url_for_outcomes_postback(self.request)
+        params['lis_outcome_service_url'] = outcomes_url
+        user = self._get_remote_user()
+        course = find_interface(self.context, ICourseInstance)
+        outcomes_utility = component.getUtility(ILTIOutcomesResultSourcedIDUtility)
+        result_sourcedid = outcomes_utility.build_sourcedid(user, course, asset)
+        params['lis_result_sourcedid'] = result_sourcedid
 
 
 @interface.implementer(ILTILaunchParamBuilder)
