@@ -12,6 +12,8 @@ from pyramid.threadlocal import get_current_request
 
 from six.moves.urllib.parse import urljoin
 
+from zc.displayname.interfaces import IDisplayNameGenerator
+
 from zope import component
 from zope import interface
 
@@ -35,8 +37,6 @@ from nti.app.products.courseware_ims.license_utils import can_add_lti_asset
 from nti.app.products.ims import LTI
 from nti.app.products.ims import VIEW_LTI_OUTCOMES
 
-from nti.appserver.policies.site_policies import guess_site_display_name
-
 from nti.common.nameparser import human_name
 
 from nti.contenttypes.courses.interfaces import ICourseInstance
@@ -53,7 +53,6 @@ from nti.dataserver.authorization import is_admin_or_site_admin
 from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import ILinkExternalHrefOnly
 
-from nti.dataserver.users.interfaces import IDisplayNameAdapter
 from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
@@ -177,8 +176,8 @@ class LTIInstanceParams(LTIParams):
 
     @Lazy
     def _brand_name(self):
-        return component.getMultiAdapter((self.request, getSite()),
-                                         IDisplayNameAdapter).displayName
+        return component.getMultiAdapter((getSite(), self.request),
+                                         IDisplayNameGenerator)()
 
     def build_params(self, params, **unused_kwargs):
         params['tool_consumer_instance_guid'] = self.request.domain
