@@ -149,7 +149,7 @@ class TestLTIAsset(ApplicationLayerTest):
             subscriber = subscribers.LTIInstanceParams(request, asset)
             subscriber.build_params(params)
             assert_that(params['tool_consumer_instance_guid'], is_(request.domain))
-            assert_that(params['tool_consumer_instance_name'], is_(guess_site_display_name(request)))
+            assert_that(params['tool_consumer_instance_name'], is_(u'Janux'))
             assert_that(params['tool_consumer_instance_url'], is_(request.host_url))
             assert_that(params['tool_consumer_info_product_family_code'], is_(u'NextThought'))
             assert_that(params['tool_consumer_instance_contact_email'], is_(u"support@nextthought.com"))

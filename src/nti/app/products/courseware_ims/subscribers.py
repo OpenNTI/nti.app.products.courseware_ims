@@ -15,6 +15,10 @@ from six.moves.urllib.parse import urljoin
 from zope import component
 from zope import interface
 
+from zope.cachedescriptors.property import Lazy
+
+from zope.component.hooks import getSite
+
 from zope.lifecycleevent.interfaces import IObjectAddedEvent
 
 from nti.app.authentication import get_remote_user
@@ -49,6 +53,7 @@ from nti.dataserver.authorization import is_admin_or_site_admin
 from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import ILinkExternalHrefOnly
 
+from nti.dataserver.users.interfaces import IDisplayNameAdapter
 from nti.dataserver.users.interfaces import IFriendlyNamed
 
 from nti.externalization.oids import toExternalOID
@@ -170,9 +175,14 @@ class LTIRoleParams(LTIParams, LTIUserMixin):
 @interface.implementer(ILTILaunchParamBuilder)
 class LTIInstanceParams(LTIParams):
 
+    @Lazy
+    def _brand_name(self):
+        return component.getMultiAdapter((self.request, getSite()),
+                                         IDisplayNameAdapter).displayName
+
     def build_params(self, params, **unused_kwargs):
         params['tool_consumer_instance_guid'] = self.request.domain
-        params['tool_consumer_instance_name'] = guess_site_display_name(self.request)
+        params['tool_consumer_instance_name'] = self._brand_name
         params['tool_consumer_instance_url'] = self.request.host_url
         params['tool_consumer_info_product_family_code'] = NTI
         params['tool_consumer_instance_contact_email'] = NTI_EMAIL
